@@ -502,7 +502,7 @@ let FR=[];const frSel=()=>{const r=document.querySelector('input[name=fr]:checke
 function frClear(){FR=[];$('#frOpts').innerHTML=''}
 $('#calc').onclick=async()=>{const cep=digits($('#cep').value);if(cep.length!==8){$('#frOpts').innerHTML='<p class="fm">Digite um CEP com 8 números.</p>';return}
   const b=$('#calc');b.disabled=true;b.textContent='Calculando...';$('#frOpts').innerHTML='';
-  try{const r=await fetch('/.netlify/functions/frete?cep='+cep);const d=await r.json();FR=d.opcoes||[];
+  try{let r=await fetch('/frete?cep='+cep).catch(()=>null);if(!r||!r.ok||!(r.headers.get('content-type')||'').includes('json'))r=await fetch('/.netlify/functions/frete?cep='+cep);const d=await r.json();FR=d.opcoes||[];
     $('#frOpts').innerHTML=FR.length?FR.map((o,k)=>`<label class="fo"><input type="radio" name="fr" value="${k}" ${k===0?'checked':''}><span>${o.nome}<small>${o.prazo} dias úteis</small></span><b>${brl(o.preco)}</b></label>`).join(''):'<p class="fm">Não consegui calcular agora. Pode finalizar que eu calculo o frete no WhatsApp.</p>';
     if(!FR.length)FR=[{nome:'a calcular',preco:0,prazo:'?'}];
   }catch(e){FR=[{nome:'a calcular',preco:0,prazo:'?'}];$('#frOpts').innerHTML='<p class="fm">Não consegui calcular agora. Pode finalizar que eu calculo o frete no WhatsApp.</p>'}
