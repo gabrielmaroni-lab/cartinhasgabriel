@@ -220,6 +220,39 @@ footer{color:var(--muted);font-size:12px;font-weight:700;padding-block:20px 140p
 .fav{flex:1 1 420px;min-width:0}
 @media (max-width:560px){.slider{height:360px}.fav{flex-basis:100%}.sct{display:none}.slide .fan img{width:27vw}.slide .fan{bottom:-4%}.arr{width:34px;height:34px;font-size:20px}.brand .facts .fact:nth-child(2){display:none}}
 @media (prefers-reduced-motion:reduce){.slide{transition:none}}
+
+/* bento: destaque do dia + favorito + coleções */
+.hero .bento{display:grid!important;grid-template-columns:minmax(0,5fr) minmax(0,7fr);grid-template-areas:"pdd fav" "pdd cols";gap:14px;padding-block:22px 28px!important;align-items:stretch}
+.hero .bento .pdd{grid-area:pdd;align-self:stretch;flex:none;display:flex;flex-direction:column;justify-content:space-between;align-items:stretch;gap:0;padding:0;overflow:hidden;position:relative;border-radius:20px;background:radial-gradient(circle at 30% 20%,#ffe066,#ffb300 55%,#f08c00);box-shadow:0 14px 40px rgba(0,0,0,.4)}
+.pdd .pdx{flex:1;display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center;padding:20px}
+.pdd .pdx img{width:clamp(120px,13vw,170px);aspect-ratio:200/280;height:auto;border-radius:10px;box-shadow:0 12px 26px rgba(0,0,0,.4);transform:rotate(-4deg);transition:transform .3s}
+.pdd:hover .pdx img{transform:rotate(0) scale(1.03)}
+.pdd h3{font-size:clamp(22px,2.4vw,30px)!important;margin:8px 0 4px!important}
+.pdd .pp2{font-size:clamp(22px,2.4vw,30px)!important}
+.pdd .bt{margin-top:4px}
+.pdd .bt button{padding:9px 14px!important;font-size:14px!important}
+.pdd .foot{background:rgba(27,16,39,.88);color:#ffd84d;font:800 12px var(--body);padding:9px 20px;display:flex;justify-content:space-between;gap:8px}
+.hero .bento .fav{grid-area:fav;max-width:none;flex:none;border-radius:20px;padding:18px 20px;gap:10px;background:rgba(0,0,0,.32)}
+.fav label{font-size:18px!important}
+.favq{flex-wrap:nowrap!important;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.favq::-webkit-scrollbar{display:none}
+.favq button{flex:none;padding:5px 12px!important;font-size:13px!important}
+.hero .bento .cols{grid-area:cols;display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:0!important}
+.hero .bento .col{position:relative;overflow:hidden;display:block;min-height:96px;padding:14px 16px;border-radius:18px;border:0;background:linear-gradient(135deg,var(--cc,#7b3fb5),rgba(0,0,0,.55));box-shadow:inset 0 0 0 2px rgba(255,255,255,.12)}
+.hero .bento .col:hover,.hero .bento .col[aria-pressed="true"]{box-shadow:inset 0 0 0 2px #ffcb05;transform:translateY(-2px)}
+.col .ct{position:relative;z-index:2;display:flex;flex-direction:column;gap:2px;max-width:58%}
+.col .ct b{font-size:17px!important}
+.col .ct small{font-size:12px!important}
+.col .ct em{font-style:normal;font-weight:900;font-size:12px;margin-top:6px;color:#ffcb05}
+.col .fn{position:absolute;right:10px;bottom:-14px;width:120px;height:100%}
+.col .fn img{position:absolute;bottom:0;width:52px!important;aspect-ratio:200/280;height:auto;border-radius:5px;box-shadow:0 6px 14px rgba(0,0,0,.5);transition:transform .3s}
+.col .fn img:nth-child(1){right:58px;transform:rotate(-14deg)}
+.col .fn img:nth-child(2){right:30px;transform:rotate(-2deg) translateY(-8px);z-index:2}
+.col .fn img:nth-child(3){right:2px;transform:rotate(12deg)}
+.col:hover .fn img:nth-child(1){transform:rotate(-20deg) translateX(-6px)}
+.col:hover .fn img:nth-child(3){transform:rotate(18deg) translateX(6px)}
+@media (max-width:820px){.hero .bento{grid-template-columns:1fr;grid-template-areas:"fav" "pdd" "cols"}}
+@media (max-width:560px){.pdd .pdx{padding:14px;gap:12px}.pdd .pdx img{width:96px}.col .ct{max-width:100%}.col .fn{display:none}.hero .bento .col{min-height:72px;padding:12px}.col .ct b{font-size:14px!important}}
 @media (prefers-reduced-motion:reduce){.bar{transition:none}.art::after{display:none}}
 </style>
 
@@ -239,16 +272,16 @@ footer{color:var(--muted);font-size:12px;font-weight:700;padding-block:20px 140p
     <div class="sct" id="sCt"></div>
     <div class="dots" id="dots"></div>
   </section>
-  <div class="wrap hero-top">
+  <div class="wrap bento">
+    <aside class="pdd" id="pdd" aria-label="Pokémon do dia"></aside>
     <form class="fav" id="fav" autocomplete="off">
       <label for="favIn">Qual é o seu Pokémon favorito?</label>
-      <div class="favrow"><input id="favIn" list="favList" placeholder="Ex.: Pikachu, Charizard, Mew..."><button type="submit">Ver cartas</button></div>
+      <div class="favrow"><input id="favIn" list="favList" placeholder="Digite um nome: Pikachu, Charizard, Mew..."><button type="submit">Buscar</button></div>
       <datalist id="favList"></datalist>
       <div class="favq" id="favQ"></div>
     </form>
-    <aside class="pdd" id="pdd" aria-label="Pokémon do dia"></aside>
+    <div class="cols" id="cols"></div>
   </div>
-  <div class="wrap cols" id="cols"></div>
 </header>
 
 <div class="controls">
@@ -339,13 +372,14 @@ function hero(){
   const today=Math.floor((Date.now()-new Date().getTimezoneOffset()*6e4)/864e5);
   const pool=ITEMS.filter(i=>i.g!=='Energias'&&i.p>=15).sort((a,b)=>a.id-b.id);
   const d=pool[today%pool.length];
-  if(d)$('#pdd').innerHTML=`<img src="${d.img}" alt="${d.n}"><div><span class="tag">Pokémon do dia</span><h3>${d.n}</h3><div class="pm">${d.num} · ${d.l}${d.v?' · '+d.v:''} · ${d.c}</div><div class="pp2">${d.o?`<s>${brl(d.o)}</s>`:''}${brl(d.p)}</div><div class="bt"><button class="b1" type="button" data-add="${d.id}">Adicionar</button><button class="b2" type="button" id="pddSee">Ver parecidas</button></div></div>`;
+  if(d)$('#pdd').innerHTML=`<div class="pdx"><img src="${d.img}" alt="${d.n}"><div><span class="tag">Pokémon do dia</span><h3>${d.n}</h3><div class="pm">${d.num} · ${d.l}${d.v?' · '+d.v:''} · ${d.c}</div><div class="pp2">${d.o?`<s>${brl(d.o)}</s>`:''}${brl(d.p)}</div><div class="bt"><button class="b1" type="button" data-add="${d.id}">Adicionar ao carrinho</button><button class="b2" type="button" id="pddSee">Ver parecidas</button></div></div></div><div class="foot"><span>Um destaque novo todo dia</span><span>${d.q} disponível</span></div>`;
   $('#pddSee')&&($('#pddSee').onclick=()=>pick(baseName(d.n)));
   const names=[...new Set(ITEMS.filter(i=>i.g!=='Energias').map(i=>baseName(i.n)))].sort((a,b)=>a.localeCompare(b));
   $('#favList').innerHTML=names.map(n=>`<option value="${n}">`).join('');
   const pop=['Pikachu','Charizard','Mew','Mewtwo','Gengar','Lugia','Eevee','Snorlax','Greninja'].filter(n=>names.includes(n));
   $('#favQ').innerHTML=pop.map(n=>`<button type="button" data-fav="${n}">${n}</button>`).join('');
-  $('#cols').innerHTML=COLS.map(([k,lab])=>{const L=ITEMS.filter(i=>colOf(i)===k);if(!L.length)return '';const top=L.slice().sort((a,b)=>b.p-a.p)[0];return `<button class="col" type="button" data-col="${k}" aria-pressed="${col===k}"><img src="${top.img}" alt=""><span><b>${lab}</b><small>${L.reduce((s,i)=>s+i.q,0)} cartas</small></span></button>`}).join('');
+  const CC={'30 anos':'#c2410c','Reinado Delta':'#15803d','Escuridão Absoluta':'#4c1d95','Coleção 151 (CN)':'#b91c1c'};
+  $('#cols').innerHTML=COLS.map(([k,lab])=>{const L=ITEMS.filter(i=>colOf(i)===k);if(!L.length)return '';const top=L.slice().sort((a,b)=>b.p-a.p).slice(0,3);return `<button class="col" type="button" data-col="${k}" aria-pressed="${col===k}" style="--cc:${CC[k]}"><span class="ct"><b>${lab}</b><small>${L.reduce((s,i)=>s+i.q,0)} cartas</small><em>Ver coleção →</em></span><span class="fn">${top.map(i=>`<img src="${i.img}" alt="">`).join('')}</span></button>`}).join('');
 }
 const SLIDES=[
  {t:'Celebração 30 anos',s:'Português, inglês, japonês e chinês',c:'#ffcb05',f:i=>colOf(i)==='30 anos'&&i.g!=='Pikachus 30 anos',go:()=>setCol('30 anos')},
