@@ -107,6 +107,14 @@ label{font-size:13px;font-weight:800;display:flex;flex-direction:column;gap:4px}
 .ship{display:grid;grid-template-columns:1fr 1fr;gap:10px;border:2px dashed var(--frame);border-radius:12px;padding:12px}
 .ship .full{grid-column:1/-1}
 .ship p{grid-column:1/-1;margin:0;font-size:12px;color:var(--muted);font-weight:700}
+.fr{grid-column:1/-1;display:flex;flex-direction:column;gap:6px}
+.fr button.calc{border:0;border-radius:10px;background:linear-gradient(90deg,#a63dff,#7b2fbf);color:#fff;font:800 14px var(--body);padding:10px;cursor:pointer}
+.fr button.calc:disabled{opacity:.6;cursor:default}
+.fr .fo{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;border:2px solid var(--line);border-radius:10px;padding:8px 10px;cursor:pointer;font-size:13px;font-weight:700}
+.fr .fo:has(input:checked){border-color:var(--frame);background:color-mix(in srgb,var(--frame) 16%,transparent)}
+.fr .fo small{display:block;color:var(--muted);font-weight:600}
+.fr .fo b{color:var(--price);white-space:nowrap}
+.fr .fm{font-size:12px;color:var(--muted);font-weight:700}
 .pix{background:var(--bg);border:2px solid var(--line);border-radius:12px;padding:12px;font-size:13px;color:var(--muted);display:flex;gap:10px;align-items:flex-start;font-weight:700}
 .pix svg{flex:none;color:var(--ok)}
 .pix strong{color:var(--ink)}
@@ -192,7 +200,7 @@ footer{color:var(--muted);font-size:12px;font-weight:700;padding-block:20px 140p
   <div class="dh"><h2>Seu pedido</h2><button class="x" id="close" aria-label="Fechar carrinho">×</button></div>
   <div class="db">
     <div id="lines"></div>
-    <div class="tot"><span>Total das cartas</span><b id="tot"></b></div>
+    <div class="tot"><span id="totL">Total das cartas</span><b id="tot"></b></div>
     <form class="f" id="form" novalidate>
       <fieldset>
         <label for="nome">Seu nome<input id="nome" autocomplete="name" placeholder="Como devo te chamar?"></label>
@@ -201,10 +209,11 @@ footer{color:var(--muted);font-size:12px;font-weight:700;padding-block:20px 140p
           <label class="opt"><input type="radio" name="ent" id="ent1" value="Retirada na CNT Computadores" checked><b>Retirar na CNT Computadores</b><span>Av. São Jorge, 16, 1º andar, sala 4 · São Jorge<br>Seg a sex 9h–18h · sáb 8h–12h</span></label>
           <label class="opt"><input type="radio" name="ent" id="ent2" value="Retirada na Mimiso Arena"><b>Retirar na Mimiso Arena</b><span>Beco São Pedro, 162 · Parque 10 de Novembro<br>Seg a sáb 9h–22h</span></label>
           <label class="opt"><input type="radio" name="ent" id="ent3" value="Retirada na Mercadia Game Store"><b>Retirar na Mercadia Game Store</b><span>R. Rio Jutaí, 90 · Vieiralves (N. Sra. das Graças)<br>Ter a sex 15h–22h · sáb 14h–21h</span></label>
-          <label class="opt"><input type="radio" name="ent" id="ent4" value="Correios"><b>Enviar pelos Correios</b><span>Para todo o Brasil. O frete é calculado e somado no WhatsApp.</span></label>
+          <label class="opt"><input type="radio" name="ent" id="ent4" value="Correios"><b>Enviar pelos Correios</b><span>Para todo o Brasil. Digite o CEP e calcule o frete na hora.</span></label>
         </div>
         <div class="ship" id="ship" hidden>
-          <label for="cep">CEP<input id="cep" inputmode="numeric" autocomplete="postal-code" placeholder="00000-000" maxlength="9"></label>
+          <label for="cep" class="full">CEP<input id="cep" inputmode="numeric" autocomplete="postal-code" placeholder="00000-000" maxlength="9"></label>
+          <div class="fr" id="fr"><button type="button" class="calc" id="calc">Calcular frete</button><div id="frOpts"></div></div>
           <label for="cpf">CPF<input id="cpf" inputmode="numeric" placeholder="000.000.000-00" maxlength="14"></label>
           <label for="rua" class="full">Rua e número<input id="rua" autocomplete="address-line1" placeholder="Ex.: Rua das Flores, 120"></label>
           <label for="comp">Complemento<input id="comp" autocomplete="address-line2" placeholder="Apto, bloco (opcional)"></label>
@@ -278,14 +287,16 @@ function msg(){
   let rec=`Recebimento: ${ent}`;
   if(isShip()){
     const v=id=>$('#'+id).value.trim();
-    rec=`Recebimento: Correios (frete a calcular)\nEndereço: ${v('rua')}${v('comp')?', '+v('comp'):''} – ${v('bairro')} – ${v('cidade')}\nCEP: ${v('cep')}\nCPF: ${v('cpf')}`;
+    const f=frSel();tot+=f?f.preco:0;
+    rec=`Recebimento: Correios – ${f?f.nome+' ('+brl(f.preco)+', '+f.prazo+' dias úteis)':'frete a calcular'}\nEndereço: ${v('rua')}${v('comp')?', '+v('comp'):''} – ${v('bairro')} – ${v('cidade')}\nCEP: ${v('cep')}\nCPF: ${v('cpf')}`;
   }
-  return `Olá, Gabriel! Quero comprar estas cartas:\n\n${lines.join('\n')}\n\nTotal das cartas: ${brl(tot)}\nPagamento: Pix\nNome: ${nome}\n${rec}${obs?'\nObs.: '+obs:''}\n\nPode me enviar a chave Pix?`;
+  return `Olá, Gabriel! Quero comprar estas cartas:\n\n${lines.join('\n')}\n\n${isShip()&&frSel()?'Total com frete':'Total das cartas'}: ${brl(tot)}\nPagamento: Pix\nNome: ${nome}\n${rec}${obs?'\nObs.: '+obs:''}\n\nPode me enviar a chave Pix?`;
 }
 function problem(){
   if(!$('#nome').value.trim())return ['nome','Escreva seu nome para finalizar.'];
   if(isShip()){
     if(digits($('#cep').value).length!==8)return ['cep','Informe um CEP com 8 números.'];
+    if(!frSel())return ['cep','Calcule o frete e escolha uma opção de envio.'];
     if(digits($('#cpf').value).length!==11)return ['cpf','Informe um CPF com 11 números.'];
     for(const [id,n] of [['rua','a rua e o número'],['bairro','o bairro'],['cidade','a cidade e o estado']])
       if(!$('#'+id).value.trim())return [id,`Informe ${n} para o envio.`];
@@ -296,7 +307,7 @@ function cartUI(){
   const ks=Object.keys(cart);const n=ks.reduce((s,k)=>s+cart[k],0);const tot=ks.reduce((s,k)=>s+cart[k]*byId[k].p,0);
   $('#bar').classList.toggle('show',n>0);
   $('#barN').textContent=n+(n===1?' carta':' cartas');$('#barT').textContent=brl(tot);
-  $('#tot').textContent=brl(tot);
+  const fs=isShip()&&frSel();$('#tot').textContent=brl(tot+(fs?fs.preco:0));$('#totL').textContent=fs?'Total com frete':'Total das cartas';
   $('#lines').innerHTML=ks.length?ks.map(k=>{const i=byId[k],c=cart[k];return `<div class="li"><img src="${i.img}" alt=""><div><div class="nm">${i.n}</div><div class="sm">${i.g==='Energias'?'Básica':i.num} · ${i.l}${i.v?' · '+i.v:''} · ${i.c} · ${brl(i.p)} cada${i.o?' (-15%)':''}</div></div>
     <div><div class="step"><button data-dec="${k}" aria-label="Tirar uma">−</button><span>${c}</span><button data-inc="${k}" ${c>=i.q?'disabled':''} aria-label="Mais uma">+</button></div><div class="lp">${brl(c*i.p)}</div></div></div>`}).join(''):'<p class="hint">Seu carrinho está vazio.</p>';
   updWA();save();
@@ -325,8 +336,18 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeD()});
 $('#q').oninput=e=>{q=e.target.value;render()};
 $('#lang').onchange=e=>{lang=e.target.value;render()};
 $('#sort').onchange=e=>{sort=e.target.value;render()};
-document.querySelectorAll('input[name=ent]').forEach(r=>r.onchange=()=>{$('#ship').hidden=!isShip();$('#err').hidden=true;updWA()});
-$('#cep').addEventListener('input',e=>{const d=digits(e.target.value).slice(0,8);e.target.value=d.length>5?d.slice(0,5)+'-'+d.slice(5):d});
+document.querySelectorAll('input[name=ent]').forEach(r=>r.onchange=()=>{$('#ship').hidden=!isShip();$('#err').hidden=true;cartUI()});
+let FR=[];const frSel=()=>{const r=document.querySelector('input[name=fr]:checked');return r?FR[+r.value]:null};
+function frClear(){FR=[];$('#frOpts').innerHTML=''}
+$('#calc').onclick=async()=>{const cep=digits($('#cep').value);if(cep.length!==8){$('#frOpts').innerHTML='<p class="fm">Digite um CEP com 8 números.</p>';return}
+  const b=$('#calc');b.disabled=true;b.textContent='Calculando...';$('#frOpts').innerHTML='';
+  try{const r=await fetch('/.netlify/functions/frete?cep='+cep);const d=await r.json();FR=d.opcoes||[];
+    $('#frOpts').innerHTML=FR.length?FR.map((o,k)=>`<label class="fo"><input type="radio" name="fr" value="${k}" ${k===0?'checked':''}><span>${o.nome}<small>${o.prazo} dias úteis</small></span><b>${brl(o.preco)}</b></label>`).join(''):'<p class="fm">Não consegui calcular agora. Pode finalizar que eu calculo o frete no WhatsApp.</p>';
+    if(!FR.length)FR=[{nome:'a calcular',preco:0,prazo:'?'}];
+  }catch(e){FR=[{nome:'a calcular',preco:0,prazo:'?'}];$('#frOpts').innerHTML='<p class="fm">Não consegui calcular agora. Pode finalizar que eu calculo o frete no WhatsApp.</p>'}
+  b.disabled=false;b.textContent='Calcular frete';cartUI()};
+$('#frOpts').addEventListener('change',()=>cartUI());
+$('#cep').addEventListener('input',e=>{frClear();const d=digits(e.target.value).slice(0,8);e.target.value=d.length>5?d.slice(0,5)+'-'+d.slice(5):d});
 $('#cpf').addEventListener('input',e=>{const d=digits(e.target.value).slice(0,11);e.target.value=d.replace(/^(\d{3})(\d)/,'$1.$2').replace(/^(\d{3})\.(\d{3})(\d)/,'$1.$2.$3').replace(/\.(\d{3})(\d{1,2})$/,'.$1-$2')});
 ['nome','obs','cep','cpf','rua','comp','bairro','cidade'].forEach(id=>$('#'+id).addEventListener('input',()=>{$('#'+id).removeAttribute('aria-invalid');$('#err').hidden=true;updWA()}));
 $('#wa').addEventListener('click',e=>{const p=problem();if(p){e.preventDefault();$('#err').textContent=p[1];$('#err').hidden=false;const el=$('#'+p[0]);el.setAttribute('aria-invalid','true');el.focus()}});
