@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><title>Painel · Cartas do Gabriel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap">
+<style>
+:root{--bg:#0c0a0f;--sf:#17121c;--sf2:#1f1826;--ln:#34263f;--ink:#f4eef8;--mu:#b4a6c0;--pu:#8e44ad;--pu2:#a63dff;--lt:#e2b6ff;--ok:#4dc247;--err:#ff6b6b;--pt:#1f9d55;--en:#2563eb;--jp:#d62828;--cn:#e8820c}
+*{box-sizing:border-box}[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 Poppins,system-ui,sans-serif}
+button,input,select,textarea{font:inherit;color:inherit}
+input,select,textarea{background:var(--sf2);border:1.5px solid var(--ln);border-radius:9px;padding:8px 10px;width:100%;min-width:0}
+input[type=color]{padding:3px;height:42px;cursor:pointer}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--pu2);outline-offset:1px;border-color:transparent}
+label{display:flex;flex-direction:column;gap:4px;font-size:12.5px;font-weight:600;color:var(--mu)}
+.btn{background:linear-gradient(90deg,var(--pu2),#7b2fbf);border:0;border-radius:10px;padding:9px 16px;font-weight:700;color:#fff;cursor:pointer;white-space:nowrap}
+.btn.s{background:var(--sf2);border:1.5px solid var(--ln);color:var(--ink)}
+.btn.d{background:transparent;border:1.5px solid #6b2a35;color:var(--err)}
+.btn:disabled{opacity:.5;cursor:default}
+.wrap{max-width:1200px;margin:0 auto;padding:0 16px}
+header{position:sticky;top:0;z-index:5;background:linear-gradient(90deg,#4c2353,#5d2a65);border-bottom:1px solid var(--ln)}
+header .wrap{display:flex;align-items:center;gap:12px;min-height:58px;flex-wrap:wrap}
+header b{font-size:18px;font-weight:800;margin-right:auto}
+.tabs{display:flex;gap:6px}.tabs button{background:transparent;border:1.5px solid transparent;border-radius:999px;padding:6px 14px;font-weight:700;color:var(--lt);cursor:pointer}
+.tabs button[aria-selected=true]{background:var(--bg);border-color:var(--pu)}
+#login{max-width:380px;margin:12vh auto;padding:28px;background:var(--sf);border:1.5px solid var(--ln);border-radius:16px;display:flex;flex-direction:column;gap:14px}
+#login h1{margin:0;font-size:22px}.msg{font-size:13.5px;color:var(--err);min-height:1em}.note{font-size:13px;color:var(--mu)}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:end;margin:18px 0 12px}.bar label{flex:1 1 180px}
+.list{display:flex;flex-direction:column;gap:8px;padding-bottom:100px}
+.row{display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:12px;align-items:center;background:var(--sf);border:1.5px solid var(--ln);border-radius:12px;padding:8px 10px}
+.row.dirty{border-color:var(--pu2)}.row.zero{opacity:.55}
+.row img{width:52px;height:73px;object-fit:cover;border-radius:5px;background:#000}
+.row .nm{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .sm{font-size:12.5px;color:var(--mu);display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.b{font-size:11px;font-weight:800;padding:0 6px;border-radius:5px;color:#fff;background:#7b3fb5}.b.PT{background:var(--pt)}.b.EN{background:var(--en)}.b.JP{background:var(--jp)}.b.CN{background:var(--cn)}
+.ctl{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.qty{display:flex;align-items:center;border:1.5px solid var(--ln);border-radius:9px;overflow:hidden}
+.qty button{background:var(--sf2);border:0;width:32px;height:34px;font-size:18px;cursor:pointer}.qty span{min-width:34px;text-align:center;font-weight:700}
+.pr{width:96px}.pr input{padding:6px 8px;text-align:right}
+.save{position:fixed;left:0;right:0;bottom:0;z-index:6;background:#120d16f0;border-top:1px solid var(--ln);backdrop-filter:blur(6px)}
+.save .wrap{display:flex;align-items:center;gap:12px;min-height:64px;flex-wrap:wrap}.save .wrap span{margin-right:auto;color:var(--mu);font-size:14px}
+dialog{background:var(--sf);color:var(--ink);border:1.5px solid var(--ln);border-radius:16px;padding:0;width:min(760px,calc(100% - 24px));max-height:calc(100% - 24px)}
+dialog::backdrop{background:#000a}
+.dh{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--ln)}.dh h2{margin:0;font-size:18px}
+.db{padding:16px 18px;display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+.db .full{grid-column:1/-1}.df{padding:12px 18px;border-top:1px solid var(--ln);display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.ph{display:flex;gap:8px;flex-wrap:wrap}.ph figure{margin:0;position:relative}.ph img{width:70px;height:98px;object-fit:cover;border-radius:6px;border:1.5px solid var(--ln)}
+.ph button{position:absolute;top:-6px;right:-6px;width:22px;height:22px;border-radius:50%;border:0;background:var(--err);color:#fff;cursor:pointer;font-weight:800;line-height:1}
+.ph .main img{border-color:var(--pu2)}
+.card{background:var(--sf);border:1.5px solid var(--ln);border-radius:14px;padding:16px;margin:16px 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.card h3{grid-column:1/-1;margin:0;font-size:16px}.card .full{grid-column:1/-1}
+.sl{display:grid;grid-template-columns:1.2fr 1.4fr 110px 130px 1fr auto;gap:8px;align-items:end;background:var(--sf2);border:1px solid var(--ln);border-radius:10px;padding:10px}
+.sl .tools{display:flex;gap:4px}.sl .tools button{padding:7px 9px}
+.chk{flex-direction:row;align-items:center;gap:6px}.chk input{width:auto}
+.gl{display:flex;flex-direction:column;gap:6px}.gl div{display:flex;gap:6px}.gl input{flex:1}
+.toast{position:fixed;top:70px;left:50%;transform:translateX(-50%);background:var(--sf2);border:1.5px solid var(--pu2);padding:10px 18px;border-radius:12px;z-index:20;font-weight:600}
+@media(max-width:720px){.row{grid-template-columns:44px minmax(0,1fr)}.row img{width:44px;height:62px}.ctl{grid-column:1/-1;justify-content:space-between}.sl{grid-template-columns:1fr 1fr}.sl .tools{grid-column:1/-1}}
+</style></head><body>
+
+<section id="login" hidden>
+  <h1>Painel da loja</h1>
+  <p class="note">Entre com a senha de administrador para gerenciar cartas e layout.</p>
+  <form id="lf"><label>Senha<input id="pw" type="password" autocomplete="current-password" required></label>
+  <p class="msg" id="lmsg"></p><button class="btn" style="width:100%">Entrar</button></form>
+</section>
+
+<div id="app" hidden>
+<header><div class="wrap"><b>Painel · Cartas do Gabriel</b>
+  <div class="tabs" role="tablist"><button role="tab" aria-selected="true" data-tab="prod">Produtos</button><button role="tab" aria-selected="false" data-tab="lay">Layout</button></div>
+  <a class="btn s" href="/" target="_blank" rel="noopener" style="text-decoration:none">Ver site</a><button class="btn s" id="out">Sair</button></div></header>
+
+<main class="wrap">
+<p class="note" id="kvwarn" hidden style="color:var(--err)">Atenção: o banco de dados (KV ESTOQUE) ainda não está ligado ao site, então não dá para salvar.</p>
+
+<section id="prod">
+  <div class="bar">
+    <label>Buscar<input id="q" placeholder="Nome, número, variante..."></label>
+    <label style="flex:0 1 180px">Grupo<select id="fg"><option value="">Todos</option></select></label>
+    <label style="flex:0 1 130px">Idioma<select id="fl"><option value="">Todos</option><option>PT</option><option>EN</option><option>JP</option><option>CN</option></select></label>
+    <label class="chk" style="flex:0 0 auto"><input type="checkbox" id="fz"> Mostrar esgotadas</label>
+    <button class="btn" id="nova">+ Nova carta</button>
+  </div>
+  <p class="note" id="sum"></p>
+  <div class="list" id="list"></div>
+</section>
+
+<section id="lay" hidden>
+  <div class="card"><h3>Topo da loja</h3>
+    <label>Nome da loja<input data-c="loja"></label>
+    <label>Destaque 1 (use &lt;b&gt;texto&lt;/b&gt; para negrito)<input data-c="fato1"></label>
+    <label>Destaque 2<input data-c="fato2"></label>
+    <label class="full">Faixa de aviso no topo (deixe vazio para esconder)<input data-c="aviso" placeholder="Ex.: Entregas suspensas no feriado"></label>
+  </div>
+  <div class="card"><h3>Cores</h3>
+    <label>Cor principal<input type="color" data-cor="principal"></label>
+    <label>Cor de destaque<input type="color" data-cor="destaque"></label>
+    <label>Cor clara (preços)<input type="color" data-cor="claro"></label>
+  </div>
+  <div class="card"><h3>Banner rolante</h3>
+    <div class="full" id="slides" style="display:flex;flex-direction:column;gap:8px"></div>
+    <div class="full"><button class="btn s" id="addSl">+ Novo slide</button></div>
+    <p class="note full">Tipo "Coleção": 30 anos, Reinado Delta, Escuridão Absoluta, Coleção 151 (CN). Tipo "Grupo": nome do grupo. Tipo "Busca": palavra (ex.: Charizard). "Ofertas" mostra as cartas com desconto.</p>
+  </div>
+  <div class="card"><h3>Pokémon do dia e favoritos</h3>
+    <label>Pokémon do dia<select id="dm"><option value="auto">Automático (muda todo dia)</option><option value="fixo">Fixar uma carta</option></select></label>
+    <label>Carta fixa<select id="did"></select></label>
+    <label class="full">Título da busca de favorito<input data-c="favTitulo"></label>
+    <label class="full">Botões rápidos (separe por vírgula)<input id="pop"></label>
+  </div>
+  <div class="card"><h3>Grupos da vitrine (ordem das abas)</h3>
+    <div class="gl full" id="gl"></div>
+    <div class="full"><button class="btn s" id="addG">+ Novo grupo</button></div>
+  </div>
+  <div style="padding-bottom:100px"></div>
+</section>
+</main>
+
+<div class="save"><div class="wrap"><span id="st">Nenhuma alteração</span>
+  <button class="btn s" id="imp" title="Carrega o arquivo items.json publicado no site">Importar do arquivo</button>
+  <button class="btn s" id="desf">Desfazer</button><button class="btn" id="salvar" disabled>Salvar alterações</button></div></div>
+</div>
+
+<dialog id="dlg"><form method="dialog" id="ef">
+  <div class="dh"><h2 id="dt">Editar carta</h2><button class="btn s" value="cancel" formnovalidate>Fechar</button></div>
+  <div class="db">
+    <label class="full">Nome<input id="e_n" required></label>
+    <label>Número<input id="e_num" placeholder="Ex.: 025/128"></label>
+    <label>Idioma<select id="e_l"><option>PT</option><option>EN</option><option>JP</option><option>CN</option></select></label>
+    <label>Variante<input id="e_v" placeholder="Foil, SAR, AR..."></label>
+    <label>Estado<select id="e_c"><option value="NM">NM</option><option value="SP">SP</option></select></label>
+    <label>Grupo<select id="e_g"></select></label>
+    <label>Quantidade<input id="e_q" type="number" min="0" step="1" required></label>
+    <label>Preço (R$)<input id="e_p" type="number" min="0" step="0.5" required></label>
+    <label>Preço antigo riscado (opcional)<input id="e_o" type="number" min="0" step="0.5"></label>
+    <div class="full"><label>Imagem da vitrine</label><div class="ph" id="e_img"></div>
+      <input type="file" id="e_if" accept="image/*" style="margin-top:6px"></div>
+    <div class="full"><label>Fotos do anúncio (frente, verso...)</label><div class="ph" id="e_fotos"></div>
+      <input type="file" id="e_ff" accept="image/*" multiple style="margin-top:6px"><p class="note" id="e_up"></p></div>
+  </div>
+  <div class="df"><button class="btn d" type="button" id="e_del">Excluir carta</button><button class="btn" value="ok" id="e_ok">Aplicar</button></div>
+</form></dialog>
+
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const brl=v=>'R$ '+(+v).toFixed(2).replace('.',',');
+const esc=t=>String(t??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let ITEMS=[],CFG={},ORIG='',ORIGC='',EDIT=null,KV=false;
+const DEF={loja:'Cartas do Gabriel',fato1:'<b>Pix</b> único pagamento',fato2:'Retirada em Manaus ou Correios',aviso:'',favTitulo:'Qual é o seu Pokémon favorito?',populares:['Pikachu','Charizard','Mew','Mewtwo','Gengar','Lugia','Eevee','Snorlax','Greninja'],destaque:{modo:'auto',id:null},grupos:['Coleção 30 anos','Pikachus 30 anos','Listagem','Inglês','Energias'],cores:{principal:'#5d2a65',destaque:'#8e44ad',claro:'#e2b6ff'},slides:[{t:'Celebração 30 anos',s:'Português, inglês, japonês e chinês',c:'#e2b6ff',tipo:'col',valor:'30 anos',ativo:true},{t:'Ofertas -15%',s:'Nas cartas acima de R$ 100',c:'#ff8fb1',tipo:'promo',valor:'',ativo:true},{t:'Reinado Delta',s:'Megaevolução em português',c:'#c9a7ff',tipo:'col',valor:'Reinado Delta',ativo:true},{t:'Escuridão Absoluta',s:'Megaevolução',c:'#b48cff',tipo:'col',valor:'Escuridão Absoluta',ativo:true},{t:'Pikachus 30 anos',s:'Coleção completa 01 a 30',c:'#e2b6ff',tipo:'grupo',valor:'Pikachus 30 anos',ativo:true},{t:'151 chinesa',s:'Foil e Pokébola',c:'#f0a6ff',tipo:'col',valor:'Coleção 151 (CN)',ativo:true}]};
+function toast(t){const d=document.createElement('div');d.className='toast';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),2600)}
+const api=(u,o={})=>fetch(u,{credentials:'same-origin',...o}).then(async r=>{let j={};try{j=await r.json()}catch(e){}if(!r.ok)throw Object.assign(new Error(j.erro||('Erro '+r.status)),{status:r.status});return j});
+
+async function start(){
+  let me={};try{me=await api('/api/admin/me')}catch(e){}
+  if(!me.admin){$('#login').hidden=false;$('#app').hidden=true;if(me.senha===false)$('#lmsg').textContent='A senha de administrador ainda não foi cadastrada no Cloudflare.';$('#pw').focus();return}
+  $('#login').hidden=true;$('#app').hidden=false;
+  const d=await api('/api/loja');KV=!!d.kv;$('#kvwarn').hidden=KV;
+  ITEMS=d.items;CFG=Object.assign(JSON.parse(JSON.stringify(DEF)),d.cfg||{});ORIG=JSON.stringify(ITEMS);ORIGC=JSON.stringify(CFG);
+  fillGroups();renderList();renderLay();dirty();
+}
+$('#lf').onsubmit=async e=>{e.preventDefault();$('#lmsg').textContent='';try{await api('/api/admin/login',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({senha:$('#pw').value})});$('#pw').value='';start()}catch(err){$('#lmsg').textContent=err.message}};
+$('#out').onclick=async()=>{if(isDirty()&&!confirm('Há alterações não salvas. Sair mesmo assim?'))return;await api('/api/admin/logout',{method:'POST'}).catch(()=>{});location.reload()};
+$$('.tabs button').forEach(b=>b.onclick=()=>{$$('.tabs button').forEach(x=>x.setAttribute('aria-selected',x===b));$('#prod').hidden=b.dataset.tab!=='prod';$('#lay').hidden=b.dataset.tab!=='lay'});
+
+/* ---------- Produtos ---------- */
+function fillGroups(){const gs=[...new Set([...(CFG.grupos||[]),...ITEMS.map(i=>i.g)])];$('#fg').innerHTML='<option value="">Todos</option>'+gs.map(g=>`<option>${esc(g)}</option>`).join('');$('#e_g').innerHTML=gs.map(g=>`<option>${esc(g)}</option>`).join('')}
+const origMap=()=>Object.fromEntries(JSON.parse(ORIG).map(i=>[i.id,JSON.stringify(i)]));
+function renderList(){
+  const t=$('#q').value.trim().toLowerCase(),g=$('#fg').value,l=$('#fl').value,z=$('#fz').checked,om=origMap();
+  const L=ITEMS.filter(i=>(z||i.q>0)&&(!g||i.g===g)&&(!l||i.l.split('/').includes(l))&&(!t||(i.n+' '+i.num+' '+(i.v||'')+' '+i.g).toLowerCase().includes(t)));
+  const tq=ITEMS.reduce((s,i)=>s+i.q,0),tv=ITEMS.reduce((s,i)=>s+i.q*i.p,0);
+  $('#sum').textContent=`${L.length} itens na lista · estoque total: ${tq} cartas · ${brl(tv)}`;
+  $('#list').innerHTML=L.map(i=>`<div class="row${om[i.id]!==JSON.stringify(i)?' dirty':''}${i.q?'':' zero'}" data-id="${i.id}">
+    <img src="${esc(i.img||'')}" alt="" loading="lazy">
+    <div style="min-width:0"><div class="nm">${esc(i.n)}</div><div class="sm">${esc(i.num||'')} ${i.l.split('/').map(x=>`<span class="b ${x}">${x}</span>`).join('')}${i.v?`<span class="b">${esc(i.v)}</span>`:''}<span>${esc(i.c)}</span><span>· ${esc(i.g)}</span>${(i.fotos||[]).length?`<span>· ${i.fotos.length} fotos</span>`:''}</div></div>
+    <div class="ctl"><div class="qty"><button type="button" data-d="-1" aria-label="Tirar uma">−</button><span>${i.q}</span><button type="button" data-d="1" aria-label="Mais uma">+</button></div>
+    <label class="pr" aria-label="Preço"><input type="number" min="0" step="0.5" value="${i.p}" data-p></label>
+    <button class="btn s" type="button" data-ed>Editar</button></div></div>`).join('')||'<p class="note">Nenhuma carta com esse filtro.</p>';
+}
+['#q','#fg','#fl','#fz'].forEach(s=>$(s).addEventListener('input',renderList));
+const byId=id=>ITEMS.find(i=>String(i.id)===String(id));
+$('#list').addEventListener('click',e=>{const r=e.target.closest('.row');if(!r)return;const i=byId(r.dataset.id);const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.d){i.q=Math.max(0,i.q+ +b.dataset.d);renderList();dirty()}else if(b.dataset.ed!==undefined)openEd(i)});
+$('#list').addEventListener('change',e=>{if(e.target.dataset.p===undefined)return;const i=byId(e.target.closest('.row').dataset.id);const v=parseFloat(e.target.value);if(v>=0){i.p=Math.round(v*100)/100;if(i.o&&i.o<=i.p)delete i.o}renderList();dirty()});
+
+function openEd(i){
+  EDIT=i?JSON.parse(JSON.stringify(i)):{id:Math.max(9000,...ITEMS.map(x=>+x.id||0))+1,g:$('#fg').value||(CFG.grupos||[])[0]||'Listagem',n:'',num:'',l:'PT',v:'',q:1,p:0,c:'NM',img:'',fotos:[],_novo:true};
+  $('#dt').textContent=i?'Editar carta':'Nova carta';$('#e_del').hidden=!i;
+  for(const k of ['n','num','l','v','c','g','q','p','o'])$('#e_'+k).value=EDIT[k]??'';
+  drawPh();$('#e_up').textContent='';$('#e_if').value='';$('#e_ff').value='';$('#dlg').showModal();
+}
+function drawPh(){
+  $('#e_img').innerHTML=EDIT.img?`<figure class="main"><img src="${esc(EDIT.img)}" alt="Imagem da vitrine"></figure>`:'<p class="note">Sem imagem. Envie uma foto da carta.</p>';
+  $('#e_fotos').innerHTML=(EDIT.fotos||[]).map((f,k)=>`<figure><img src="${esc(f)}" alt="Foto ${k+1}"><button type="button" data-rf="${k}" aria-label="Remover foto">×</button></figure>`).join('')||'<p class="note">Nenhuma foto no anúncio.</p>';
+}
+$('#e_fotos').addEventListener('click',e=>{const b=e.target.closest('[data-rf]');if(b){EDIT.fotos.splice(+b.dataset.rf,1);drawPh()}});
+function loadImg(file){return new Promise((ok,no)=>{const u=URL.createObjectURL(file),im=new Image();im.onload=()=>{ok(im)};im.onerror=no;im.src=u})}
+async function resize(file,W,H,fit){const im=await loadImg(file);let w=im.naturalWidth,h=im.naturalHeight,c=document.createElement('canvas'),x=c.getContext('2d');
+  if(fit==='cover'){c.width=W;c.height=H;const s=Math.max(W/w,H/h);x.drawImage(im,(W-w*s)/2,(H-h*s)/2,w*s,h*s)}else{const s=Math.min(1,W/w,H/h);c.width=Math.round(w*s);c.height=Math.round(h*s);x.drawImage(im,0,0,c.width,c.height)}
+  return c}
+$('#e_if').onchange=async e=>{const f=e.target.files[0];if(!f)return;const c=await resize(f,200,280,'cover');EDIT.img=c.toDataURL('image/jpeg',.82);drawPh()};
+$('#e_ff').onchange=async e=>{const fs=[...e.target.files];if(!fs.length)return;if(!KV){$('#e_up').textContent='O banco ainda não está ligado; não dá para enviar fotos.';return}
+  $('#e_ok').disabled=true;let n=0;
+  for(const f of fs){$('#e_up').textContent=`Enviando foto ${++n} de ${fs.length}...`;const c=await resize(f,600,800,'contain');const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',.74));
+    try{const j=await api('/api/admin/foto',{method:'POST',headers:{'content-type':'image/jpeg'},body:blob});EDIT.fotos=EDIT.fotos||[];EDIT.fotos.push(j.url);if(!EDIT.img){const t=await resize(f,200,280,'cover');EDIT.img=t.toDataURL('image/jpeg',.82)}drawPh()}catch(err){$('#e_up').textContent='Falha ao enviar: '+err.message;break}}
+  if($('#e_up').textContent.startsWith('Enviando'))$('#e_up').textContent='Fotos enviadas. Clique em Aplicar e depois em Salvar alterações.';
+  $('#e_ok').disabled=false;e.target.value=''};
+$('#ef').addEventListener('submit',e=>{if(e.submitter&&e.submitter.value!=='ok')return;
+  const g=k=>$('#e_'+k).value.trim();const p=parseFloat(g('p')),q=parseInt(g('q'),10),o=parseFloat(g('o'));
+  if(!g('n')||!(p>=0)||!(q>=0)){e.preventDefault();alert('Preencha nome, quantidade e preço.');return}
+  Object.assign(EDIT,{n:g('n'),num:g('num'),l:g('l'),v:g('v'),c:g('c'),g:g('g'),q,p:Math.round(p*100)/100});
+  if(o>p)EDIT.o=Math.round(o*100)/100;else delete EDIT.o;
+  if(!EDIT.fotos||!EDIT.fotos.length)delete EDIT.fotos;
+  if(EDIT._novo){delete EDIT._novo;ITEMS.unshift(EDIT)}else{const k=ITEMS.findIndex(x=>String(x.id)===String(EDIT.id));ITEMS[k]=EDIT}
+  renderList();dirty()});
+$('#e_del').onclick=()=>{if(!confirm('Excluir "'+EDIT.n+'" da loja? (Só some de verdade quando você clicar em Salvar.)'))return;ITEMS=ITEMS.filter(x=>String(x.id)!==String(EDIT.id));$('#dlg').close();renderList();dirty()};
+$('#nova').onclick=()=>openEd(null);
+
+/* ---------- Layout ---------- */
+const TIPOS=[['col','Coleção'],['grupo','Grupo'],['busca','Busca'],['promo','Ofertas']];
+function renderLay(){
+  $$('[data-c]').forEach(el=>el.value=CFG[el.dataset.c]??'');
+  $$('[data-cor]').forEach(el=>el.value=(CFG.cores||{})[el.dataset.cor]||DEF.cores[el.dataset.cor]);
+  $('#pop').value=(CFG.populares||[]).join(', ');
+  $('#dm').value=(CFG.destaque||{}).modo||'auto';
+  $('#did').innerHTML=ITEMS.filter(i=>i.q>0&&i.g!=='Energias').sort((a,b)=>b.p-a.p).map(i=>`<option value="${i.id}">${esc(i.n)} ${esc(i.num)} ${i.l} – ${brl(i.p)}</option>`).join('');
+  $('#did').value=(CFG.destaque||{}).id||'';$('#did').disabled=$('#dm').value!=='fixo';
+  $('#slides').innerHTML=(CFG.slides||[]).map((s,k)=>`<div class="sl" data-k="${k}">
+    <label>Título<input data-s="t" value="${esc(s.t)}"></label><label>Subtítulo<input data-s="s" value="${esc(s.s)}"></label>
+    <label>Cor<input type="color" data-s="c" value="${esc(s.c||'#e2b6ff')}"></label>
+    <label>Tipo<select data-s="tipo">${TIPOS.map(([v,t])=>`<option value="${v}" ${s.tipo===v?'selected':''}>${t}</option>`).join('')}</select></label>
+    <label>Valor<input data-s="valor" value="${esc(s.valor)}" ${s.tipo==='promo'?'disabled':''}></label>
+    <div class="tools"><label class="chk"><input type="checkbox" data-s="ativo" ${s.ativo!==false?'checked':''}> Ativo</label>
+      <button class="btn s" type="button" data-mv="-1" aria-label="Subir">↑</button><button class="btn s" type="button" data-mv="1" aria-label="Descer">↓</button><button class="btn d" type="button" data-rm aria-label="Remover">✕</button></div></div>`).join('');
+  $('#gl').innerHTML=(CFG.grupos||[]).map((g,k)=>`<div data-k="${k}"><input value="${esc(g)}" data-g aria-label="Grupo ${k+1}"><button class="btn s" type="button" data-gm="-1">↑</button><button class="btn s" type="button" data-gm="1">↓</button><button class="btn d" type="button" data-gr>✕</button></div>`).join('');
+}
+$('#lay').addEventListener('input',e=>{const el=e.target;
+  if(el.dataset.c!==undefined)CFG[el.dataset.c]=el.value;
+  else if(el.dataset.cor){CFG.cores={...CFG.cores,[el.dataset.cor]:el.value}}
+  else if(el.id==='pop')CFG.populares=el.value.split(',').map(x=>x.trim()).filter(Boolean);
+  else if(el.id==='dm'||el.id==='did'){CFG.destaque={modo:$('#dm').value,id:$('#did').value?+$('#did').value||$('#did').value:null};$('#did').disabled=$('#dm').value!=='fixo'}
+  else if(el.dataset.s){const s=CFG.slides[+el.closest('.sl').dataset.k];s[el.dataset.s]=el.type==='checkbox'?el.checked:el.value;if(el.dataset.s==='tipo')renderLay()}
+  else if(el.dataset.g!==undefined){const old=CFG.grupos[+el.closest('[data-k]').dataset.k],nv=el.value;CFG.grupos[+el.closest('[data-k]').dataset.k]=nv;if(old&&nv.trim())ITEMS.forEach(i=>{if(i.g===old)i.g=nv})}
+  dirty()});
+$('#lay').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+  const mv=(a,k,d)=>{const j=k+d;if(j<0||j>=a.length)return;[a[k],a[j]]=[a[j],a[k]]};
+  if(b.dataset.mv){mv(CFG.slides,+b.closest('.sl').dataset.k,+b.dataset.mv)}
+  else if(b.dataset.rm!==undefined){CFG.slides.splice(+b.closest('.sl').dataset.k,1)}
+  else if(b.id==='addSl'){CFG.slides.push({t:'Novo destaque',s:'',c:'#e2b6ff',tipo:'busca',valor:'',ativo:true})}
+  else if(b.dataset.gm){mv(CFG.grupos,+b.closest('[data-k]').dataset.k,+b.dataset.gm)}
+  else if(b.dataset.gr!==undefined){const g=CFG.grupos[+b.closest('[data-k]').dataset.k];if(ITEMS.some(i=>i.g===g)){alert('Ainda há cartas no grupo "'+g+'". Mova essas cartas para outro grupo antes de remover.');return}CFG.grupos.splice(+b.closest('[data-k]').dataset.k,1)}
+  else if(b.id==='addG'){CFG.grupos.push('Novo grupo')}
+  else return;
+  renderLay();fillGroups();dirty()});
+
+/* ---------- Salvar ---------- */
+const isDirty=()=>JSON.stringify(ITEMS)!==ORIG||JSON.stringify(CFG)!==ORIGC;
+function dirty(){const a=JSON.stringify(ITEMS)!==ORIG,b=JSON.stringify(CFG)!==ORIGC;
+  const om=origMap(),n=ITEMS.filter(i=>om[i.id]!==JSON.stringify(i)).length+Object.keys(om).filter(k=>!ITEMS.some(i=>String(i.id)===k)).length;
+  $('#st').textContent=a||b?[a?n+' carta(s) alterada(s)':'',b?'layout alterado':''].filter(Boolean).join(' · ')+' – não salvo':'Tudo salvo';
+  $('#salvar').disabled=!(a||b)||!KV;$('#desf').disabled=!(a||b)}
+$('#salvar').onclick=async()=>{const b=$('#salvar');b.disabled=true;b.textContent='Salvando...';
+  const body={};if(JSON.stringify(ITEMS)!==ORIG)body.items=ITEMS;if(JSON.stringify(CFG)!==ORIGC)body.cfg=CFG;
+  try{await api('/api/admin/salvar',{method:'PUT',headers:{'content-type':'application/json'},body:JSON.stringify(body)});ORIG=JSON.stringify(ITEMS);ORIGC=JSON.stringify(CFG);toast('Salvo! O site já mostra as mudanças.');renderList()}
+  catch(err){alert('Não salvou: '+err.message);if(err.status===401)location.reload()}
+  b.textContent='Salvar alterações';dirty()};
+$('#desf').onclick=()=>{if(!confirm('Descartar as alterações não salvas?'))return;ITEMS=JSON.parse(ORIG);CFG=JSON.parse(ORIGC);fillGroups();renderList();renderLay();dirty()};
+$('#imp').onclick=async()=>{if(!confirm('Carregar o estoque do arquivo items.json publicado no site? Isso substitui a lista atual no painel (só vale depois de Salvar).'))return;
+  try{const r=await fetch('/items.json',{cache:'no-store'});ITEMS=await r.json();fillGroups();renderList();renderLay();dirty();toast('Arquivo carregado. Confira e clique em Salvar.')}catch(e){alert('Não consegui ler o arquivo.')}};
+addEventListener('beforeunload',e=>{if(isDirty()){e.preventDefault();e.returnValue=''}});
+start();
+</script>
+</body></html>
