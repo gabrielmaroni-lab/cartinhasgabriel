@@ -297,6 +297,11 @@ footer{color:var(--muted);font-size:12px;font-weight:700;padding-block:20px 140p
 .pvi .hint2{font-size:12px;color:var(--muted);font-weight:600;margin:4px 0 0}
 @media (max-width:720px){.pvb{grid-template-columns:1fr;padding:16px;gap:14px}.pvm{aspect-ratio:1/1}}
 @media (prefers-reduced-motion:reduce){.bar{transition:none}.art::after{display:none}}
+.cup .cupr{display:flex;gap:8px}.cup .cupr input{flex:1}.cup button{border:2px solid var(--frame);background:transparent;color:var(--ink);font-weight:800;border-radius:10px;padding:0 14px;cursor:pointer}
+.resb{max-width:440px;padding:24px;text-align:center;display:flex;flex-direction:column;gap:12px;align-items:center}.resb h2{margin:0}.resb .num{font-size:13px;color:var(--muted);font-weight:700}
+.resb .qr{background:#fff;padding:10px;border-radius:12px}.resb textarea{width:100%;font:12px monospace;border-radius:10px;padding:8px;background:var(--bg);color:var(--ink);border:2px solid var(--line);resize:none}
+.resb .b1{background:var(--blue);color:#fff;border:0;border-radius:12px;padding:12px 18px;font-weight:900;cursor:pointer;text-decoration:none;display:inline-block}.resb .b2{background:transparent;color:var(--ink);border:2px solid var(--line);border-radius:12px;padding:10px 16px;font-weight:800;cursor:pointer;text-decoration:none}
+.wa[disabled]{opacity:.6;cursor:wait}
 .aviso{background:linear-gradient(90deg,var(--blue),var(--red));color:#fff;text-align:center;font-weight:700;font-size:14px;padding:8px 16px}
 </style>
 
@@ -348,7 +353,7 @@ footer{color:var(--muted);font-size:12px;font-weight:700;padding-block:20px 140p
   <p class="count" id="count"></p>
   <div class="grid" id="grid"><p class="empty">Carregando cartas...</p></div>
 </main>
-<footer class="wrap">Estado das cartas: NM (Near Mint, quase perfeita) e SP (Slightly Played, pouco jogada) · Preços com base no menor anúncio NM da Liga Pokémon · atualizados em 10/11/2026 · estoque sujeito à confirmação no WhatsApp</footer>
+<footer class="wrap" id="rodape">Estado das cartas: NM (Near Mint, quase perfeita) e SP (Slightly Played, pouco jogada) · Preços com base no menor anúncio NM da Liga Pokémon · atualizados em 10/11/2026 · estoque sujeito à confirmação no WhatsApp</footer>
 
 <div class="bar" id="bar">
   <div class="t"><span id="barN"></span><b id="barT"></b></div>
@@ -357,6 +362,7 @@ footer{color:var(--muted);font-size:12px;font-weight:700;padding-block:20px 140p
 
 <div class="pv" id="pv" hidden role="dialog" aria-modal="true" aria-labelledby="pvT"><div class="pvb" id="pvb"></div></div>
 <div class="shade" id="shade" hidden></div>
+<div class="pv" id="res" hidden role="dialog" aria-modal="true" aria-labelledby="resT"><div class="pvb resb" id="resb"></div></div>
 <aside class="drawer" id="drawer" hidden aria-label="Carrinho">
   <div class="dh"><h2>Seu pedido</h2><button class="x" id="close" aria-label="Fechar carrinho">×</button></div>
   <div class="db">
@@ -367,10 +373,7 @@ footer{color:var(--muted);font-size:12px;font-weight:700;padding-block:20px 140p
         <label for="nome">Seu nome<input id="nome" autocomplete="name" placeholder="Como devo te chamar?"></label>
         <div class="opts" role="radiogroup" aria-labelledby="entT">
           <span class="ol" id="entT">Como você quer receber?</span>
-          <label class="opt"><input type="radio" name="ent" id="ent1" value="Retirada na CNT Computadores" checked><b>Retirar na CNT Computadores</b><span>Av. São Jorge, 16, 1º andar, sala 4 · São Jorge<br>Seg a sex 9h–18h · sáb 8h–12h</span></label>
-          <label class="opt"><input type="radio" name="ent" id="ent2" value="Retirada na Mimiso Arena"><b>Retirar na Mimiso Arena</b><span>Beco São Pedro, 162 · Parque 10 de Novembro<br>Seg a sáb 9h–22h</span></label>
-          <label class="opt"><input type="radio" name="ent" id="ent3" value="Retirada na Mercadia Game Store"><b>Retirar na Mercadia Game Store</b><span>R. Rio Jutaí, 90 · Vieiralves (N. Sra. das Graças)<br>Ter a sex 15h–22h · sáb 14h–21h</span></label>
-          <label class="opt"><input type="radio" name="ent" id="ent4" value="Correios"><b>Enviar pelos Correios</b><span>Para todo o Brasil. Digite o CEP e calcule o frete na hora.</span></label>
+          <div id="ents"></div>
         </div>
         <div class="ship" id="ship" hidden>
           <label for="cep" class="full">CEP<input id="cep" inputmode="numeric" autocomplete="postal-code" placeholder="00000-000" maxlength="9"></label>
@@ -380,30 +383,26 @@ footer{color:var(--muted);font-size:12px;font-weight:700;padding-block:20px 140p
           <label for="comp">Complemento<input id="comp" autocomplete="address-line2" placeholder="Apto, bloco (opcional)"></label>
           <label for="bairro">Bairro<input id="bairro" placeholder="Bairro"></label>
           <label for="cidade" class="full">Cidade / UF<input id="cidade" autocomplete="address-level2" placeholder="Ex.: Manaus / AM"></label>
-          <p>O CPF é pedido pelos Correios para a etiqueta de envio.</p>
+          <p>O CPF é pedido para a etiqueta de envio.</p>
         </div>
+        <label for="tel">WhatsApp para contato<input id="tel" inputmode="tel" autocomplete="tel" placeholder="(00) 00000-0000"></label>
         <label for="obs">Observação (opcional)<textarea id="obs" rows="2" placeholder="Algum detalhe do pedido"></textarea></label>
+        <div class="cup" id="cupBox" hidden><label for="cup">Cupom de desconto<span class="cupr"><input id="cup" placeholder="Digite o código" autocapitalize="characters"><button type="button" id="cupBtn">Aplicar</button></span></label><span class="fm" id="cupMsg"></span></div>
+        <div class="opts" role="radiogroup" aria-labelledby="payT"><span class="ol" id="payT">Como você quer pagar?</span><div id="pays"></div></div>
       </fieldset>
     </form>
-    <div class="pix">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l4 4-4 4-4-4 4-4zM2 12l4-4 4 4-4 4-4-4zm12 0l4-4 4 4-4 4-4-4zm-2 2l4 4-4 4-4-4 4-4z"/></svg>
-      <span><strong>Pagamento só por Pix.</strong> Ao finalizar, abre a conversa comigo no WhatsApp com o pedido pronto. Lá eu confirmo o estoque, envio a chave Pix e combinamos a retirada ou o envio.</span>
-    </div>
   </div>
   <div class="df">
     <span class="err" id="err" hidden></span>
-    <a class="wa" id="wa" href="#" target="_blank" rel="noopener">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 00-8.6 15.1L2 22l5-1.3A10 10 0 1012 2zm0 18.2a8.2 8.2 0 01-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1112 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 01-3.3-2.9c-.3-.4.3-.4.7-1.3a.5.5 0 000-.4l-.8-1.9c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 00-.7.3 3 3 0 00-.9 2.2 5.2 5.2 0 001.1 2.7 11.8 11.8 0 004.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 001.8-1.2 2.2 2.2 0 00.1-1.2c0-.2-.2-.2-.4-.3z"/></svg>
-      Pagar com Pix pelo WhatsApp
-    </a>
-    <p class="hint">WhatsApp: <span id="num">(92) 98173-2192</span> · <button id="copy" type="button">copiar pedido</button></p>
+    <button class="wa" id="fin" type="button">Finalizar pedido</button>
+    <p class="hint">Dúvidas? WhatsApp <a id="num" target="_blank" rel="noopener"></a></p>
   </div>
 </aside>
 
 <script>
 let ITEMS=[],CFG={};
 const DEF_CFG={loja:"Cartas do Gabriel",fato1:"<b>Pix</b> único pagamento",fato2:"Retirada em Manaus ou Correios",aviso:"",favTitulo:"Qual é o seu Pokémon favorito?",populares:["Pikachu","Charizard","Mew","Mewtwo","Gengar","Lugia","Eevee","Snorlax","Greninja"],destaque:{modo:"auto",id:null},grupos:["Coleção 30 anos","Pikachus 30 anos","Listagem","Inglês","Energias"],cores:{principal:"#5d2a65",destaque:"#8e44ad",claro:"#e2b6ff"},slides:[{t:"Celebração 30 anos",s:"Português, inglês, japonês e chinês",c:"#e2b6ff",tipo:"col",valor:"30 anos",ativo:true},{t:"Ofertas -15%",s:"Nas cartas acima de R$ 100",c:"#ff8fb1",tipo:"promo",valor:"",ativo:true},{t:"Reinado Delta",s:"Megaevolução em português",c:"#c9a7ff",tipo:"col",valor:"Reinado Delta",ativo:true},{t:"Escuridão Absoluta",s:"Megaevolução",c:"#b48cff",tipo:"col",valor:"Escuridão Absoluta",ativo:true},{t:"Pikachus 30 anos",s:"Coleção completa 01 a 30",c:"#e2b6ff",tipo:"grupo",valor:"Pikachus 30 anos",ativo:true},{t:"151 chinesa",s:"Foil e Pokébola",c:"#f0a6ff",tipo:"col",valor:"Coleção 151 (CN)",ativo:true}]};
-const WA='5592981732192';
+let WA='',CUP={codigo:'',desconto:0};
 let GROUPS=DEF_CFG.grupos;
 const $=s=>document.querySelector(s);
 const brl=v=>'R$ '+v.toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,'.');
@@ -473,7 +472,8 @@ function render(){
     <div class="c">${ctl(i)}</div></div></article>`).join(''):'<p class="empty">Nenhuma carta encontrada com esse filtro.</p>';
 }
 function refreshCard(id){if(PVI&&String(PVI.id)===String(id)&&$('#pvC'))$('#pvC').innerHTML=ctl(byId[id]);const el=document.querySelector(`.card[data-id="${id}"] .c`);if(el)el.innerHTML=ctl(byId[id])}
-const isShip=()=>$('#ent4').checked;
+const isShip=()=>{const r=document.querySelector('input[name=ent]:checked');return !!r&&r.value==='envio'};
+const subT=()=>Object.keys(cart).reduce((s,k)=>s+cart[k]*byId[k].p,0);
 function msg(){
   const ks=Object.keys(cart);let tot=0;
   const lines=ks.map(k=>{const i=byId[k],n=cart[k];tot+=n*i.p;return `• ${n}x ${label(i)} — ${brl(n*i.p)}`});
@@ -488,7 +488,10 @@ function msg(){
   return `Olá, Gabriel! Quero comprar estas cartas:\n\n${lines.join('\n')}\n\n${isShip()&&frSel()?'Total com frete':'Total das cartas'}: ${brl(tot)}\nPagamento: Pix\nNome: ${nome}\n${rec}${obs?'\nObs.: '+obs:''}\n\nPode me enviar a chave Pix?`;
 }
 function problem(){
+  if(!Object.keys(cart).length)return ['nome','Seu carrinho está vazio.'];
   if(!$('#nome').value.trim())return ['nome','Escreva seu nome para finalizar.'];
+  if(!document.querySelector('input[name=ent]:checked'))return ['nome','Escolha como quer receber.'];
+  if(!document.querySelector('input[name=pay]:checked'))return ['nome','Escolha como quer pagar.'];
   if(isShip()){
     if(digits($('#cep').value).length!==8)return ['cep','Informe um CEP com 8 números.'];
     if(!frSel())return ['cep','Calcule o frete e escolha uma opção de envio.'];
@@ -502,15 +505,11 @@ function cartUI(){
   const ks=Object.keys(cart);const n=ks.reduce((s,k)=>s+cart[k],0);const tot=ks.reduce((s,k)=>s+cart[k]*byId[k].p,0);
   $('#bar').classList.toggle('show',n>0);
   $('#barN').textContent=n+(n===1?' carta':' cartas');$('#barT').textContent=brl(tot);
-  const fs=isShip()&&frSel();$('#tot').textContent=brl(tot+(fs?fs.preco:0));$('#totL').textContent=fs?'Total com frete':'Total das cartas';
+  if(CUP.codigo&&CUP.sub!==tot){CUP={codigo:'',desconto:0};$('#cupMsg').textContent='Carrinho mudou: aplique o cupom de novo.'}
+  const fs=isShip()&&frSel();$('#tot').textContent=brl(tot-CUP.desconto+(fs?fs.preco:0));$('#totL').textContent=(CUP.desconto?'Com cupom ':'')+(fs?'Total com frete':'Total das cartas');
   $('#lines').innerHTML=ks.length?ks.map(k=>{const i=byId[k],c=cart[k];return `<div class="li"><img src="${i.img}" alt=""><div><div class="nm">${i.n}</div><div class="sm">${i.g==='Energias'?'Básica':i.num} · ${i.l}${i.v?' · '+i.v:''} · ${i.c} · ${brl(i.p)} cada${i.o?' (-15%)':''}</div></div>
     <div><div class="step"><button data-dec="${k}" aria-label="Tirar uma">−</button><span>${c}</span><button data-inc="${k}" ${c>=i.q?'disabled':''} aria-label="Mais uma">+</button></div><div class="lp">${brl(c*i.p)}</div></div></div>`}).join(''):'<p class="hint">Seu carrinho está vazio.</p>';
-  updWA();save();
-}
-function updWA(){
-  const ok=Object.keys(cart).length>0;
-  $('#wa').setAttribute('aria-disabled',ok?'false':'true');
-  $('#wa').href='https://wa.me/'+WA+'?text='+encodeURIComponent(msg());
+  save();
 }
 function change(id,d){
   const i=byId[id];const n=Math.max(0,Math.min(i.q,(cart[id]||0)+d));
@@ -559,33 +558,59 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeD()});
 $('#q').oninput=e=>{q=e.target.value;render()};
 $('#lang').onchange=e=>{lang=e.target.value;render()};
 $('#sort').onchange=e=>{sort=e.target.value;render()};
-document.querySelectorAll('input[name=ent]').forEach(r=>r.onchange=()=>{$('#ship').hidden=!isShip();$('#err').hidden=true;cartUI()});
 let FR=[];const frSel=()=>{const r=document.querySelector('input[name=fr]:checked');return r?FR[+r.value]:null};
 function frClear(){FR=[];$('#frOpts').innerHTML=''}
 $('#calc').onclick=async()=>{const cep=digits($('#cep').value);if(cep.length!==8){$('#frOpts').innerHTML='<p class="fm">Digite um CEP com 8 números.</p>';return}
   const b=$('#calc');b.disabled=true;b.textContent='Calculando...';$('#frOpts').innerHTML='';
-  try{let r=await fetch('/frete?cep='+cep).catch(()=>null);if(!r||!r.ok||!(r.headers.get('content-type')||'').includes('json'))r=await fetch('/.netlify/functions/frete?cep='+cep);const d=await r.json();FR=d.opcoes||[];
-    $('#frOpts').innerHTML=FR.length?FR.map((o,k)=>`<label class="fo"><input type="radio" name="fr" value="${k}" ${k===0?'checked':''}><span>${o.nome}<small>${o.prazo} dias úteis</small></span><b>${brl(o.preco)}</b></label>`).join(''):'<p class="fm">Não consegui calcular agora. Pode finalizar que eu calculo o frete no WhatsApp.</p>';
-    if(!FR.length)FR=[{nome:'a calcular',preco:0,prazo:'?'}];
-  }catch(e){FR=[{nome:'a calcular',preco:0,prazo:'?'}];$('#frOpts').innerHTML='<p class="fm">Não consegui calcular agora. Pode finalizar que eu calculo o frete no WhatsApp.</p>'}
+  try{const r=await fetch('/frete?cep='+cep+'&valor='+subT().toFixed(2));const d=await r.json();FR=d.opcoes||[];
+    $('#frOpts').innerHTML=FR.length?FR.map((o,k)=>`<label class="fo"><input type="radio" name="fr" value="${k}" ${k===0?'checked':''}><span>${esc(o.nome)}<small>${esc(o.prazo)} dias úteis</small></span><b>${brl(o.preco)}</b></label>`).join(''):'<p class="fm">Não consegui calcular o frete agora. Tente de novo em instantes ou fale com a loja no WhatsApp.</p>';
+  }catch(e){FR=[];$('#frOpts').innerHTML='<p class="fm">Não consegui calcular o frete agora. Tente de novo em instantes.</p>'}
   b.disabled=false;b.textContent='Calcular frete';cartUI()};
 $('#frOpts').addEventListener('change',()=>cartUI());
 $('#cep').addEventListener('input',e=>{frClear();const d=digits(e.target.value).slice(0,8);e.target.value=d.length>5?d.slice(0,5)+'-'+d.slice(5):d});
 $('#cpf').addEventListener('input',e=>{const d=digits(e.target.value).slice(0,11);e.target.value=d.replace(/^(\d{3})(\d)/,'$1.$2').replace(/^(\d{3})\.(\d{3})(\d)/,'$1.$2.$3').replace(/\.(\d{3})(\d{1,2})$/,'.$1-$2')});
-['nome','obs','cep','cpf','rua','comp','bairro','cidade'].forEach(id=>$('#'+id).addEventListener('input',()=>{$('#'+id).removeAttribute('aria-invalid');$('#err').hidden=true;updWA()}));
-$('#wa').addEventListener('click',e=>{const p=problem();if(p){e.preventDefault();$('#err').textContent=p[1];$('#err').hidden=false;const el=$('#'+p[0]);el.setAttribute('aria-invalid','true');el.focus()}});
-$('#copy').onclick=async()=>{const t=msg();try{await navigator.clipboard.writeText(t);$('#copy').textContent='pedido copiado'}catch(err){const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand('copy')}catch(x){}ta.remove();$('#copy').textContent='pedido copiado'}setTimeout(()=>$('#copy').textContent='copiar pedido',2000)};
+['nome','tel','obs','cep','cpf','rua','comp','bairro','cidade'].forEach(id=>$('#'+id).addEventListener('input',()=>{$('#'+id).removeAttribute('aria-invalid');$('#err').hidden=true}));
+$('#fin').onclick=async()=>{const p=problem();if(p){$('#err').textContent=p[1];$('#err').hidden=false;const el=$('#'+p[0]);el.setAttribute('aria-invalid','true');el.focus();return}
+  const b=$('#fin');b.disabled=true;b.textContent='Enviando pedido...';$('#err').hidden=true;
+  const v=id=>$('#'+id).value.trim();const ent=document.querySelector('input[name=ent]:checked').value;const f=frSel();
+  const body={itens:Object.keys(cart).map(k=>({id:byId[k].id,q:cart[k]})),nome:v('nome'),telefone:v('tel'),obs:v('obs'),cupom:CUP.codigo,pagamento:document.querySelector('input[name=pay]:checked').value,
+    entrega:ent==='envio'?{tipo:'envio',cep:v('cep'),servico:f&&f.nome,cpf:v('cpf'),rua:v('rua'),comp:v('comp'),bairro:v('bairro'),cidade:v('cidade')}:{tipo:'retirada',ponto:+ent.slice(1)}};
+  try{const r=await fetch('/api/pedido',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});const d=await r.json();
+    if(!r.ok)throw new Error(d.erro||'Não consegui registrar o pedido.');
+    cart={};save();refreshAll();closeD();showRes(d,body.pagamento);
+  }catch(e){$('#err').textContent=e.message;$('#err').hidden=false}
+  b.disabled=false;b.textContent='Finalizar pedido'};
+function refreshAll(){render();cartUI()}
+function showRes(d,pay){let h=`<h2 id="resT">Pedido recebido!</h2><span class="num">Número do pedido: <b>${d.id}</b> · Total ${brl(d.total)}</span>`;
+  if(pay==='pix'){h+=`<p>Pague com Pix pelo QR Code ou pelo código copia e cola:</p><div class="qr" id="qr"></div><textarea id="pixc" rows="4" readonly>${esc(d.pix.copiaecola)}</textarea><button class="b1" type="button" id="pixCopy">Copiar código Pix</button><p class="fm">Depois de pagar, mande o comprovante no WhatsApp.</p><a class="b2" href="${d.whatsapp}" target="_blank" rel="noopener">Enviar comprovante no WhatsApp</a>`}
+  else if(pay==='mp'){h+=`<p>Você vai para o Mercado Pago para pagar com Pix ou cartão.</p><a class="b1" href="${d.mp}">Ir para o pagamento</a>`;setTimeout(()=>{location.href=d.mp},1500)}
+  else{h+=`<p>Agora é só mandar o pedido no WhatsApp para combinar o pagamento.</p><a class="b1" href="${d.whatsapp}" target="_blank" rel="noopener">Enviar pedido no WhatsApp</a>`}
+  h+=`<button class="b2" type="button" id="resClose">Fechar</button>`;
+  $('#resb').innerHTML=h;$('#res').hidden=false;$('#resClose').onclick=()=>{$('#res').hidden=true};
+  if(pay==='pix'){if(window.QRCode)new QRCode($('#qr'),{text:d.pix.copiaecola,width:200,height:200,correctLevel:QRCode.CorrectLevel.M});$('#pixCopy').onclick=async()=>{try{await navigator.clipboard.writeText(d.pix.copiaecola)}catch(e){$('#pixc').select();document.execCommand('copy')}$('#pixCopy').textContent='Código copiado'}}
+}
+$('#cupBtn').onclick=async()=>{const c=$('#cup').value.trim();if(!c){CUP={codigo:'',desconto:0};$('#cupMsg').textContent='';cartUI();return}
+  const sub=subT();try{const r=await fetch('/api/cupom',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({codigo:c,subtotal:sub})});const d=await r.json();
+  if(!r.ok){CUP={codigo:'',desconto:0};$('#cupMsg').textContent=d.erro||'Cupom inválido'}else{CUP={codigo:d.codigo,desconto:d.desconto,sub};$('#cupMsg').textContent=`${d.descricao}: -${brl(d.desconto)}`}}catch(e){$('#cupMsg').textContent='Não consegui validar agora.'}cartUI()};
 $('#fav').addEventListener('submit',e=>{e.preventDefault();const v=$('#favIn').value.trim();if(v)pick(v)});
 $('#slides').addEventListener('click',e=>{if(e.target.closest('button'))return;const s=e.target.closest('.slide');if(s)SL[+s.dataset.s].go()});
 let tx=null;$('#slider').addEventListener('touchstart',e=>{tx=e.touches[0].clientX},{passive:true});$('#slider').addEventListener('touchend',e=>{if(tx===null)return;const dx=e.changedTouches[0].clientX-tx;if(Math.abs(dx)>40)showSlide(sIdx+(dx<0?1:-1));tx=null});
+const esc=t=>String(t??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function applyCfg(){
   CFG=Object.assign({},DEF_CFG,CFG||{});GROUPS=(CFG.grupos&&CFG.grupos.length)?CFG.grupos:DEF_CFG.grupos;
   SLIDES=(CFG.slides||[]).filter(d=>d.ativo!==false).map(d=>({...d,c:d.c||'#e2b6ff',f:slideF(d),go:slideGo(d)}));
-  const esc=t=>String(t||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   const rich=t=>esc(t).replace(/&lt;b&gt;/g,'<b>').replace(/&lt;\/b&gt;/g,'</b>');
-  $('#logo').textContent=CFG.loja||DEF_CFG.loja;document.title=CFG.loja||DEF_CFG.loja;
+  const LN=(CFG.loja&&typeof CFG.loja==='object')?CFG.loja.nome:CFG.loja;$('#logo').textContent=LN||'Loja';document.title=LN||'Loja';
   $('#fact1').innerHTML=rich(CFG.fato1);$('#fact2').innerHTML=rich(CFG.fato2);$('#favLbl').textContent=CFG.favTitulo||DEF_CFG.favTitulo;
   $('#aviso').hidden=!CFG.aviso;$('#aviso').textContent=CFG.aviso||'';
+  const L=(typeof CFG.loja==='object'&&CFG.loja)||{};if(L.nome){$('#logo').textContent=L.nome;document.title=L.nome}WA=String(L.whatsapp||'').replace(/\D/g,'');
+  $('#num').textContent=WA.length>=12?'('+WA.slice(2,4)+') '+WA.slice(4,-4)+'-'+WA.slice(-4):WA;$('#num').href='https://wa.me/'+WA;$('#rodape').textContent=L.rodape||'';
+  const RT=(CFG.retiradas||[]).filter(r=>r.ativo!==false),EV=CFG.envio||{};
+  $('#ents').innerHTML=RT.map((r,k)=>`<label class="opt"><input type="radio" name="ent" value="r${k}" ${k===0?'checked':''}><b>Retirar em ${esc(r.nome)}</b><span>${esc(r.endereco)}${r.horario?'<br>'+esc(r.horario):''}</span></label>`).join('')+(EV.ativo!==false?`<label class="opt"><input type="radio" name="ent" value="envio" ${RT.length?'':'checked'}><b>Receber pelo correio / transportadora</b><span>Para todo o Brasil. Digite o CEP e calcule o frete.</span></label>`:'');
+  document.querySelectorAll('input[name=ent]').forEach(r=>r.onchange=()=>{$('#ship').hidden=!isShip();$('#err').hidden=true;cartUI()});$('#ship').hidden=!isShip();
+  const PG=CFG.pagamentos||{},PO=[['whatsapp','Combinar pelo WhatsApp','Você envia o pedido e a loja manda a chave Pix ou o link de pagamento.'],['pix','Pix agora (QR Code)','Paga na hora com QR Code ou copia e cola e envia o comprovante.'],['mp','Pix ou cartão pelo Mercado Pago','Pagamento seguro no site do Mercado Pago, cartão em até 12x.']].filter(([k])=>PG[k]&&PG[k].ativo);
+  $('#pays').innerHTML=PO.map(([k,t,d],i)=>`<label class="opt"><input type="radio" name="pay" value="${k}" ${i===0?'checked':''}><b>${t}</b><span>${d}</span></label>`).join('')||'<p class="fm">Nenhuma forma de pagamento ativa.</p>';
+  $('#cupBox').hidden=!CFG.temCupom;
   const co=CFG.cores||{},rs=document.documentElement.style;
   if(co.principal){rs.setProperty('--red',co.principal);rs.setProperty('--frame-d',co.principal)}
   if(co.destaque){rs.setProperty('--blue',co.destaque);rs.setProperty('--frame',co.destaque)}
@@ -598,7 +623,11 @@ async function boot(){
   ITEMS=d.items.filter(i=>i&&i.q>0);CFG=d.cfg||{};byId=Object.fromEntries(ITEMS.map(i=>[i.id,i]));
   for(const k in cart){if(!byId[k])delete cart[k];else cart[k]=Math.min(cart[k],byId[k].q)}
   applyCfg();chips();hero();buildSlider();render();cartUI();
+  const pid=new URLSearchParams(location.search).get('pedido');
+  if(pid){try{const r=await fetch('/api/pedido-status?id='+encodeURIComponent(pid));const d=await r.json();if(r.ok){const st={pago:'Pagamento aprovado! Obrigado pela compra.',aguardando:'Pagamento em análise. Avisaremos quando for aprovado.',recusado:'O pagamento não foi aprovado. Tente de novo ou fale no WhatsApp.'}[d.status]||('Status: '+d.status);
+    $('#resb').innerHTML=`<h2 id="resT">Pedido ${esc(d.id)}</h2><p>${st}</p><span class="num">Total ${brl(d.total)}</span><button class="b2" type="button" id="resClose">Fechar</button>`;$('#res').hidden=false;$('#resClose').onclick=()=>{$('#res').hidden=true;history.replaceState(null,'','/')}}}catch(e){}}
 }
 boot();
 </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
 </body></html>

@@ -1,94 +1,162 @@
 <!doctype html>
 <html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="robots" content="noindex,nofollow"><title>Painel · Cartas do Gabriel</title>
+<meta name="robots" content="noindex,nofollow"><title>Painel da loja</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap">
 <style>
-:root{--bg:#0c0a0f;--sf:#17121c;--sf2:#1f1826;--ln:#34263f;--ink:#f4eef8;--mu:#b4a6c0;--pu:#8e44ad;--pu2:#a63dff;--lt:#e2b6ff;--ok:#4dc247;--err:#ff6b6b;--pt:#1f9d55;--en:#2563eb;--jp:#d62828;--cn:#e8820c}
+:root{--bg:#0c0a0f;--sf:#17121c;--sf2:#1f1826;--ln:#34263f;--ink:#f4eef8;--mu:#b4a6c0;--pu:#8e44ad;--pu2:#a63dff;--lt:#e2b6ff;--ok:#4dc247;--warn:#f2a541;--err:#ff6b6b;--pt:#1f9d55;--en:#2563eb;--jp:#d62828;--cn:#e8820c}
 *{box-sizing:border-box}[hidden]{display:none!important}
 body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 Poppins,system-ui,sans-serif}
 button,input,select,textarea{font:inherit;color:inherit}
 input,select,textarea{background:var(--sf2);border:1.5px solid var(--ln);border-radius:9px;padding:8px 10px;width:100%;min-width:0}
-input[type=color]{padding:3px;height:42px;cursor:pointer}
+input[type=color]{padding:3px;height:42px;cursor:pointer}input[type=checkbox]{width:auto}
 input:focus,select:focus,textarea:focus{outline:2px solid var(--pu2);outline-offset:1px;border-color:transparent}
 label{display:flex;flex-direction:column;gap:4px;font-size:12.5px;font-weight:600;color:var(--mu)}
-.btn{background:linear-gradient(90deg,var(--pu2),#7b2fbf);border:0;border-radius:10px;padding:9px 16px;font-weight:700;color:#fff;cursor:pointer;white-space:nowrap}
+a{color:var(--lt)}
+.btn{background:linear-gradient(90deg,var(--pu2),#7b2fbf);border:0;border-radius:10px;padding:9px 16px;font-weight:700;color:#fff;cursor:pointer;white-space:nowrap;text-decoration:none;display:inline-block}
 .btn.s{background:var(--sf2);border:1.5px solid var(--ln);color:var(--ink)}
 .btn.d{background:transparent;border:1.5px solid #6b2a35;color:var(--err)}
+.btn.sm{padding:6px 10px;font-size:13px}
 .btn:disabled{opacity:.5;cursor:default}
 .wrap{max-width:1200px;margin:0 auto;padding:0 16px}
 header{position:sticky;top:0;z-index:5;background:linear-gradient(90deg,#4c2353,#5d2a65);border-bottom:1px solid var(--ln)}
-header .wrap{display:flex;align-items:center;gap:12px;min-height:58px;flex-wrap:wrap}
-header b{font-size:18px;font-weight:800;margin-right:auto}
-.tabs{display:flex;gap:6px}.tabs button{background:transparent;border:1.5px solid transparent;border-radius:999px;padding:6px 14px;font-weight:700;color:var(--lt);cursor:pointer}
-.tabs button[aria-selected=true]{background:var(--bg);border-color:var(--pu)}
+header .wrap{display:flex;align-items:center;gap:10px;min-height:56px;flex-wrap:wrap}
+header b{font-size:17px;font-weight:800;margin-right:auto}
+header .who{font-size:12.5px;color:var(--lt)}
+nav.tabs{display:flex;gap:4px;overflow-x:auto;padding:8px 0;scrollbar-width:thin}
+nav.tabs button{background:transparent;border:1.5px solid transparent;border-radius:999px;padding:6px 13px;font-weight:700;color:var(--mu);cursor:pointer;white-space:nowrap}
+nav.tabs button[aria-selected=true]{background:var(--sf);border-color:var(--pu);color:var(--ink)}
 #login{max-width:380px;margin:12vh auto;padding:28px;background:var(--sf);border:1.5px solid var(--ln);border-radius:16px;display:flex;flex-direction:column;gap:14px}
-#login h1{margin:0;font-size:22px}.msg{font-size:13.5px;color:var(--err);min-height:1em}.note{font-size:13px;color:var(--mu)}
-.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:end;margin:18px 0 12px}.bar label{flex:1 1 180px}
-.list{display:flex;flex-direction:column;gap:8px;padding-bottom:100px}
+#login h1{margin:0;font-size:22px}
+.msg{font-size:13.5px;color:var(--err);min-height:1em}.note{font-size:13px;color:var(--mu);margin:6px 0}
+.ok{color:var(--ok)}.warn{color:var(--warn)}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:end;margin:16px 0 12px}.bar label{flex:1 1 180px}
+.list{display:flex;flex-direction:column;gap:8px}
 .row{display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:12px;align-items:center;background:var(--sf);border:1.5px solid var(--ln);border-radius:12px;padding:8px 10px}
 .row.dirty{border-color:var(--pu2)}.row.zero{opacity:.55}
 .row img{width:52px;height:73px;object-fit:cover;border-radius:5px;background:#000}
-.row .nm{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.row .sm{font-size:12.5px;color:var(--mu);display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.nm{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sm{font-size:12.5px;color:var(--mu);display:flex;gap:6px;flex-wrap:wrap;align-items:center}
 .b{font-size:11px;font-weight:800;padding:0 6px;border-radius:5px;color:#fff;background:#7b3fb5}.b.PT{background:var(--pt)}.b.EN{background:var(--en)}.b.JP{background:var(--jp)}.b.CN{background:var(--cn)}
 .ctl{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
 .qty{display:flex;align-items:center;border:1.5px solid var(--ln);border-radius:9px;overflow:hidden}
 .qty button{background:var(--sf2);border:0;width:32px;height:34px;font-size:18px;cursor:pointer}.qty span{min-width:34px;text-align:center;font-weight:700}
 .pr{width:96px}.pr input{padding:6px 8px;text-align:right}
 .save{position:fixed;left:0;right:0;bottom:0;z-index:6;background:#120d16f0;border-top:1px solid var(--ln);backdrop-filter:blur(6px)}
-.save .wrap{display:flex;align-items:center;gap:12px;min-height:64px;flex-wrap:wrap}.save .wrap span{margin-right:auto;color:var(--mu);font-size:14px}
-dialog{background:var(--sf);color:var(--ink);border:1.5px solid var(--ln);border-radius:16px;padding:0;width:min(760px,calc(100% - 24px));max-height:calc(100% - 24px)}
+.save .wrap{display:flex;align-items:center;gap:10px;min-height:62px;flex-wrap:wrap}.save .wrap span{margin-right:auto;color:var(--mu);font-size:14px}
+main{padding-bottom:110px}
+dialog{background:var(--sf);color:var(--ink);border:1.5px solid var(--ln);border-radius:16px;padding:0;width:min(780px,calc(100% - 24px));max-height:calc(100% - 24px)}
 dialog::backdrop{background:#000a}
-.dh{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--ln)}.dh h2{margin:0;font-size:18px}
+.dh{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--ln)}.dh h2{margin:0;font-size:18px}
 .db{padding:16px 18px;display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
-.db .full{grid-column:1/-1}.df{padding:12px 18px;border-top:1px solid var(--ln);display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.full{grid-column:1/-1}.df{padding:12px 18px;border-top:1px solid var(--ln);display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
 .ph{display:flex;gap:8px;flex-wrap:wrap}.ph figure{margin:0;position:relative}.ph img{width:70px;height:98px;object-fit:cover;border-radius:6px;border:1.5px solid var(--ln)}
 .ph button{position:absolute;top:-6px;right:-6px;width:22px;height:22px;border-radius:50%;border:0;background:var(--err);color:#fff;cursor:pointer;font-weight:800;line-height:1}
-.ph .main img{border-color:var(--pu2)}
 .card{background:var(--sf);border:1.5px solid var(--ln);border-radius:14px;padding:16px;margin:16px 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
-.card h3{grid-column:1/-1;margin:0;font-size:16px}.card .full{grid-column:1/-1}
-.sl{display:grid;grid-template-columns:1.2fr 1.4fr 110px 130px 1fr auto;gap:8px;align-items:end;background:var(--sf2);border:1px solid var(--ln);border-radius:10px;padding:10px}
-.sl .tools{display:flex;gap:4px}.sl .tools button{padding:7px 9px}
-.chk{flex-direction:row;align-items:center;gap:6px}.chk input{width:auto}
-.gl{display:flex;flex-direction:column;gap:6px}.gl div{display:flex;gap:6px}.gl input{flex:1}
+.card h3{grid-column:1/-1;margin:0;font-size:16px}.card p.note{grid-column:1/-1;margin:0}
+.it{display:grid;gap:8px;align-items:end;background:var(--sf2);border:1px solid var(--ln);border-radius:10px;padding:10px}
+.it.sl{grid-template-columns:1.2fr 1.4fr 90px 120px 1fr auto}
+.it.rt{grid-template-columns:1fr 1.6fr 1.2fr auto}
+.it.fx{grid-template-columns:1.5fr 120px 120px auto}
+.it.cp{grid-template-columns:1fr 130px 110px 120px 150px auto}
+.tools{display:flex;gap:4px;align-items:center}.tools button{padding:7px 9px}
+.chk{flex-direction:row;align-items:center;gap:6px;color:var(--ink)}
+.stack{display:flex;flex-direction:column;gap:8px}
 .toast{position:fixed;top:70px;left:50%;transform:translateX(-50%);background:var(--sf2);border:1.5px solid var(--pu2);padding:10px 18px;border-radius:12px;z-index:20;font-weight:600}
-@media(max-width:720px){.row{grid-template-columns:44px minmax(0,1fr)}.row img{width:44px;height:62px}.ctl{grid-column:1/-1;justify-content:space-between}.sl{grid-template-columns:1fr 1fr}.sl .tools{grid-column:1/-1}}
+table{width:100%;border-collapse:collapse;font-size:13.5px}th,td{text-align:left;padding:8px;border-bottom:1px solid var(--ln);vertical-align:top}th{color:var(--mu);font-weight:700}
+tr.click{cursor:pointer}tr.click:hover td{background:var(--sf2)}
+.st{font-size:11.5px;font-weight:800;padding:2px 8px;border-radius:999px;background:var(--sf2);border:1px solid var(--ln);white-space:nowrap}
+.st.pago,.st.entregue{color:var(--ok);border-color:#2c6b2a}.st.enviado{color:var(--lt)}.st.aguardando{color:var(--warn)}.st.cancelado,.st.recusado,.st.devolvido{color:var(--err)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin:16px 0}
+.kpi{background:var(--sf);border:1.5px solid var(--ln);border-radius:12px;padding:12px}.kpi b{display:block;font-size:20px}.kpi span{font-size:12.5px;color:var(--mu)}
+.scroll{overflow-x:auto}
+.secf{display:flex;gap:6px}.secf input{flex:1}
+pre.code{background:var(--sf2);border:1px solid var(--ln);border-radius:10px;padding:12px;white-space:pre-wrap;font-size:12.5px;max-height:320px;overflow:auto}
+@media(max-width:760px){.row{grid-template-columns:44px minmax(0,1fr)}.row img{width:44px;height:62px}.ctl{grid-column:1/-1;justify-content:space-between}.it.sl,.it.rt,.it.fx,.it.cp{grid-template-columns:1fr 1fr}.tools{grid-column:1/-1}}
 </style></head><body>
 
 <section id="login" hidden>
   <h1>Painel da loja</h1>
-  <p class="note">Entre com a senha de administrador para gerenciar cartas e layout.</p>
-  <form id="lf"><label>Senha<input id="pw" type="password" autocomplete="current-password" required></label>
+  <p class="note">Entre com seu usuário e senha.</p>
+  <form id="lf" class="stack"><label>Usuário<input id="lu" autocomplete="username" value="admin" required></label>
+  <label>Senha<input id="pw" type="password" autocomplete="current-password" required></label>
   <p class="msg" id="lmsg"></p><button class="btn" style="width:100%">Entrar</button></form>
 </section>
 
 <div id="app" hidden>
-<header><div class="wrap"><b>Painel · Cartas do Gabriel</b>
-  <div class="tabs" role="tablist"><button role="tab" aria-selected="true" data-tab="prod">Produtos</button><button role="tab" aria-selected="false" data-tab="lay">Layout</button></div>
-  <a class="btn s" href="/" target="_blank" rel="noopener" style="text-decoration:none">Ver site</a><button class="btn s" id="out">Sair</button></div></header>
+<header><div class="wrap"><b id="hTitle">Painel da loja</b><span class="who" id="who"></span>
+  <a class="btn s sm" href="/" target="_blank" rel="noopener">Ver site</a><button class="btn s sm" id="out">Sair</button></div>
+  <div class="wrap"><nav class="tabs" role="tablist" id="tabs">
+    <button role="tab" data-tab="prod" aria-selected="true">Produtos</button>
+    <button role="tab" data-tab="ped">Pedidos</button>
+    <button role="tab" data-tab="imp">Importar planilha</button>
+    <button role="tab" data-tab="loja" data-adm>Loja e retirada</button>
+    <button role="tab" data-tab="lay" data-adm>Aparência</button>
+    <button role="tab" data-tab="frete" data-adm>Frete</button>
+    <button role="tab" data-tab="pag" data-adm>Pagamentos</button>
+    <button role="tab" data-tab="cup" data-adm>Cupons</button>
+    <button role="tab" data-tab="usr" data-adm>Usuários</button>
+  </nav></div></header>
 
 <main class="wrap">
-<p class="note" id="kvwarn" hidden style="color:var(--err)">Atenção: o banco de dados (KV ESTOQUE) ainda não está ligado ao site, então não dá para salvar.</p>
+<p class="note warn" id="kvwarn" hidden>Atenção: o banco de dados (KV ESTOQUE) ainda não está ligado ao site, então nada pode ser salvo.</p>
 
-<section id="prod">
+<!-- PRODUTOS -->
+<section data-pane="prod">
   <div class="bar">
     <label>Buscar<input id="q" placeholder="Nome, número, variante..."></label>
-    <label style="flex:0 1 180px">Grupo<select id="fg"><option value="">Todos</option></select></label>
+    <label style="flex:0 1 180px">Grupo<select id="fg"></select></label>
     <label style="flex:0 1 130px">Idioma<select id="fl"><option value="">Todos</option><option>PT</option><option>EN</option><option>JP</option><option>CN</option></select></label>
-    <label class="chk" style="flex:0 0 auto"><input type="checkbox" id="fz"> Mostrar esgotadas</label>
-    <button class="btn" id="nova">+ Nova carta</button>
+    <label class="chk" style="flex:0 0 auto"><input type="checkbox" id="fz"> Mostrar esgotados</label>
+    <button class="btn" id="nova">+ Novo produto</button>
   </div>
   <p class="note" id="sum"></p>
   <div class="list" id="list"></div>
 </section>
 
-<section id="lay" hidden>
+<!-- PEDIDOS -->
+<section data-pane="ped" hidden>
+  <div class="kpis" id="kpis"></div>
+  <div class="bar"><label style="flex:0 1 220px">Status<select id="pf"><option value="">Todos</option><option>aguardando</option><option>pago</option><option>enviado</option><option>entregue</option><option>cancelado</option><option>recusado</option><option>devolvido</option></select></label>
+  <label>Buscar<input id="pq" placeholder="Número ou nome do cliente"></label><button class="btn s" id="pRef">Atualizar</button></div>
+  <div class="scroll"><table><thead><tr><th>Pedido</th><th>Data</th><th>Cliente</th><th>Pagamento</th><th>Total</th><th>Status</th></tr></thead><tbody id="ptb"></tbody></table></div>
+  <p class="note">O estoque só baixa quando o pedido vira <b>pago</b> (pelo Mercado Pago, automaticamente, ou por você aqui). Se cancelar depois, as cartas voltam para o estoque.</p>
+</section>
+
+<!-- IMPORTAR -->
+<section data-pane="imp" hidden>
+  <div class="card"><h3>1. Baixe o modelo ou o estoque atual</h3>
+    <p class="note">A planilha tem estas colunas: <b>grupo; nome; numero; idioma; variante; estado; quantidade; preco; preco_antigo; imagem_url</b>. Você pode editar no Excel, Google Planilhas ou pedir para o ChatGPT preencher.</p>
+    <div class="tools full"><button class="btn s" id="dlModelo">Baixar modelo vazio</button><button class="btn s" id="dlAtual">Baixar estoque atual</button><button class="btn s" id="verPrompt">Ver prompt para o ChatGPT</button></div>
+  </div>
+  <div class="card"><h3>2. Envie a planilha preenchida (.csv ou .xlsx)</h3>
+    <label class="full">Arquivo<input type="file" id="impF" accept=".csv,.xlsx,.xls,text/csv"></label>
+    <label class="chk full"><input type="checkbox" id="impZero"> Zerar a quantidade dos produtos que não estiverem na planilha (use quando a planilha for o estoque completo)</label>
+    <p class="note">Os produtos são reconhecidos por <b>nome + número + idioma + variante</b>. Se já existir, atualiza quantidade e preço; se não existir, cria um produto novo (depois você coloca as fotos na aba Produtos).</p>
+  </div>
+  <div class="card" id="impPrev" hidden><h3>3. Confira antes de aplicar</h3><div class="full scroll" id="impTab"></div>
+    <div class="tools full"><button class="btn" id="impOk">Aplicar no estoque</button><button class="btn s" id="impNo">Cancelar</button></div></div>
+</section>
+
+<!-- LOJA -->
+<section data-pane="loja" hidden>
+  <div class="card"><h3>Dados da loja</h3>
+    <label>Nome da loja<input data-c="loja.nome"></label>
+    <label>WhatsApp (com DDI e DDD, só números)<input data-c="loja.whatsapp" placeholder="5592999999999"></label>
+    <label class="full">Texto do rodapé<input data-c="loja.rodape"></label>
+  </div>
+  <div class="card"><h3>Pontos de retirada</h3>
+    <div class="full stack" id="rts"></div>
+    <div class="full"><button class="btn s" id="addRt">+ Novo ponto de retirada</button></div>
+  </div>
+</section>
+
+<!-- APARÊNCIA -->
+<section data-pane="lay" hidden>
   <div class="card"><h3>Topo da loja</h3>
-    <label>Nome da loja<input data-c="loja"></label>
     <label>Destaque 1 (use &lt;b&gt;texto&lt;/b&gt; para negrito)<input data-c="fato1"></label>
     <label>Destaque 2<input data-c="fato2"></label>
-    <label class="full">Faixa de aviso no topo (deixe vazio para esconder)<input data-c="aviso" placeholder="Ex.: Entregas suspensas no feriado"></label>
+    <label class="full">Faixa de aviso no topo (vazio = escondida)<input data-c="aviso" placeholder="Ex.: Entregas suspensas no feriado"></label>
   </div>
   <div class="card"><h3>Cores</h3>
     <label>Cor principal<input type="color" data-cor="principal"></label>
@@ -96,108 +164,199 @@ dialog::backdrop{background:#000a}
     <label>Cor clara (preços)<input type="color" data-cor="claro"></label>
   </div>
   <div class="card"><h3>Banner rolante</h3>
-    <div class="full" id="slides" style="display:flex;flex-direction:column;gap:8px"></div>
+    <div class="full stack" id="slides"></div>
     <div class="full"><button class="btn s" id="addSl">+ Novo slide</button></div>
-    <p class="note full">Tipo "Coleção": 30 anos, Reinado Delta, Escuridão Absoluta, Coleção 151 (CN). Tipo "Grupo": nome do grupo. Tipo "Busca": palavra (ex.: Charizard). "Ofertas" mostra as cartas com desconto.</p>
+    <p class="note">Tipo "Coleção": 30 anos, Reinado Delta, Escuridão Absoluta, Coleção 151 (CN). "Grupo": nome de um grupo. "Busca": uma palavra (ex.: Charizard). "Ofertas": produtos com preço riscado.</p>
   </div>
-  <div class="card"><h3>Pokémon do dia e favoritos</h3>
-    <label>Pokémon do dia<select id="dm"><option value="auto">Automático (muda todo dia)</option><option value="fixo">Fixar uma carta</option></select></label>
-    <label>Carta fixa<select id="did"></select></label>
+  <div class="card"><h3>Destaque do dia e favoritos</h3>
+    <label>Destaque do dia<select id="dm"><option value="auto">Automático (muda todo dia)</option><option value="fixo">Fixar um produto</option></select></label>
+    <label>Produto fixo<select id="did"></select></label>
     <label class="full">Título da busca de favorito<input data-c="favTitulo"></label>
     <label class="full">Botões rápidos (separe por vírgula)<input id="pop"></label>
   </div>
   <div class="card"><h3>Grupos da vitrine (ordem das abas)</h3>
-    <div class="gl full" id="gl"></div>
+    <div class="full stack" id="gl"></div>
     <div class="full"><button class="btn s" id="addG">+ Novo grupo</button></div>
   </div>
-  <div style="padding-bottom:100px"></div>
+</section>
+
+<!-- FRETE -->
+<section data-pane="frete" hidden>
+  <div class="card"><h3>Envio</h3>
+    <label class="chk full"><input type="checkbox" data-c="envio.ativo"> Oferecer envio (correio / transportadora)</label>
+    <label>Serviço de frete<select data-c="envio.provedor"><option value="superfrete">SuperFrete</option><option value="melhorenvio">Melhor Envio</option><option value="frenet">Frenet</option><option value="fixo">Valores fixos (sem API)</option></select></label>
+    <label>CEP de origem (de onde sai)<input data-c="envio.cepOrigem" inputmode="numeric"></label>
+    <label>E-mail da conta (Melhor Envio pede)<input data-c="envio.email" type="email"></label>
+  </div>
+  <div class="card"><h3>Pacote padrão</h3>
+    <label>Altura (cm)<input type="number" step="0.5" data-c="envio.pacote.altura"></label>
+    <label>Largura (cm)<input type="number" step="0.5" data-c="envio.pacote.largura"></label>
+    <label>Comprimento (cm)<input type="number" step="0.5" data-c="envio.pacote.comprimento"></label>
+    <label>Peso (kg)<input type="number" step="0.01" data-c="envio.pacote.peso"></label>
+  </div>
+  <div class="card"><h3>Chaves das APIs de frete</h3>
+    <p class="note">Cole o token gerado no site de cada serviço. Ele fica guardado só no servidor e nunca aparece de novo inteiro (mostramos só o final). Para trocar, cole um novo; para apagar, clique em Remover.</p>
+    <label class="full">Token SuperFrete <span class="sm" id="m_superfrete"></span><span class="secf"><input type="password" data-sec="superfrete" autocomplete="off" placeholder="Cole o token aqui"><button class="btn d sm" type="button" data-secdel="superfrete">Remover</button></span></label>
+    <label class="full">Token Melhor Envio <span class="sm" id="m_melhorenvio"></span><span class="secf"><input type="password" data-sec="melhorenvio" autocomplete="off" placeholder="Cole o token aqui"><button class="btn d sm" type="button" data-secdel="melhorenvio">Remover</button></span></label>
+    <label class="full">Token Frenet <span class="sm" id="m_frenet"></span><span class="secf"><input type="password" data-sec="frenet" autocomplete="off" placeholder="Cole o token aqui"><button class="btn d sm" type="button" data-secdel="frenet">Remover</button></span></label>
+  </div>
+  <div class="card"><h3>Valores fixos (quando escolher "Valores fixos")</h3>
+    <div class="full stack" id="fxs"></div><div class="full"><button class="btn s" id="addFx">+ Nova opção</button></div>
+  </div>
+  <div class="card"><h3>Testar</h3>
+    <label>CEP de destino<input id="tcep" inputmode="numeric" placeholder="00000-000"></label>
+    <div class="tools" style="align-self:end"><button class="btn s" id="tFrete">Calcular</button></div>
+    <div class="full note" id="tRes">Salve as alterações antes de testar.</div>
+  </div>
+</section>
+
+<!-- PAGAMENTOS -->
+<section data-pane="pag" hidden>
+  <p class="note">Ligue as formas de pagamento que quiser. O cliente escolhe no carrinho.</p>
+  <div class="card"><h3>Combinar pelo WhatsApp</h3>
+    <label class="chk full"><input type="checkbox" data-c="pagamentos.whatsapp.ativo"> Ativo: o pedido é registrado e o cliente manda no seu WhatsApp; você envia a chave Pix ou link de pagamento</label>
+  </div>
+  <div class="card"><h3>Pix com QR Code no site</h3>
+    <label class="chk full"><input type="checkbox" data-c="pagamentos.pix.ativo"> Ativo: o site gera o QR Code e o copia e cola com o valor certo</label>
+    <label>Chave Pix<input data-c="pagamentos.pix.chave" placeholder="CPF, CNPJ, e-mail, celular (+55...) ou aleatória"></label>
+    <label>Nome do recebedor<input data-c="pagamentos.pix.nome" maxlength="25"></label>
+    <label>Cidade do recebedor<input data-c="pagamentos.pix.cidade" maxlength="15"></label>
+    <p class="note">Esse Pix não confirma sozinho: confira o pagamento no seu banco e marque o pedido como <b>pago</b> na aba Pedidos.</p>
+  </div>
+  <div class="card"><h3>Mercado Pago (Pix e cartão, confirmação automática)</h3>
+    <label class="chk full"><input type="checkbox" data-c="pagamentos.mp.ativo"> Ativo</label>
+    <label class="full">Access Token de produção <span class="sm" id="m_mercadopago"></span><span class="secf"><input type="password" data-sec="mercadopago" autocomplete="off" placeholder="APP_USR-..."><button class="btn d sm" type="button" data-secdel="mercadopago">Remover</button></span></label>
+    <p class="note">Onde pegar: mercadopago.com.br/developers → Suas integrações → Criar aplicação → Credenciais de produção → Access Token. Quando o cliente paga, o pedido vira <b>pago</b> sozinho e o estoque baixa. Os dados do cartão ficam no Mercado Pago, nunca no site.</p>
+  </div>
+</section>
+
+<!-- CUPONS -->
+<section data-pane="cup" hidden>
+  <div class="card"><h3>Cupons de desconto</h3>
+    <div class="full stack" id="cps"></div>
+    <div class="full"><button class="btn s" id="addCp">+ Novo cupom</button></div>
+    <p class="note">Percentual (%) ou valor fixo (R$). "Mínimo" é o valor mínimo das cartas para valer. Validade é o último dia de uso (vazio = sem validade).</p>
+  </div>
+</section>
+
+<!-- USUÁRIOS -->
+<section data-pane="usr" hidden>
+  <div class="card"><h3>Usuários do painel</h3>
+    <div class="full scroll"><table><thead><tr><th>Usuário</th><th>Nome</th><th>Acesso</th><th></th></tr></thead><tbody id="utb"></tbody></table></div>
+    <p class="note">O usuário <b>admin</b> com a senha cadastrada no Cloudflare (ADMIN_PASSWORD) sempre funciona como acesso de recuperação.</p>
+  </div>
+  <div class="card"><h3 id="uTit">Novo usuário</h3>
+    <label>Usuário (login)<input id="u_usuario" autocomplete="off"></label>
+    <label>Nome<input id="u_nome"></label>
+    <label>Acesso<select id="u_papel"></select></label>
+    <label>Senha (mín. 8; vazio = manter)<input id="u_senha" type="password" autocomplete="new-password"></label>
+    <div class="tools full"><button class="btn" id="uSave">Salvar usuário</button><button class="btn s" id="uNew">Limpar</button></div>
+    <p class="msg full" id="umsg"></p>
+  </div>
 </section>
 </main>
 
-<div class="save"><div class="wrap"><span id="st">Nenhuma alteração</span>
-  <button class="btn s" id="imp" title="Carrega o arquivo items.json publicado no site">Importar do arquivo</button>
+<div class="save" id="saveBar"><div class="wrap"><span id="st">Nenhuma alteração</span>
   <button class="btn s" id="desf">Desfazer</button><button class="btn" id="salvar" disabled>Salvar alterações</button></div></div>
 </div>
 
 <dialog id="dlg"><form method="dialog" id="ef">
-  <div class="dh"><h2 id="dt">Editar carta</h2><button class="btn s" value="cancel" formnovalidate>Fechar</button></div>
+  <div class="dh"><h2 id="dt">Editar produto</h2><button class="btn s" value="cancel" formnovalidate>Fechar</button></div>
   <div class="db">
     <label class="full">Nome<input id="e_n" required></label>
     <label>Número<input id="e_num" placeholder="Ex.: 025/128"></label>
     <label>Idioma<select id="e_l"><option>PT</option><option>EN</option><option>JP</option><option>CN</option></select></label>
     <label>Variante<input id="e_v" placeholder="Foil, SAR, AR..."></label>
-    <label>Estado<select id="e_c"><option value="NM">NM</option><option value="SP">SP</option></select></label>
+    <label>Estado<select id="e_c"><option value="NM">NM</option><option value="SP">SP</option><option value="MP">MP</option></select></label>
     <label>Grupo<select id="e_g"></select></label>
     <label>Quantidade<input id="e_q" type="number" min="0" step="1" required></label>
     <label>Preço (R$)<input id="e_p" type="number" min="0" step="0.5" required></label>
     <label>Preço antigo riscado (opcional)<input id="e_o" type="number" min="0" step="0.5"></label>
-    <div class="full"><label>Imagem da vitrine</label><div class="ph" id="e_img"></div>
-      <input type="file" id="e_if" accept="image/*" style="margin-top:6px"></div>
+    <div class="full"><label>Imagem da vitrine</label><div class="ph" id="e_img"></div><input type="file" id="e_if" accept="image/*" style="margin-top:6px"></div>
     <div class="full"><label>Fotos do anúncio (frente, verso...)</label><div class="ph" id="e_fotos"></div>
       <input type="file" id="e_ff" accept="image/*" multiple style="margin-top:6px"><p class="note" id="e_up"></p></div>
   </div>
-  <div class="df"><button class="btn d" type="button" id="e_del">Excluir carta</button><button class="btn" value="ok" id="e_ok">Aplicar</button></div>
+  <div class="df"><button class="btn d" type="button" id="e_del">Excluir produto</button><button class="btn" value="ok" id="e_ok">Aplicar</button></div>
 </form></dialog>
 
+<dialog id="pdlg"><div class="dh"><h2 id="pdT">Pedido</h2><button class="btn s" id="pdX">Fechar</button></div><div class="db" id="pdB" style="display:block"></div></dialog>
+
+<dialog id="prdlg"><div class="dh"><h2>Prompt para o ChatGPT</h2><button class="btn s" id="prX">Fechar</button></div>
+  <div class="db" style="display:block"><p class="note">Copie, cole no ChatGPT (ou outra IA) e mande junto as fotos das cartas ou a lista. Ele devolve a planilha pronta para importar.</p><pre class="code" id="prT"></pre>
+  <button class="btn" id="prC">Copiar prompt</button></div></dialog>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" defer></script>
 <script>
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
-const brl=v=>'R$ '+(+v).toFixed(2).replace('.',',');
+const brl=v=>'R$ '+(+v||0).toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,'.');
 const esc=t=>String(t??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-let ITEMS=[],CFG={},ORIG='',ORIGC='',EDIT=null,KV=false;
-const DEF={loja:'Cartas do Gabriel',fato1:'<b>Pix</b> único pagamento',fato2:'Retirada em Manaus ou Correios',aviso:'',favTitulo:'Qual é o seu Pokémon favorito?',populares:['Pikachu','Charizard','Mew','Mewtwo','Gengar','Lugia','Eevee','Snorlax','Greninja'],destaque:{modo:'auto',id:null},grupos:['Coleção 30 anos','Pikachus 30 anos','Listagem','Inglês','Energias'],cores:{principal:'#5d2a65',destaque:'#8e44ad',claro:'#e2b6ff'},slides:[{t:'Celebração 30 anos',s:'Português, inglês, japonês e chinês',c:'#e2b6ff',tipo:'col',valor:'30 anos',ativo:true},{t:'Ofertas -15%',s:'Nas cartas acima de R$ 100',c:'#ff8fb1',tipo:'promo',valor:'',ativo:true},{t:'Reinado Delta',s:'Megaevolução em português',c:'#c9a7ff',tipo:'col',valor:'Reinado Delta',ativo:true},{t:'Escuridão Absoluta',s:'Megaevolução',c:'#b48cff',tipo:'col',valor:'Escuridão Absoluta',ativo:true},{t:'Pikachus 30 anos',s:'Coleção completa 01 a 30',c:'#e2b6ff',tipo:'grupo',valor:'Pikachus 30 anos',ativo:true},{t:'151 chinesa',s:'Foil e Pokébola',c:'#f0a6ff',tipo:'col',valor:'Coleção 151 (CN)',ativo:true}]};
-function toast(t){const d=document.createElement('div');d.className='toast';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),2600)}
+let ITEMS=[],CFG={},ORIG='',ORIGC='',EDIT=null,KV=false,ME={},SECM={},SECN={},PEDIDOS=[];
+const DEF_LAY={fato1:'<b>Pix</b> único pagamento',fato2:'Retirada em Manaus ou Correios',aviso:'',favTitulo:'Qual é o seu Pokémon favorito?',populares:['Pikachu','Charizard','Mew','Mewtwo','Gengar','Lugia','Eevee','Snorlax','Greninja'],destaque:{modo:'auto',id:null},grupos:['Coleção 30 anos','Pikachus 30 anos','Listagem','Inglês','Energias'],cores:{principal:'#5d2a65',destaque:'#8e44ad',claro:'#e2b6ff'},slides:[{t:"Celebração 30 anos",s:"Português, inglês, japonês e chinês",c:"#e2b6ff",tipo:"col",valor:"30 anos",ativo:true},{t:"Ofertas -15%",s:"Nas cartas acima de R$ 100",c:"#ff8fb1",tipo:"promo",valor:"",ativo:true},{t:"Reinado Delta",s:"Megaevolução em português",c:"#c9a7ff",tipo:"col",valor:"Reinado Delta",ativo:true},{t:"Escuridão Absoluta",s:"Megaevolução",c:"#b48cff",tipo:"col",valor:"Escuridão Absoluta",ativo:true},{t:"Pikachus 30 anos",s:"Coleção completa 01 a 30",c:"#e2b6ff",tipo:"grupo",valor:"Pikachus 30 anos",ativo:true},{t:"151 chinesa",s:"Foil e Pokébola",c:"#f0a6ff",tipo:"col",valor:"Coleção 151 (CN)",ativo:true}]};
+function toast(t){const d=document.createElement('div');d.className='toast';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),2800)}
 const api=(u,o={})=>fetch(u,{credentials:'same-origin',...o}).then(async r=>{let j={};try{j=await r.json()}catch(e){}if(!r.ok)throw Object.assign(new Error(j.erro||('Erro '+r.status)),{status:r.status});return j});
+const isAdm=()=>ME.papel==='admin';
+const get=(o,p)=>p.split('.').reduce((a,k)=>a==null?a:a[k],o);
+const set=(o,p,v)=>{const ks=p.split('.');let a=o;ks.slice(0,-1).forEach(k=>{if(typeof a[k]!=='object'||!a[k])a[k]={};a=a[k]});a[ks.at(-1)]=v};
 
 async function start(){
   let me={};try{me=await api('/api/admin/me')}catch(e){}
-  if(!me.admin){$('#login').hidden=false;$('#app').hidden=true;if(me.senha===false)$('#lmsg').textContent='A senha de administrador ainda não foi cadastrada no Cloudflare.';$('#pw').focus();return}
-  $('#login').hidden=true;$('#app').hidden=false;
+  if(!me.admin){$('#login').hidden=false;$('#app').hidden=true;if(me.senha===false)$('#lmsg').textContent='Nenhuma senha cadastrada ainda. Cadastre ADMIN_PASSWORD no Cloudflare.';$('#pw').focus();return}
+  ME=me;$('#login').hidden=true;$('#app').hidden=false;$('#who').textContent=me.nome+' · '+(isAdm()?'administrador':'operador');
+  $$('[data-adm]').forEach(b=>b.hidden=!isAdm());
   const d=await api('/api/loja');KV=!!d.kv;$('#kvwarn').hidden=KV;
-  ITEMS=d.items;CFG=Object.assign(JSON.parse(JSON.stringify(DEF)),d.cfg||{});ORIG=JSON.stringify(ITEMS);ORIGC=JSON.stringify(CFG);
-  fillGroups();renderList();renderLay();dirty();
+  ITEMS=d.items;
+  let full=d.cfg||{};if(isAdm()){try{const c=await api('/api/admin/cfg');full=c}catch(e){}}
+  CFG=Object.assign(JSON.parse(JSON.stringify(DEF_LAY)),full);delete CFG.temCupom;
+  CFG.retiradas=CFG.retiradas||[];CFG.cupons=CFG.cupons||[];CFG.envio=CFG.envio||{};CFG.envio.fixos=CFG.envio.fixos||[];CFG.envio.pacote=CFG.envio.pacote||{};CFG.pagamentos=CFG.pagamentos||{};
+  ORIG=JSON.stringify(ITEMS);ORIGC=JSON.stringify(CFG);
+  $('#hTitle').textContent='Painel · '+(get(CFG,'loja.nome')||'Loja');
+  if(isAdm())loadSec();
+  fillGroups();renderList();renderLay();dirty();loadPed();
 }
-$('#lf').onsubmit=async e=>{e.preventDefault();$('#lmsg').textContent='';try{await api('/api/admin/login',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({senha:$('#pw').value})});$('#pw').value='';start()}catch(err){$('#lmsg').textContent=err.message}};
+$('#lf').onsubmit=async e=>{e.preventDefault();$('#lmsg').textContent='';try{await api('/api/admin/login',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({usuario:$('#lu').value,senha:$('#pw').value})});$('#pw').value='';start()}catch(err){$('#lmsg').textContent=err.message}};
 $('#out').onclick=async()=>{if(isDirty()&&!confirm('Há alterações não salvas. Sair mesmo assim?'))return;await api('/api/admin/logout',{method:'POST'}).catch(()=>{});location.reload()};
-$$('.tabs button').forEach(b=>b.onclick=()=>{$$('.tabs button').forEach(x=>x.setAttribute('aria-selected',x===b));$('#prod').hidden=b.dataset.tab!=='prod';$('#lay').hidden=b.dataset.tab!=='lay'});
+function tab(t){$$('#tabs button').forEach(x=>x.setAttribute('aria-selected',x.dataset.tab===t));$$('[data-pane]').forEach(p=>p.hidden=p.dataset.pane!==t);$('#saveBar').hidden=['ped','imp','usr'].includes(t);if(t==='usr')loadUsers();if(t==='ped')loadPed()}
+$$('#tabs button').forEach(b=>b.onclick=()=>tab(b.dataset.tab));
 
 /* ---------- Produtos ---------- */
-function fillGroups(){const gs=[...new Set([...(CFG.grupos||[]),...ITEMS.map(i=>i.g)])];$('#fg').innerHTML='<option value="">Todos</option>'+gs.map(g=>`<option>${esc(g)}</option>`).join('');$('#e_g').innerHTML=gs.map(g=>`<option>${esc(g)}</option>`).join('')}
+function groupsAll(){return [...new Set([...(CFG.grupos||[]),...ITEMS.map(i=>i.g)])].filter(Boolean)}
+function fillGroups(){const gs=groupsAll();const cur=$('#fg').value;$('#fg').innerHTML='<option value="">Todos</option>'+gs.map(g=>`<option>${esc(g)}</option>`).join('');$('#fg').value=cur;$('#e_g').innerHTML=gs.map(g=>`<option>${esc(g)}</option>`).join('')}
 const origMap=()=>Object.fromEntries(JSON.parse(ORIG).map(i=>[i.id,JSON.stringify(i)]));
 function renderList(){
   const t=$('#q').value.trim().toLowerCase(),g=$('#fg').value,l=$('#fl').value,z=$('#fz').checked,om=origMap();
-  const L=ITEMS.filter(i=>(z||i.q>0)&&(!g||i.g===g)&&(!l||i.l.split('/').includes(l))&&(!t||(i.n+' '+i.num+' '+(i.v||'')+' '+i.g).toLowerCase().includes(t)));
+  const L=ITEMS.filter(i=>(z||i.q>0)&&(!g||i.g===g)&&(!l||String(i.l).split('/').includes(l))&&(!t||(i.n+' '+i.num+' '+(i.v||'')+' '+i.g).toLowerCase().includes(t)));
   const tq=ITEMS.reduce((s,i)=>s+i.q,0),tv=ITEMS.reduce((s,i)=>s+i.q*i.p,0);
-  $('#sum').textContent=`${L.length} itens na lista · estoque total: ${tq} cartas · ${brl(tv)}`;
-  $('#list').innerHTML=L.map(i=>`<div class="row${om[i.id]!==JSON.stringify(i)?' dirty':''}${i.q?'':' zero'}" data-id="${i.id}">
+  $('#sum').textContent=`${L.length} produtos na lista · estoque total: ${tq} unidades · ${brl(tv)}`;
+  $('#list').innerHTML=L.slice(0,400).map(i=>`<div class="row${om[i.id]!==JSON.stringify(i)?' dirty':''}${i.q?'':' zero'}" data-id="${esc(i.id)}">
     <img src="${esc(i.img||'')}" alt="" loading="lazy">
-    <div style="min-width:0"><div class="nm">${esc(i.n)}</div><div class="sm">${esc(i.num||'')} ${i.l.split('/').map(x=>`<span class="b ${x}">${x}</span>`).join('')}${i.v?`<span class="b">${esc(i.v)}</span>`:''}<span>${esc(i.c)}</span><span>· ${esc(i.g)}</span>${(i.fotos||[]).length?`<span>· ${i.fotos.length} fotos</span>`:''}</div></div>
+    <div style="min-width:0"><div class="nm">${esc(i.n)}</div><div class="sm">${esc(i.num||'')} ${String(i.l).split('/').map(x=>`<span class="b ${esc(x)}">${esc(x)}</span>`).join('')}${i.v?`<span class="b">${esc(i.v)}</span>`:''}<span>${esc(i.c)}</span><span>· ${esc(i.g)}</span>${(i.fotos||[]).length?`<span>· ${i.fotos.length} fotos</span>`:''}</div></div>
     <div class="ctl"><div class="qty"><button type="button" data-d="-1" aria-label="Tirar uma">−</button><span>${i.q}</span><button type="button" data-d="1" aria-label="Mais uma">+</button></div>
     <label class="pr" aria-label="Preço"><input type="number" min="0" step="0.5" value="${i.p}" data-p></label>
-    <button class="btn s" type="button" data-ed>Editar</button></div></div>`).join('')||'<p class="note">Nenhuma carta com esse filtro.</p>';
+    <button class="btn s sm" type="button" data-ed>Editar</button></div></div>`).join('')+(L.length>400?'<p class="note">Mostrando 400. Use a busca para achar os outros.</p>':'')||'<p class="note">Nenhum produto com esse filtro.</p>';
 }
 ['#q','#fg','#fl','#fz'].forEach(s=>$(s).addEventListener('input',renderList));
 const byId=id=>ITEMS.find(i=>String(i.id)===String(id));
 $('#list').addEventListener('click',e=>{const r=e.target.closest('.row');if(!r)return;const i=byId(r.dataset.id);const b=e.target.closest('button');if(!b)return;
   if(b.dataset.d){i.q=Math.max(0,i.q+ +b.dataset.d);renderList();dirty()}else if(b.dataset.ed!==undefined)openEd(i)});
 $('#list').addEventListener('change',e=>{if(e.target.dataset.p===undefined)return;const i=byId(e.target.closest('.row').dataset.id);const v=parseFloat(e.target.value);if(v>=0){i.p=Math.round(v*100)/100;if(i.o&&i.o<=i.p)delete i.o}renderList();dirty()});
-
+const nextId=()=>Math.max(9000,...ITEMS.map(x=>+x.id||0))+1;
 function openEd(i){
-  EDIT=i?JSON.parse(JSON.stringify(i)):{id:Math.max(9000,...ITEMS.map(x=>+x.id||0))+1,g:$('#fg').value||(CFG.grupos||[])[0]||'Listagem',n:'',num:'',l:'PT',v:'',q:1,p:0,c:'NM',img:'',fotos:[],_novo:true};
-  $('#dt').textContent=i?'Editar carta':'Nova carta';$('#e_del').hidden=!i;
+  EDIT=i?JSON.parse(JSON.stringify(i)):{id:nextId(),g:$('#fg').value||groupsAll()[0]||'Geral',n:'',num:'',l:'PT',v:'',q:1,p:0,c:'NM',img:'',fotos:[],_novo:true};
+  $('#dt').textContent=i?'Editar produto':'Novo produto';$('#e_del').hidden=!i;
   for(const k of ['n','num','l','v','c','g','q','p','o'])$('#e_'+k).value=EDIT[k]??'';
   drawPh();$('#e_up').textContent='';$('#e_if').value='';$('#e_ff').value='';$('#dlg').showModal();
 }
 function drawPh(){
-  $('#e_img').innerHTML=EDIT.img?`<figure class="main"><img src="${esc(EDIT.img)}" alt="Imagem da vitrine"></figure>`:'<p class="note">Sem imagem. Envie uma foto da carta.</p>';
+  $('#e_img').innerHTML=EDIT.img?`<figure><img src="${esc(EDIT.img)}" alt="Imagem da vitrine"></figure>`:'<p class="note">Sem imagem. Envie uma foto do produto.</p>';
   $('#e_fotos').innerHTML=(EDIT.fotos||[]).map((f,k)=>`<figure><img src="${esc(f)}" alt="Foto ${k+1}"><button type="button" data-rf="${k}" aria-label="Remover foto">×</button></figure>`).join('')||'<p class="note">Nenhuma foto no anúncio.</p>';
 }
 $('#e_fotos').addEventListener('click',e=>{const b=e.target.closest('[data-rf]');if(b){EDIT.fotos.splice(+b.dataset.rf,1);drawPh()}});
-function loadImg(file){return new Promise((ok,no)=>{const u=URL.createObjectURL(file),im=new Image();im.onload=()=>{ok(im)};im.onerror=no;im.src=u})}
+function loadImg(file){return new Promise((ok,no)=>{const u=URL.createObjectURL(file),im=new Image();im.onload=()=>ok(im);im.onerror=no;im.src=u})}
 async function resize(file,W,H,fit){const im=await loadImg(file);let w=im.naturalWidth,h=im.naturalHeight,c=document.createElement('canvas'),x=c.getContext('2d');
   if(fit==='cover'){c.width=W;c.height=H;const s=Math.max(W/w,H/h);x.drawImage(im,(W-w*s)/2,(H-h*s)/2,w*s,h*s)}else{const s=Math.min(1,W/w,H/h);c.width=Math.round(w*s);c.height=Math.round(h*s);x.drawImage(im,0,0,c.width,c.height)}
   return c}
 $('#e_if').onchange=async e=>{const f=e.target.files[0];if(!f)return;const c=await resize(f,200,280,'cover');EDIT.img=c.toDataURL('image/jpeg',.82);drawPh()};
-$('#e_ff').onchange=async e=>{const fs=[...e.target.files];if(!fs.length)return;if(!KV){$('#e_up').textContent='O banco ainda não está ligado; não dá para enviar fotos.';return}
+$('#e_ff').onchange=async e=>{const fs=[...e.target.files];if(!fs.length)return;if(!KV){$('#e_up').textContent='O banco ainda não está ligado.';return}
   $('#e_ok').disabled=true;let n=0;
   for(const f of fs){$('#e_up').textContent=`Enviando foto ${++n} de ${fs.length}...`;const c=await resize(f,600,800,'contain');const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',.74));
     try{const j=await api('/api/admin/foto',{method:'POST',headers:{'content-type':'image/jpeg'},body:blob});EDIT.fotos=EDIT.fotos||[];EDIT.fotos.push(j.url);if(!EDIT.img){const t=await resize(f,200,280,'cover');EDIT.img=t.toDataURL('image/jpeg',.82)}drawPh()}catch(err){$('#e_up').textContent='Falha ao enviar: '+err.message;break}}
@@ -209,62 +368,160 @@ $('#ef').addEventListener('submit',e=>{if(e.submitter&&e.submitter.value!=='ok')
   Object.assign(EDIT,{n:g('n'),num:g('num'),l:g('l'),v:g('v'),c:g('c'),g:g('g'),q,p:Math.round(p*100)/100});
   if(o>p)EDIT.o=Math.round(o*100)/100;else delete EDIT.o;
   if(!EDIT.fotos||!EDIT.fotos.length)delete EDIT.fotos;
+  if(!EDIT.img)EDIT.img=placeholder(EDIT.n);
   if(EDIT._novo){delete EDIT._novo;ITEMS.unshift(EDIT)}else{const k=ITEMS.findIndex(x=>String(x.id)===String(EDIT.id));ITEMS[k]=EDIT}
   renderList();dirty()});
 $('#e_del').onclick=()=>{if(!confirm('Excluir "'+EDIT.n+'" da loja? (Só some de verdade quando você clicar em Salvar.)'))return;ITEMS=ITEMS.filter(x=>String(x.id)!==String(EDIT.id));$('#dlg').close();renderList();dirty()};
 $('#nova').onclick=()=>openEd(null);
+function placeholder(n){const s=`<svg xmlns="http://www.w3.org/2000/svg" width="200" height="280"><rect width="200" height="280" rx="10" fill="#2a1d33"/><text x="100" y="140" fill="#e2b6ff" font-family="sans-serif" font-size="15" text-anchor="middle">${esc(String(n).slice(0,22))}</text><text x="100" y="165" fill="#8f7da0" font-family="sans-serif" font-size="11" text-anchor="middle">foto em breve</text></svg>`;return 'data:image/svg+xml;base64,'+btoa(unescape(encodeURIComponent(s)))}
 
-/* ---------- Layout ---------- */
+/* ---------- Pedidos ---------- */
+async function loadPed(){try{const d=await api('/api/admin/pedidos');PEDIDOS=d.pedidos||[];renderPed()}catch(e){$('#ptb').innerHTML=`<tr><td colspan="6">${esc(e.message)}</td></tr>`}}
+const PGN={whatsapp:'WhatsApp',pix:'Pix QR',mp:'Mercado Pago'};
+function renderPed(){const f=$('#pf').value,t=$('#pq').value.trim().toLowerCase();
+  const L=PEDIDOS.filter(p=>(!f||p.status===f)&&(!t||(p.id+' '+p.nome).toLowerCase().includes(t)));
+  const m=new Date().toISOString().slice(0,7),pagos=PEDIDOS.filter(p=>['pago','enviado','entregue'].includes(p.status));
+  $('#kpis').innerHTML=`<div class="kpi"><b>${PEDIDOS.filter(p=>p.status==='aguardando').length}</b><span>aguardando pagamento</span></div><div class="kpi"><b>${PEDIDOS.filter(p=>p.status==='pago').length}</b><span>pagos para enviar/entregar</span></div><div class="kpi"><b>${brl(pagos.filter(p=>p.em.slice(0,7)===m).reduce((s,p)=>s+p.total,0))}</b><span>vendido no mês</span></div><div class="kpi"><b>${brl(pagos.reduce((s,p)=>s+p.total,0))}</b><span>vendido no total</span></div>`;
+  $('#ptb').innerHTML=L.map(p=>`<tr class="click" data-p="${esc(p.id)}"><td><b>${esc(p.id)}</b></td><td>${new Date(p.em).toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'})}</td><td>${esc(p.nome)}</td><td>${PGN[p.pagamento]||esc(p.pagamento)}</td><td>${brl(p.total)}</td><td><span class="st ${esc(p.status)}">${esc(p.status)}</span></td></tr>`).join('')||'<tr><td colspan="6" class="note">Nenhum pedido ainda.</td></tr>'}
+$('#pf').oninput=renderPed;$('#pq').oninput=renderPed;$('#pRef').onclick=loadPed;
+$('#ptb').addEventListener('click',e=>{const r=e.target.closest('[data-p]');if(r)openPed(r.dataset.p)});
+async function openPed(id){const o=await api('/api/admin/pedidos?id='+encodeURIComponent(id));drawPed(o);$('#pdlg').showModal()}
+function drawPed(o){$('#pdT').textContent='Pedido '+o.id;const E=o.entrega||{};const tel=String(o.cliente.telefone||'').replace(/\D/g,'');
+  $('#pdB').innerHTML=`<p><span class="st ${esc(o.status)}">${esc(o.status)}</span> · ${new Date(o.em).toLocaleString('pt-BR')} · ${PGN[o.pagamento]||esc(o.pagamento)}${o.alerta?` · <b class="warn">${esc(o.alerta)}</b>`:''}</p>
+  <p><b>${esc(o.cliente.nome)}</b>${tel?` · <a href="https://wa.me/${tel.length<=11?'55'+tel:tel}" target="_blank" rel="noopener">WhatsApp ${esc(o.cliente.telefone)}</a>`:''}</p>
+  <table><tbody>${o.itens.map(l=>`<tr><td>${l.q}x</td><td>${esc(l.n)} ${esc(l.num)} ${esc(l.l)} ${esc(l.v)} (${esc(l.c)})</td><td>${brl(l.q*l.p)}</td></tr>`).join('')}
+  <tr><td></td><td>Subtotal</td><td>${brl(o.subtotal)}</td></tr>${o.desconto?`<tr><td></td><td>Cupom ${esc(o.cupom)}</td><td>-${brl(o.desconto)}</td></tr>`:''}${o.frete?`<tr><td></td><td>Frete ${esc(E.servico)}</td><td>${brl(o.frete)}</td></tr>`:''}<tr><td></td><td><b>Total</b></td><td><b>${brl(o.total)}</b></td></tr></tbody></table>
+  <p>${E.tipo==='envio'?`<b>Envio:</b> ${esc(E.servico)} (${esc(E.prazo)} dias)<br>${esc(E.rua)}${E.comp?', '+esc(E.comp):''} – ${esc(E.bairro)} – ${esc(E.cidade)} · CEP ${esc(E.cep)} · CPF ${esc(E.cpf)}`:`<b>Retirada:</b> ${esc(E.ponto)} – ${esc(E.endereco)}`}</p>
+  ${o.obs?`<p><b>Obs. do cliente:</b> ${esc(o.obs)}</p>`:''}
+  <p class="note">Estoque ${o.baixado?'<b class="ok">já baixado</b>':'ainda não baixado (baixa ao marcar como pago)'}.</p>
+  <div class="tools" style="flex-wrap:wrap;margin:10px 0">${['pago','enviado','entregue','cancelado'].map(s=>`<button class="btn ${s==='cancelado'?'d':'s'} sm" data-ps="${s}" ${o.status===s?'disabled':''}>Marcar ${s}</button>`).join('')}</div>
+  <label>Código de rastreio<input id="pdR" value="${esc(o.rastreio||'')}"></label>
+  <label style="margin-top:8px">Anotação interna<textarea id="pdN" rows="2">${esc(o.nota||'')}</textarea></label>
+  <div class="tools" style="margin-top:8px"><button class="btn sm" id="pdS">Salvar rastreio e anotação</button></div>
+  <p class="note">Histórico: ${(o.historico||[]).map(h=>`${new Date(h.em).toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'})} ${esc(h.status)}${h.por?' ('+esc(h.por)+')':''}`).join(' → ')}</p>`;
+  $$('#pdB [data-ps]').forEach(b=>b.onclick=async()=>{if(b.dataset.ps==='cancelado'&&!confirm('Cancelar o pedido? Se o estoque já foi baixado, as cartas voltam.'))return;const n=await api('/api/admin/pedidos',{method:'PUT',headers:{'content-type':'application/json'},body:JSON.stringify({id:o.id,status:b.dataset.ps})});drawPed(n);loadPed();reloadItems()});
+  $('#pdS').onclick=async()=>{const n=await api('/api/admin/pedidos',{method:'PUT',headers:{'content-type':'application/json'},body:JSON.stringify({id:o.id,rastreio:$('#pdR').value,nota:$('#pdN').value})});drawPed(n);toast('Salvo')};
+}
+$('#pdX').onclick=()=>$('#pdlg').close();
+async function reloadItems(){if(JSON.stringify(ITEMS)!==ORIG)return;const d=await api('/api/loja');ITEMS=d.items;ORIG=JSON.stringify(ITEMS);renderList();dirty()}
+
+/* ---------- Importar ---------- */
+const COLS=['grupo','nome','numero','idioma','variante','estado','quantidade','preco','preco_antigo','imagem_url'];
+function dl(name,txt){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['﻿'+txt],{type:'text/csv;charset=utf-8'}));a.download=name;a.click()}
+const csvCell=v=>{v=String(v??'');return /[;"\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};
+$('#dlModelo').onclick=()=>dl('modelo_estoque.csv',COLS.join(';')+'\nColeção 30 anos;Pikachu ex;054/128;PT;;NM;1;9,00;;\n');
+$('#dlAtual').onclick=()=>dl('estoque_atual.csv',COLS.join(';')+'\n'+ITEMS.map(i=>[i.g,i.n,i.num,i.l,i.v,i.c,i.q,String(i.p).replace('.',','),i.o?String(i.o).replace('.',','):'',/^https?:/.test(i.img||'')?i.img:''].map(csvCell).join(';')).join('\n'));
+function parseCSV(t){t=t.replace(/^﻿/,'');const sep=(t.split('\n')[0].match(/;/g)||[]).length>=(t.split('\n')[0].match(/,/g)||[]).length?';':',';const rows=[];let r=[],c='',q=false;
+  for(let i=0;i<t.length;i++){const ch=t[i];if(q){if(ch==='"'){if(t[i+1]==='"'){c+='"';i++}else q=false}else c+=ch}else if(ch==='"')q=true;else if(ch===sep){r.push(c);c=''}else if(ch==='\n'){r.push(c);rows.push(r);r=[];c=''}else if(ch!=='\r')c+=ch}
+  if(c||r.length){r.push(c);rows.push(r)}return rows.filter(x=>x.some(v=>String(v).trim()))}
+const num=v=>{if(typeof v==='number')return v;v=String(v??'').replace(/[R$\s]/g,'');if(/,\d{1,2}$/.test(v))v=v.replace(/\./g,'').replace(',','.');return parseFloat(v)};
+const keyOf=(n,num,l,v)=>[n,num,l,v].map(x=>String(x||'').trim().toLowerCase()).join('|');
+let IMP=null;
+$('#impF').onchange=async e=>{const f=e.target.files[0];if(!f)return;let rows;
+  try{if(/\.xlsx?$/i.test(f.name)){if(!window.XLSX){alert('Aguarde um instante e tente de novo.');return}const wb=XLSX.read(await f.arrayBuffer());rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,raw:true,defval:''})}else rows=parseCSV(await f.text())}catch(err){alert('Não consegui ler o arquivo.');return}
+  const H=rows.shift().map(h=>String(h).trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\s+/g,'_'));
+  const ix=k=>H.indexOf(k);if(ix('nome')<0||ix('quantidade')<0||ix('preco')<0){alert('A planilha precisa ter as colunas nome, quantidade e preco (baixe o modelo).');return}
+  const map=Object.fromEntries(ITEMS.map(i=>[keyOf(i.n,i.num,i.l,i.v),i]));
+  IMP=rows.map((r,k)=>{const g=c=>ix(c)>=0?String(r[ix(c)]??'').trim():'';const o={g:g('grupo')||'Geral',n:g('nome'),num:g('numero'),l:(g('idioma')||'PT').toUpperCase(),v:g('variante'),c:(g('estado')||'NM').toUpperCase(),q:Math.max(0,Math.round(num(g('quantidade'))||0)),p:Math.round((num(g('preco'))||0)*100)/100,o:num(g('preco_antigo'))||0,img:g('imagem_url')};
+    o.erro=!o.n?'sem nome':!(o.p>0)?'preço inválido':'';o.ex=map[keyOf(o.n,o.num,o.l,o.v)];return o});
+  const nNovo=IMP.filter(x=>!x.erro&&!x.ex).length,nAt=IMP.filter(x=>!x.erro&&x.ex).length,nErr=IMP.filter(x=>x.erro).length;
+  $('#impTab').innerHTML=`<p class="note"><b>${nAt}</b> para atualizar · <b>${nNovo}</b> novos · <b class="${nErr?'warn':''}">${nErr}</b> com erro (serão ignorados)${$('#impZero').checked?' · os que não estão na planilha ficarão com quantidade 0':''}</p><table><thead><tr><th></th><th>Produto</th><th>Grupo</th><th>Qtd</th><th>Preço</th></tr></thead><tbody>${IMP.slice(0,300).map(x=>`<tr><td>${x.erro?`<span class="warn">${x.erro}</span>`:x.ex?'atualiza':'<b class="ok">novo</b>'}</td><td>${esc(x.n)} ${esc(x.num)} ${esc(x.l)} ${esc(x.v)}</td><td>${esc(x.g)}</td><td>${x.ex?x.ex.q+' → ':''}${x.q}</td><td>${x.ex?brl(x.ex.p)+' → ':''}${brl(x.p)}</td></tr>`).join('')}</tbody></table>`;
+  $('#impPrev').hidden=false};
+$('#impNo').onclick=()=>{IMP=null;$('#impPrev').hidden=true;$('#impF').value=''};
+$('#impOk').onclick=()=>{if(!IMP)return;const seen=new Set();let id=nextId();
+  for(const x of IMP){if(x.erro)continue;let it=x.ex;
+    if(it){it.q=x.q;it.p=x.p;it.g=x.g||it.g;it.c=x.c||it.c;if(x.o>x.p)it.o=x.o;else delete it.o;if(/^https?:\/\//.test(x.img))it.img=x.img}
+    else{it={id:id++,g:x.g,n:x.n,num:x.num,l:x.l,v:x.v,c:x.c,q:x.q,p:x.p,img:/^https?:\/\//.test(x.img)?x.img:placeholder(x.n)};if(x.o>x.p)it.o=x.o;ITEMS.push(it)}
+    seen.add(it)}
+  if($('#impZero').checked)ITEMS.forEach(i=>{if(!seen.has(i))i.q=0});
+  IMP=null;$('#impPrev').hidden=true;$('#impF').value='';fillGroups();renderList();dirty();tab('prod');toast('Planilha aplicada. Confira e clique em Salvar alterações.')};
+const PROMPT=`Você vai me ajudar a montar a planilha de estoque da minha loja de cartas Pokémon.
+
+Eu vou te mandar fotos das cartas (ou uma lista). Para cada carta diferente:
+1. Identifique o nome, o número impresso no canto inferior (ex.: 054/128), o idioma (PT, EN, JP ou CN) e a variante, se houver (ex.: Foil, SAR, AR, IR, Pokébola, Master Ball). Se não houver variante, deixe vazio.
+2. Conte quantas cópias iguais aparecem (mesmo nome + número + idioma + variante = mesma linha).
+3. Estado: use NM se a carta estiver perfeita; SP se tiver marcas leves.
+4. Preço: procure o menor preço NM da carta no mesmo idioma no site Liga Pokémon (ligapokemon.com.br). Arredonde para cima em múltiplos de R$ 0,50. Se não conseguir pesquisar, deixe o preço em branco e me avise quais ficaram sem preço.
+5. Se o preço for R$ 100 ou mais e eu pedir desconto, coloque o preço cheio em preco_antigo e o preço com desconto em preco.
+6. Grupo: use um destes nomes, iguais: ${'${GRUPOS}'}. Se não souber, use "Geral".
+
+Responda SOMENTE com uma tabela em CSV, separada por ponto e vírgula, com esta primeira linha exatamente:
+grupo;nome;numero;idioma;variante;estado;quantidade;preco;preco_antigo;imagem_url
+
+Regras do CSV: preços com vírgula (ex.: 9,50), sem "R$"; deixe imagem_url vazio; uma carta por linha; não junte idiomas diferentes na mesma linha.
+No final, fora da tabela, liste as cartas em que você ficou em dúvida.`;
+$('#verPrompt').onclick=()=>{$('#prT').textContent=PROMPT.replace('${GRUPOS}',groupsAll().map(g=>'"'+g+'"').join(', '));$('#prdlg').showModal()};
+$('#prX').onclick=()=>$('#prdlg').close();
+$('#prC').onclick=async()=>{try{await navigator.clipboard.writeText($('#prT').textContent);toast('Prompt copiado')}catch(e){alert('Selecione o texto e copie.')}};
+
+/* ---------- Configurações (loja, aparência, frete, pagamentos, cupons) ---------- */
 const TIPOS=[['col','Coleção'],['grupo','Grupo'],['busca','Busca'],['promo','Ofertas']];
+const listRow=(cls,k,inner)=>`<div class="it ${cls}" data-k="${k}">${inner}<div class="tools"><button class="btn s sm" type="button" data-mv="-1" aria-label="Subir">↑</button><button class="btn s sm" type="button" data-mv="1" aria-label="Descer">↓</button><button class="btn d sm" type="button" data-rm aria-label="Remover">✕</button></div></div>`;
 function renderLay(){
-  $$('[data-c]').forEach(el=>el.value=CFG[el.dataset.c]??'');
-  $$('[data-cor]').forEach(el=>el.value=(CFG.cores||{})[el.dataset.cor]||DEF.cores[el.dataset.cor]);
+  $$('[data-c]').forEach(el=>{const v=get(CFG,el.dataset.c);if(el.type==='checkbox')el.checked=v!==false&&v!==undefined&&v!==''?!!v:false;else el.value=v??''});
+  $$('[data-cor]').forEach(el=>el.value=(CFG.cores||{})[el.dataset.cor]||DEF_LAY.cores[el.dataset.cor]);
   $('#pop').value=(CFG.populares||[]).join(', ');
   $('#dm').value=(CFG.destaque||{}).modo||'auto';
-  $('#did').innerHTML=ITEMS.filter(i=>i.q>0&&i.g!=='Energias').sort((a,b)=>b.p-a.p).map(i=>`<option value="${i.id}">${esc(i.n)} ${esc(i.num)} ${i.l} – ${brl(i.p)}</option>`).join('');
+  $('#did').innerHTML=ITEMS.filter(i=>i.q>0).sort((a,b)=>b.p-a.p).slice(0,300).map(i=>`<option value="${esc(i.id)}">${esc(i.n)} ${esc(i.num)} ${esc(i.l)} – ${brl(i.p)}</option>`).join('');
   $('#did').value=(CFG.destaque||{}).id||'';$('#did').disabled=$('#dm').value!=='fixo';
-  $('#slides').innerHTML=(CFG.slides||[]).map((s,k)=>`<div class="sl" data-k="${k}">
-    <label>Título<input data-s="t" value="${esc(s.t)}"></label><label>Subtítulo<input data-s="s" value="${esc(s.s)}"></label>
-    <label>Cor<input type="color" data-s="c" value="${esc(s.c||'#e2b6ff')}"></label>
-    <label>Tipo<select data-s="tipo">${TIPOS.map(([v,t])=>`<option value="${v}" ${s.tipo===v?'selected':''}>${t}</option>`).join('')}</select></label>
-    <label>Valor<input data-s="valor" value="${esc(s.valor)}" ${s.tipo==='promo'?'disabled':''}></label>
-    <div class="tools"><label class="chk"><input type="checkbox" data-s="ativo" ${s.ativo!==false?'checked':''}> Ativo</label>
-      <button class="btn s" type="button" data-mv="-1" aria-label="Subir">↑</button><button class="btn s" type="button" data-mv="1" aria-label="Descer">↓</button><button class="btn d" type="button" data-rm aria-label="Remover">✕</button></div></div>`).join('');
-  $('#gl').innerHTML=(CFG.grupos||[]).map((g,k)=>`<div data-k="${k}"><input value="${esc(g)}" data-g aria-label="Grupo ${k+1}"><button class="btn s" type="button" data-gm="-1">↑</button><button class="btn s" type="button" data-gm="1">↓</button><button class="btn d" type="button" data-gr>✕</button></div>`).join('');
+  $('#slides').innerHTML=(CFG.slides||[]).map((s,k)=>listRow('sl',k,`<label>Título<input data-l="slides" data-f="t" value="${esc(s.t)}"></label><label>Subtítulo<input data-l="slides" data-f="s" value="${esc(s.s)}"></label><label>Cor<input type="color" data-l="slides" data-f="c" value="${esc(s.c||'#e2b6ff')}"></label><label>Tipo<select data-l="slides" data-f="tipo">${TIPOS.map(([v,t])=>`<option value="${v}" ${s.tipo===v?'selected':''}>${t}</option>`).join('')}</select></label><label>Valor<input data-l="slides" data-f="valor" value="${esc(s.valor)}" ${s.tipo==='promo'?'disabled':''}></label><label class="chk"><input type="checkbox" data-l="slides" data-f="ativo" ${s.ativo!==false?'checked':''}> Ativo</label>`)).join('')||'<p class="note">Nenhum slide.</p>';
+  $('#gl').innerHTML=(CFG.grupos||[]).map((g,k)=>listRow('fx',k,`<label class="full" style="grid-column:1/4">Grupo ${k+1}<input value="${esc(g)}" data-l="grupos" data-f=""></label>`)).join('');
+  $('#rts').innerHTML=(CFG.retiradas||[]).map((r,k)=>listRow('rt',k,`<label>Nome<input data-l="retiradas" data-f="nome" value="${esc(r.nome)}"></label><label>Endereço<input data-l="retiradas" data-f="endereco" value="${esc(r.endereco)}"></label><label>Horário<input data-l="retiradas" data-f="horario" value="${esc(r.horario)}"></label><label class="chk"><input type="checkbox" data-l="retiradas" data-f="ativo" ${r.ativo!==false?'checked':''}> Ativo</label>`)).join('')||'<p class="note">Nenhum ponto de retirada (o cliente só poderá receber por envio).</p>';
+  $('#fxs').innerHTML=(CFG.envio.fixos||[]).map((f,k)=>listRow('fx',k,`<label>Nome<input data-l="envio.fixos" data-f="nome" value="${esc(f.nome)}"></label><label>Preço (R$)<input type="number" step="0.5" data-l="envio.fixos" data-f="preco" value="${esc(f.preco)}"></label><label>Prazo (dias)<input data-l="envio.fixos" data-f="prazo" value="${esc(f.prazo)}"></label>`)).join('')||'<p class="note">Nenhuma opção fixa.</p>';
+  $('#cps').innerHTML=(CFG.cupons||[]).map((c,k)=>listRow('cp',k,`<label>Código<input data-l="cupons" data-f="codigo" value="${esc(c.codigo)}" style="text-transform:uppercase"></label><label>Tipo<select data-l="cupons" data-f="tipo"><option value="pct" ${c.tipo!=='valor'?'selected':''}>%</option><option value="valor" ${c.tipo==='valor'?'selected':''}>R$</option></select></label><label>Valor<input type="number" step="0.5" data-l="cupons" data-f="valor" value="${esc(c.valor)}"></label><label>Mínimo R$<input type="number" step="1" data-l="cupons" data-f="minimo" value="${esc(c.minimo||'')}"></label><label>Validade<input type="date" data-l="cupons" data-f="validade" value="${esc(c.validade||'')}"></label><label class="chk"><input type="checkbox" data-l="cupons" data-f="ativo" ${c.ativo!==false?'checked':''}> Ativo</label>`)).join('')||'<p class="note">Nenhum cupom.</p>';
 }
-$('#lay').addEventListener('input',e=>{const el=e.target;
-  if(el.dataset.c!==undefined)CFG[el.dataset.c]=el.value;
+const NUMF=['preco','valor','minimo','altura','largura','comprimento','peso'];
+document.addEventListener('input',e=>{const el=e.target;if(!el.closest('[data-pane]')||el.closest('[data-pane="prod"],[data-pane="imp"],[data-pane="usr"],[data-pane="ped"]'))return;
+  if(el.dataset.sec!==undefined){SECN[el.dataset.sec]=el.value;dirty();return}
+  if(el.dataset.c!==undefined){let v=el.type==='checkbox'?el.checked:el.value;if(el.type==='number')v=parseFloat(v)||0;set(CFG,el.dataset.c,v)}
   else if(el.dataset.cor){CFG.cores={...CFG.cores,[el.dataset.cor]:el.value}}
   else if(el.id==='pop')CFG.populares=el.value.split(',').map(x=>x.trim()).filter(Boolean);
-  else if(el.id==='dm'||el.id==='did'){CFG.destaque={modo:$('#dm').value,id:$('#did').value?+$('#did').value||$('#did').value:null};$('#did').disabled=$('#dm').value!=='fixo'}
-  else if(el.dataset.s){const s=CFG.slides[+el.closest('.sl').dataset.k];s[el.dataset.s]=el.type==='checkbox'?el.checked:el.value;if(el.dataset.s==='tipo')renderLay()}
-  else if(el.dataset.g!==undefined){const old=CFG.grupos[+el.closest('[data-k]').dataset.k],nv=el.value;CFG.grupos[+el.closest('[data-k]').dataset.k]=nv;if(old&&nv.trim())ITEMS.forEach(i=>{if(i.g===old)i.g=nv})}
+  else if(el.id==='dm'||el.id==='did'){CFG.destaque={modo:$('#dm').value,id:$('#did').value?(+$('#did').value||$('#did').value):null};$('#did').disabled=$('#dm').value!=='fixo'}
+  else if(el.dataset.l){const arr=get(CFG,el.dataset.l),k=+el.closest('[data-k]').dataset.k;
+    if(el.dataset.l==='grupos'){const old=arr[k],nv=el.value;arr[k]=nv;if(old&&nv.trim())ITEMS.forEach(i=>{if(i.g===old)i.g=nv})}
+    else{let v=el.type==='checkbox'?el.checked:el.value;if(NUMF.includes(el.dataset.f))v=parseFloat(v)||0;if(el.dataset.f==='codigo')v=v.toUpperCase().replace(/\s/g,'');arr[k][el.dataset.f]=v;if(el.dataset.f==='tipo'&&el.dataset.l==='slides')renderLay()}}
   dirty()});
-$('#lay').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b||!b.closest('[data-pane]'))return;
   const mv=(a,k,d)=>{const j=k+d;if(j<0||j>=a.length)return;[a[k],a[j]]=[a[j],a[k]]};
-  if(b.dataset.mv){mv(CFG.slides,+b.closest('.sl').dataset.k,+b.dataset.mv)}
-  else if(b.dataset.rm!==undefined){CFG.slides.splice(+b.closest('.sl').dataset.k,1)}
-  else if(b.id==='addSl'){CFG.slides.push({t:'Novo destaque',s:'',c:'#e2b6ff',tipo:'busca',valor:'',ativo:true})}
-  else if(b.dataset.gm){mv(CFG.grupos,+b.closest('[data-k]').dataset.k,+b.dataset.gm)}
-  else if(b.dataset.gr!==undefined){const g=CFG.grupos[+b.closest('[data-k]').dataset.k];if(ITEMS.some(i=>i.g===g)){alert('Ainda há cartas no grupo "'+g+'". Mova essas cartas para outro grupo antes de remover.');return}CFG.grupos.splice(+b.closest('[data-k]').dataset.k,1)}
-  else if(b.id==='addG'){CFG.grupos.push('Novo grupo')}
+  const row=b.closest('[data-k]'),lst=row&&row.querySelector('[data-l]')&&get(CFG,row.querySelector('[data-l]').dataset.l);
+  if(b.dataset.mv&&lst)mv(lst,+row.dataset.k,+b.dataset.mv);
+  else if(b.dataset.rm!==undefined&&lst){const k=+row.dataset.k;if(lst===CFG.grupos&&ITEMS.some(i=>i.g===lst[k])){alert('Ainda há produtos no grupo "'+lst[k]+'". Mova-os para outro grupo antes.');return}lst.splice(k,1)}
+  else if(b.id==='addSl')CFG.slides.push({t:'Novo destaque',s:'',c:'#e2b6ff',tipo:'busca',valor:'',ativo:true});
+  else if(b.id==='addG')CFG.grupos.push('Novo grupo');
+  else if(b.id==='addRt')CFG.retiradas.push({nome:'Novo ponto',endereco:'',horario:'',ativo:true});
+  else if(b.id==='addFx')CFG.envio.fixos.push({nome:'Envio',preco:20,prazo:'5 a 10'});
+  else if(b.id==='addCp')CFG.cupons.push({codigo:'NOVO10',tipo:'pct',valor:10,minimo:0,validade:'',ativo:true});
+  else if(b.dataset.secdel){if(confirm('Remover esta chave?')){SECN[b.dataset.secdel]=null;dirty()}return}
   else return;
   renderLay();fillGroups();dirty()});
+async function loadSec(){try{SECM=await api('/api/admin/segredos');for(const k in SECM){const m=$('#m_'+k);if(m)m.textContent=SECM[k]?'(salvo: '+SECM[k]+')':'(não configurado)'}}catch(e){}}
+$('#tFrete').onclick=async()=>{const c=$('#tcep').value.replace(/\D/g,'');$('#tRes').textContent='Calculando...';try{const r=await fetch('/frete?cep='+c+'&valor=50');const d=await r.json();$('#tRes').innerHTML=d.erro?`<span class="warn">${esc(d.erro)}</span>`:(d.opcoes||[]).map(o=>`${esc(o.nome)}: <b>${brl(o.preco)}</b> (${esc(o.prazo)} dias)`).join('<br>')||'Nenhuma opção retornada.'}catch(e){$('#tRes').textContent='Falhou.'}};
+
+/* ---------- Usuários ---------- */
+let PAP={};
+async function loadUsers(){try{const d=await api('/api/admin/usuarios');PAP=d.papeis;$('#u_papel').innerHTML=Object.entries(PAP).map(([k,v])=>`<option value="${k}">${esc(v)}</option>`).join('');
+  $('#utb').innerHTML=d.usuarios.map(u=>`<tr><td><b>${esc(u.usuario)}</b></td><td>${esc(u.nome)}</td><td>${esc(PAP[u.papel]||u.papel)}</td><td class="tools"><button class="btn s sm" data-ue="${esc(u.usuario)}" data-un="${esc(u.nome)}" data-up="${esc(u.papel)}">Editar</button><button class="btn d sm" data-ud="${esc(u.usuario)}">Apagar</button></td></tr>`).join('')||'<tr><td colspan="4" class="note">Nenhum usuário criado. Hoje só o acesso admin de recuperação existe.</td></tr>'}catch(e){$('#umsg').textContent=e.message}}
+$('#utb').addEventListener('click',async e=>{const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.ue){$('#u_usuario').value=b.dataset.ue;$('#u_usuario').readOnly=true;$('#u_nome').value=b.dataset.un;$('#u_papel').value=b.dataset.up;$('#u_senha').value='';$('#uTit').textContent='Editar '+b.dataset.ue}
+  if(b.dataset.ud&&confirm('Apagar o usuário '+b.dataset.ud+'?')){try{await api('/api/admin/usuarios?u='+encodeURIComponent(b.dataset.ud),{method:'DELETE'});loadUsers()}catch(err){$('#umsg').textContent=err.message}}});
+$('#uNew').onclick=()=>{['usuario','nome','senha'].forEach(k=>$('#u_'+k).value='');$('#u_usuario').readOnly=false;$('#uTit').textContent='Novo usuário';$('#umsg').textContent=''};
+$('#uSave').onclick=async()=>{$('#umsg').textContent='';try{await api('/api/admin/usuarios',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({usuario:$('#u_usuario').value,nome:$('#u_nome').value,papel:$('#u_papel').value,senha:$('#u_senha').value})});toast('Usuário salvo');$('#uNew').click();loadUsers()}catch(err){$('#umsg').textContent=err.message}};
 
 /* ---------- Salvar ---------- */
-const isDirty=()=>JSON.stringify(ITEMS)!==ORIG||JSON.stringify(CFG)!==ORIGC;
-function dirty(){const a=JSON.stringify(ITEMS)!==ORIG,b=JSON.stringify(CFG)!==ORIGC;
+const secDirty=()=>Object.keys(SECN).some(k=>SECN[k]===null||(SECN[k]||'').trim());
+const isDirty=()=>JSON.stringify(ITEMS)!==ORIG||JSON.stringify(CFG)!==ORIGC||secDirty();
+function dirty(){const a=JSON.stringify(ITEMS)!==ORIG,b=JSON.stringify(CFG)!==ORIGC,c=secDirty();
   const om=origMap(),n=ITEMS.filter(i=>om[i.id]!==JSON.stringify(i)).length+Object.keys(om).filter(k=>!ITEMS.some(i=>String(i.id)===k)).length;
-  $('#st').textContent=a||b?[a?n+' carta(s) alterada(s)':'',b?'layout alterado':''].filter(Boolean).join(' · ')+' – não salvo':'Tudo salvo';
-  $('#salvar').disabled=!(a||b)||!KV;$('#desf').disabled=!(a||b)}
+  $('#st').textContent=a||b||c?[a?n+' produto(s) alterado(s)':'',b?'configurações alteradas':'',c?'chaves de API':''].filter(Boolean).join(' · ')+' – não salvo':'Tudo salvo';
+  $('#salvar').disabled=!(a||b||c)||!KV;$('#desf').disabled=!(a||b||c)}
 $('#salvar').onclick=async()=>{const b=$('#salvar');b.disabled=true;b.textContent='Salvando...';
-  const body={};if(JSON.stringify(ITEMS)!==ORIG)body.items=ITEMS;if(JSON.stringify(CFG)!==ORIGC)body.cfg=CFG;
-  try{await api('/api/admin/salvar',{method:'PUT',headers:{'content-type':'application/json'},body:JSON.stringify(body)});ORIG=JSON.stringify(ITEMS);ORIGC=JSON.stringify(CFG);toast('Salvo! O site já mostra as mudanças.');renderList()}
+  try{const body={};if(JSON.stringify(ITEMS)!==ORIG)body.items=ITEMS;if(JSON.stringify(CFG)!==ORIGC)body.cfg=CFG;
+    if(body.items||body.cfg)await api('/api/admin/salvar',{method:'PUT',headers:{'content-type':'application/json'},body:JSON.stringify(body)});
+    if(secDirty()){await api('/api/admin/segredos',{method:'PUT',headers:{'content-type':'application/json'},body:JSON.stringify(SECN)});SECN={};$$('[data-sec]').forEach(i=>i.value='');loadSec()}
+    ORIG=JSON.stringify(ITEMS);ORIGC=JSON.stringify(CFG);toast('Salvo! O site já mostra as mudanças.');renderList()}
   catch(err){alert('Não salvou: '+err.message);if(err.status===401)location.reload()}
   b.textContent='Salvar alterações';dirty()};
-$('#desf').onclick=()=>{if(!confirm('Descartar as alterações não salvas?'))return;ITEMS=JSON.parse(ORIG);CFG=JSON.parse(ORIGC);fillGroups();renderList();renderLay();dirty()};
-$('#imp').onclick=async()=>{if(!confirm('Carregar o estoque do arquivo items.json publicado no site? Isso substitui a lista atual no painel (só vale depois de Salvar).'))return;
-  try{const r=await fetch('/items.json',{cache:'no-store'});ITEMS=await r.json();fillGroups();renderList();renderLay();dirty();toast('Arquivo carregado. Confira e clique em Salvar.')}catch(e){alert('Não consegui ler o arquivo.')}};
+$('#desf').onclick=()=>{if(!confirm('Descartar as alterações não salvas?'))return;ITEMS=JSON.parse(ORIG);CFG=JSON.parse(ORIGC);SECN={};$$('[data-sec]').forEach(i=>i.value='');fillGroups();renderList();renderLay();dirty()};
 addEventListener('beforeunload',e=>{if(isDirty()){e.preventDefault();e.returnValue=''}});
 start();
 </script>
