@@ -62,6 +62,8 @@ dialog::backdrop{background:#000a}
 .tools{display:flex;gap:4px;align-items:center}.tools button{padding:7px 9px}
 .chk{flex-direction:row;align-items:center;gap:6px;color:var(--ink)}
 .stack{display:flex;flex-direction:column;gap:8px}
+.pbox{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;background:var(--sf2);border:1px solid var(--ln);border-radius:12px;padding:12px}.pbox .pbt{grid-column:1/-1;font-weight:800;font-size:13px}.pbox .note{grid-column:1/-1;margin:0}
+@media(max-width:600px){.pbox{grid-template-columns:1fr}}
 .toast{position:fixed;top:70px;left:50%;transform:translateX(-50%);background:var(--sf2);border:1.5px solid var(--pu2);padding:10px 18px;border-radius:12px;z-index:20;font-weight:600}
 table{width:100%;border-collapse:collapse;font-size:13.5px}th,td{text-align:left;padding:8px;border-bottom:1px solid var(--ln);vertical-align:top}th{color:var(--mu);font-weight:700}
 tr.click{cursor:pointer}tr.click:hover td{background:var(--sf2)}
@@ -78,7 +80,7 @@ pre.code{background:var(--sf2);border:1px solid var(--ln);border-radius:10px;pad
 <section id="login" hidden>
   <h1>Painel da loja</h1>
   <p class="note">Entre com seu usuário e senha.</p>
-  <form id="lf" class="stack"><label>Usuário<input id="lu" autocomplete="username" value="admin" required></label>
+  <form id="lf" class="stack"><label>Usuário<input id="lu" autocomplete="username" placeholder="admin" required></label>
   <label>Senha<input id="pw" type="password" autocomplete="current-password" required></label>
   <p class="msg" id="lmsg"></p><button class="btn" style="width:100%">Entrar</button></form>
 </section>
@@ -96,6 +98,7 @@ pre.code{background:var(--sf2);border:1px solid var(--ln);border-radius:10px;pad
     <button role="tab" data-tab="pag" data-adm>Pagamentos</button>
     <button role="tab" data-tab="cup" data-adm>Cupons</button>
     <button role="tab" data-tab="usr" data-adm>Usuários</button>
+    <button role="tab" data-tab="conta">Minha conta</button>
   </nav></div></header>
 
 <main class="wrap">
@@ -239,11 +242,23 @@ pre.code{background:var(--sf2);border:1px solid var(--ln);border-radius:10px;pad
   </div>
 </section>
 
+<!-- MINHA CONTA -->
+<section data-pane="conta" hidden>
+  <div class="card"><h3>Minha conta</h3><p class="note full" id="cInfo"></p>
+    <label>Novo usuário (login)<input id="c_usuario" autocomplete="username"></label>
+    <label>Senha atual<input id="c_atual" type="password" autocomplete="current-password"></label>
+    <label>Nova senha (mín. 8)<input id="c_nova" type="password" autocomplete="new-password"></label>
+    <label>Repita a nova senha<input id="c_nova2" type="password" autocomplete="new-password"></label>
+    <div class="tools full"><button class="btn" id="cSave">Trocar usuário e senha</button></div>
+    <p class="msg full" id="cmsg"></p>
+  </div>
+</section>
+
 <!-- USUÁRIOS -->
 <section data-pane="usr" hidden>
   <div class="card"><h3>Usuários do painel</h3>
     <div class="full scroll"><table><thead><tr><th>Usuário</th><th>Nome</th><th>Acesso</th><th></th></tr></thead><tbody id="utb"></tbody></table></div>
-    <p class="note">O usuário <b>admin</b> com a senha cadastrada no Cloudflare (ADMIN_PASSWORD) sempre funciona como acesso de recuperação.</p>
+    <p class="note">O <b>administrador geral</b> nasce da senha ADMIN_PASSWORD do Cloudflare (login <b>admin</b>). Ele pode trocar usuário e senha uma vez na aba Minha conta; se esquecer, troque a senha no Cloudflare e o login volta a ser admin + a nova senha.</p>
   </div>
   <div class="card"><h3 id="uTit">Novo usuário</h3>
     <label>Usuário (login)<input id="u_usuario" autocomplete="off"></label>
@@ -267,11 +282,14 @@ pre.code{background:var(--sf2);border:1px solid var(--ln);border-radius:10px;pad
     <label>Número<input id="e_num" placeholder="Ex.: 025/128"></label>
     <label>Idioma<select id="e_l"><option>PT</option><option>EN</option><option>JP</option><option>CN</option></select></label>
     <label>Variante<input id="e_v" placeholder="Foil, SAR, AR..."></label>
-    <label>Estado<select id="e_c"><option value="NM">NM</option><option value="SP">SP</option><option value="MP">MP</option></select></label>
+    <label>Estado<select id="e_c"><option value="NM">NM – Praticamente nova</option><option value="SP">SP – Levemente usada</option><option value="MP">MP – Moderadamente usada</option><option value="HP">HP – Muito usada</option><option value="D">D – Danificada</option></select></label>
     <label>Grupo<select id="e_g"></select></label>
     <label>Quantidade<input id="e_q" type="number" min="0" step="1" required></label>
-    <label>Preço (R$)<input id="e_p" type="number" min="0" step="0.5" required></label>
-    <label>Preço antigo riscado (opcional)<input id="e_o" type="number" min="0" step="0.5"></label>
+    <div class="full pbox"><span class="pbt">Preço</span>
+      <label>Preço cheio (R$)<input id="e_base" type="number" min="0" step="0.5" placeholder="Ex.: 150"></label>
+      <label>Desconto (%)<input id="e_pct" type="number" min="0" max="99" step="0.5" placeholder="0"></label>
+      <label>Preço final (R$)<input id="e_p" type="number" min="0" step="0.5" required></label>
+      <p class="note">Preencha o preço cheio e depois <b>o desconto ou o preço final</b>: o outro é calculado sozinho. Com desconto, o site mostra o preço cheio riscado e a etiqueta de %.</p></div>
     <div class="full"><label>Imagem da vitrine</label><div class="ph" id="e_img"></div><input type="file" id="e_if" accept="image/*" style="margin-top:6px"></div>
     <div class="full"><label>Fotos do anúncio (frente, verso...)</label><div class="ph" id="e_fotos"></div>
       <input type="file" id="e_ff" accept="image/*" multiple style="margin-top:6px"><p class="note" id="e_up"></p></div>
@@ -291,7 +309,7 @@ const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const brl=v=>'R$ '+(+v||0).toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,'.');
 const esc=t=>String(t??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 let ITEMS=[],CFG={},ORIG='',ORIGC='',EDIT=null,KV=false,ME={},SECM={},SECN={},PEDIDOS=[];
-const DEF_LAY={fato1:'<b>Pix</b> único pagamento',fato2:'Retirada em Manaus ou Correios',aviso:'',favTitulo:'Qual é o seu Pokémon favorito?',populares:['Pikachu','Charizard','Mew','Mewtwo','Gengar','Lugia','Eevee','Snorlax','Greninja'],destaque:{modo:'auto',id:null},grupos:['Coleção 30 anos','Pikachus 30 anos','Listagem','Inglês','Energias'],cores:{principal:'#5d2a65',destaque:'#8e44ad',claro:'#e2b6ff'},slides:[{t:"Celebração 30 anos",s:"Português, inglês, japonês e chinês",c:"#e2b6ff",tipo:"col",valor:"30 anos",ativo:true},{t:"Ofertas -15%",s:"Nas cartas acima de R$ 100",c:"#ff8fb1",tipo:"promo",valor:"",ativo:true},{t:"Reinado Delta",s:"Megaevolução em português",c:"#c9a7ff",tipo:"col",valor:"Reinado Delta",ativo:true},{t:"Escuridão Absoluta",s:"Megaevolução",c:"#b48cff",tipo:"col",valor:"Escuridão Absoluta",ativo:true},{t:"Pikachus 30 anos",s:"Coleção completa 01 a 30",c:"#e2b6ff",tipo:"grupo",valor:"Pikachus 30 anos",ativo:true},{t:"151 chinesa",s:"Foil e Pokébola",c:"#f0a6ff",tipo:"col",valor:"Coleção 151 (CN)",ativo:true}]};
+const DEF_LAY={fato1:'<b>Pix</b> único pagamento',fato2:'Retirada em Manaus ou Correios',aviso:'',favTitulo:'Qual é o seu Pokémon favorito?',populares:['Pikachu','Charizard','Mew','Mewtwo','Gengar','Lugia','Eevee','Snorlax','Greninja'],destaque:{modo:'auto',id:null},grupos:['Coleção 30 anos','Pikachus 30 anos','Listagem','Inglês','Energias'],cores:{principal:'#5d2a65',destaque:'#8e44ad',claro:'#e2b6ff'},slides:[{t:"Celebração 30 anos",s:"Português, inglês, japonês e chinês",c:"#e2b6ff",tipo:"col",valor:"30 anos",ativo:true},{t:"Ofertas",s:"Cartas com desconto",c:"#ff8fb1",tipo:"promo",valor:"",ativo:true},{t:"Reinado Delta",s:"Megaevolução em português",c:"#c9a7ff",tipo:"col",valor:"Reinado Delta",ativo:true},{t:"Escuridão Absoluta",s:"Megaevolução",c:"#b48cff",tipo:"col",valor:"Escuridão Absoluta",ativo:true},{t:"Pikachus 30 anos",s:"Coleção completa 01 a 30",c:"#e2b6ff",tipo:"grupo",valor:"Pikachus 30 anos",ativo:true},{t:"151 chinesa",s:"Foil e Pokébola",c:"#f0a6ff",tipo:"col",valor:"Coleção 151 (CN)",ativo:true}]};
 function toast(t){const d=document.createElement('div');d.className='toast';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),2800)}
 const api=(u,o={})=>fetch(u,{credentials:'same-origin',...o}).then(async r=>{let j={};try{j=await r.json()}catch(e){}if(!r.ok)throw Object.assign(new Error(j.erro||('Erro '+r.status)),{status:r.status});return j});
 const isAdm=()=>ME.papel==='admin';
@@ -313,9 +331,9 @@ async function start(){
   if(isAdm())loadSec();
   fillGroups();renderList();renderLay();dirty();loadPed();
 }
-$('#lf').onsubmit=async e=>{e.preventDefault();$('#lmsg').textContent='';try{await api('/api/admin/login',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({usuario:$('#lu').value,senha:$('#pw').value})});$('#pw').value='';start()}catch(err){$('#lmsg').textContent=err.message}};
+$('#lf').onsubmit=async e=>{e.preventDefault();$('#lmsg').textContent='';try{await api('/api/admin/login',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({usuario:$('#lu').value||'admin',senha:$('#pw').value})});$('#pw').value='';start()}catch(err){$('#lmsg').textContent=err.message}};
 $('#out').onclick=async()=>{if(isDirty()&&!confirm('Há alterações não salvas. Sair mesmo assim?'))return;await api('/api/admin/logout',{method:'POST'}).catch(()=>{});location.reload()};
-function tab(t){$$('#tabs button').forEach(x=>x.setAttribute('aria-selected',x.dataset.tab===t));$$('[data-pane]').forEach(p=>p.hidden=p.dataset.pane!==t);$('#saveBar').hidden=['ped','imp','usr'].includes(t);if(t==='usr')loadUsers();if(t==='ped')loadPed()}
+function tab(t){$$('#tabs button').forEach(x=>x.setAttribute('aria-selected',x.dataset.tab===t));$$('[data-pane]').forEach(p=>p.hidden=p.dataset.pane!==t);$('#saveBar').hidden=['ped','imp','usr','conta'].includes(t);if(t==='usr')loadUsers();if(t==='conta')loadConta();if(t==='ped')loadPed()}
 $$('#tabs button').forEach(b=>b.onclick=()=>tab(b.dataset.tab));
 
 /* ---------- Produtos ---------- */
@@ -343,7 +361,8 @@ const nextId=()=>Math.max(9000,...ITEMS.map(x=>+x.id||0))+1;
 function openEd(i){
   EDIT=i?JSON.parse(JSON.stringify(i)):{id:nextId(),g:$('#fg').value||groupsAll()[0]||'Geral',n:'',num:'',l:'PT',v:'',q:1,p:0,c:'NM',img:'',fotos:[],_novo:true};
   $('#dt').textContent=i?'Editar produto':'Novo produto';$('#e_del').hidden=!i;
-  for(const k of ['n','num','l','v','c','g','q','p','o'])$('#e_'+k).value=EDIT[k]??'';
+  for(const k of ['n','num','l','v','c','g','q','p'])$('#e_'+k).value=EDIT[k]??'';
+  $('#e_base').value=EDIT.o||EDIT.p||'';$('#e_pct').value=EDIT.o&&EDIT.o>EDIT.p?Math.round((1-EDIT.p/EDIT.o)*1000)/10:'';
   drawPh();$('#e_up').textContent='';$('#e_if').value='';$('#e_ff').value='';$('#dlg').showModal();
 }
 function drawPh(){
@@ -363,7 +382,7 @@ $('#e_ff').onchange=async e=>{const fs=[...e.target.files];if(!fs.length)return;
   if($('#e_up').textContent.startsWith('Enviando'))$('#e_up').textContent='Fotos enviadas. Clique em Aplicar e depois em Salvar alterações.';
   $('#e_ok').disabled=false;e.target.value=''};
 $('#ef').addEventListener('submit',e=>{if(e.submitter&&e.submitter.value!=='ok')return;
-  const g=k=>$('#e_'+k).value.trim();const p=parseFloat(g('p')),q=parseInt(g('q'),10),o=parseFloat(g('o'));
+  const g=k=>$('#e_'+k).value.trim();const p=parseFloat(g('p')),q=parseInt(g('q'),10),o=parseFloat(g('base'));
   if(!g('n')||!(p>=0)||!(q>=0)){e.preventDefault();alert('Preencha nome, quantidade e preço.');return}
   Object.assign(EDIT,{n:g('n'),num:g('num'),l:g('l'),v:g('v'),c:g('c'),g:g('g'),q,p:Math.round(p*100)/100});
   if(o>p)EDIT.o=Math.round(o*100)/100;else delete EDIT.o;
@@ -373,6 +392,10 @@ $('#ef').addEventListener('submit',e=>{if(e.submitter&&e.submitter.value!=='ok')
   renderList();dirty()});
 $('#e_del').onclick=()=>{if(!confirm('Excluir "'+EDIT.n+'" da loja? (Só some de verdade quando você clicar em Salvar.)'))return;ITEMS=ITEMS.filter(x=>String(x.id)!==String(EDIT.id));$('#dlg').close();renderList();dirty()};
 $('#nova').onclick=()=>openEd(null);
+const r50=v=>Math.round(v*100)/100;
+$('#e_pct').addEventListener('input',()=>{const b=parseFloat($('#e_base').value),c=parseFloat($('#e_pct').value);if(b>0&&c>=0&&c<100)$('#e_p').value=r50(b*(1-c/100))});
+$('#e_p').addEventListener('input',()=>{const b=parseFloat($('#e_base').value),p=parseFloat($('#e_p').value);if(b>0&&p>=0){$('#e_pct').value=p<b?Math.round((1-p/b)*1000)/10:''}else if(!(b>0)&&p>0){$('#e_base').value=p}});
+$('#e_base').addEventListener('input',()=>{const b=parseFloat($('#e_base').value),c=parseFloat($('#e_pct').value);if(b>0)$('#e_p').value=r50(c>0&&c<100?b*(1-c/100):b)});
 function placeholder(n){const s=`<svg xmlns="http://www.w3.org/2000/svg" width="200" height="280"><rect width="200" height="280" rx="10" fill="#2a1d33"/><text x="100" y="140" fill="#e2b6ff" font-family="sans-serif" font-size="15" text-anchor="middle">${esc(String(n).slice(0,22))}</text><text x="100" y="165" fill="#8f7da0" font-family="sans-serif" font-size="11" text-anchor="middle">foto em breve</text></svg>`;return 'data:image/svg+xml;base64,'+btoa(unescape(encodeURIComponent(s)))}
 
 /* ---------- Pedidos ---------- */
@@ -440,7 +463,7 @@ const PROMPT=`Você vai me ajudar a montar a planilha de estoque da minha loja d
 Eu vou te mandar fotos das cartas (ou uma lista). Para cada carta diferente:
 1. Identifique o nome, o número impresso no canto inferior (ex.: 054/128), o idioma (PT, EN, JP ou CN) e a variante, se houver (ex.: Foil, SAR, AR, IR, Pokébola, Master Ball). Se não houver variante, deixe vazio.
 2. Conte quantas cópias iguais aparecem (mesmo nome + número + idioma + variante = mesma linha).
-3. Estado: use NM se a carta estiver perfeita; SP se tiver marcas leves.
+3. Estado: NM (praticamente nova), SP (levemente usada), MP (moderadamente usada), HP (muito usada) ou D (danificada).
 4. Preço: procure o menor preço NM da carta no mesmo idioma no site Liga Pokémon (ligapokemon.com.br). Arredonde para cima em múltiplos de R$ 0,50. Se não conseguir pesquisar, deixe o preço em branco e me avise quais ficaram sem preço.
 5. Se o preço for R$ 100 ou mais e eu pedir desconto, coloque o preço cheio em preco_antigo e o preço com desconto em preco.
 6. Grupo: use um destes nomes, iguais: ${'${GRUPOS}'}. Se não souber, use "Geral".
@@ -506,6 +529,17 @@ $('#utb').addEventListener('click',async e=>{const b=e.target.closest('button');
   if(b.dataset.ud&&confirm('Apagar o usuário '+b.dataset.ud+'?')){try{await api('/api/admin/usuarios?u='+encodeURIComponent(b.dataset.ud),{method:'DELETE'});loadUsers()}catch(err){$('#umsg').textContent=err.message}}});
 $('#uNew').onclick=()=>{['usuario','nome','senha'].forEach(k=>$('#u_'+k).value='');$('#u_usuario').readOnly=false;$('#uTit').textContent='Novo usuário';$('#umsg').textContent=''};
 $('#uSave').onclick=async()=>{$('#umsg').textContent='';try{await api('/api/admin/usuarios',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({usuario:$('#u_usuario').value,nome:$('#u_nome').value,papel:$('#u_papel').value,senha:$('#u_senha').value})});toast('Usuário salvo');$('#uNew').click();loadUsers()}catch(err){$('#umsg').textContent=err.message}};
+
+/* ---------- Minha conta ---------- */
+async function loadConta(){$('#cmsg').textContent='';try{const c=await api('/api/admin/conta');$('#c_usuario').value=c.usuario;
+  const box=[...document.querySelectorAll('[data-pane=conta] input,#cSave')];
+  if(c.master&&!c.podeTrocar){box.forEach(i=>i.disabled=true);$('#cInfo').innerHTML='Você é o <b>administrador geral</b> (usuário <b>'+esc(c.usuario)+'</b>). O usuário e a senha já foram trocados uma vez pelo painel. Para trocar de novo, mude a senha <b>ADMIN_PASSWORD</b> no Cloudflare (Workers &amp; Pages → projeto → Settings → Variables and secrets). Depois disso, o login volta a ser <b>admin</b> + a nova senha e você poderá trocar mais uma vez aqui.'}
+  else if(c.master){box.forEach(i=>i.disabled=false);$('#cInfo').innerHTML='Você é o <b>administrador geral</b>. Você pode trocar o usuário e a senha <b>uma única vez</b> por aqui. Na senha atual, use a senha cadastrada no Cloudflare. Trocas seguintes só pelo Cloudflare.'}
+  else{box.forEach(i=>i.disabled=false);$('#cInfo').innerHTML='Usuário <b>'+esc(c.usuario)+'</b> ('+(c.papel==='admin'?'administrador':'operador')+'). Troque seu login e senha quando quiser.'}}catch(e){$('#cmsg').textContent=e.message}}
+$('#cSave').onclick=async()=>{$('#cmsg').textContent='';if($('#c_nova').value!==$('#c_nova2').value){$('#cmsg').textContent='As duas senhas novas não são iguais.';return}
+  if(!confirm('Trocar usuário e senha agora?'))return;
+  try{const r=await api('/api/admin/conta',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({usuario:$('#c_usuario').value,atual:$('#c_atual').value,nova:$('#c_nova').value})});
+    ['c_atual','c_nova','c_nova2'].forEach(k=>$('#'+k).value='');toast('Pronto! Seu login agora é '+r.usuario);ME.usuario=r.usuario;loadConta()}catch(e){$('#cmsg').textContent=e.message}};
 
 /* ---------- Salvar ---------- */
 const secDirty=()=>Object.keys(SECN).some(k=>SECN[k]===null||(SECN[k]||'').trim());

@@ -55,7 +55,7 @@ h1{font-family:var(--display);font-weight:900;font-style:italic;font-size:clamp(
 .b{color:#fff;font-size:11px;padding:1px 6px;border-radius:5px;font-weight:900;letter-spacing:.02em}
 .b.PT{background:var(--pt)}.b.EN{background:var(--en)}.b.JP{background:var(--jp)}.b.CN{background:var(--cn)}.b.v{background:var(--var)}
 .cond{font-size:10px;font-weight:900;padding:0 5px;border-radius:5px;border:1.5px solid currentColor;line-height:1.4}
-.cond.NM{color:var(--ok)}.cond.SP{color:var(--warn)}
+.cond.NM{color:var(--ok)}.cond.SP{color:var(--warn)}.cond.MP{color:#f08a3c}.cond.HP{color:#ff6b6b}.cond.D{color:#ff4d6d}
 .name{font-weight:900;font-size:15px;line-height:1.15;overflow-wrap:anywhere}
 .pr{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-top:auto}
 .price{font-family:var(--display);font-weight:800;font-size:20px;color:var(--price);font-variant-numeric:tabular-nums;white-space:nowrap;letter-spacing:.01em}
@@ -405,10 +405,11 @@ footer{color:var(--muted);font-size:12px;font-weight:700;padding-block:20px 140p
 
 <script>
 let ITEMS=[],CFG={};
-const DEF_CFG={loja:"Cartas do Gabriel",fato1:"<b>Pix</b> único pagamento",fato2:"Retirada em Manaus ou Correios",aviso:"",favTitulo:"Qual é o seu Pokémon favorito?",populares:["Pikachu","Charizard","Mew","Mewtwo","Gengar","Lugia","Eevee","Snorlax","Greninja"],destaque:{modo:"auto",id:null},grupos:["Coleção 30 anos","Pikachus 30 anos","Listagem","Inglês","Energias"],cores:{principal:"#5d2a65",destaque:"#8e44ad",claro:"#e2b6ff"},slides:[{t:"Celebração 30 anos",s:"Português, inglês, japonês e chinês",c:"#e2b6ff",tipo:"col",valor:"30 anos",ativo:true},{t:"Ofertas -15%",s:"Nas cartas acima de R$ 100",c:"#ff8fb1",tipo:"promo",valor:"",ativo:true},{t:"Reinado Delta",s:"Megaevolução em português",c:"#c9a7ff",tipo:"col",valor:"Reinado Delta",ativo:true},{t:"Escuridão Absoluta",s:"Megaevolução",c:"#b48cff",tipo:"col",valor:"Escuridão Absoluta",ativo:true},{t:"Pikachus 30 anos",s:"Coleção completa 01 a 30",c:"#e2b6ff",tipo:"grupo",valor:"Pikachus 30 anos",ativo:true},{t:"151 chinesa",s:"Foil e Pokébola",c:"#f0a6ff",tipo:"col",valor:"Coleção 151 (CN)",ativo:true}]};
+const DEF_CFG={loja:"Cartas do Gabriel",fato1:"<b>Pix</b> único pagamento",fato2:"Retirada em Manaus ou Correios",aviso:"",favTitulo:"Qual é o seu Pokémon favorito?",populares:["Pikachu","Charizard","Mew","Mewtwo","Gengar","Lugia","Eevee","Snorlax","Greninja"],destaque:{modo:"auto",id:null},grupos:["Coleção 30 anos","Pikachus 30 anos","Listagem","Inglês","Energias"],cores:{principal:"#5d2a65",destaque:"#8e44ad",claro:"#e2b6ff"},slides:[{t:"Celebração 30 anos",s:"Português, inglês, japonês e chinês",c:"#e2b6ff",tipo:"col",valor:"30 anos",ativo:true},{t:"Ofertas",s:"Cartas com desconto",c:"#ff8fb1",tipo:"promo",valor:"",ativo:true},{t:"Reinado Delta",s:"Megaevolução em português",c:"#c9a7ff",tipo:"col",valor:"Reinado Delta",ativo:true},{t:"Escuridão Absoluta",s:"Megaevolução",c:"#b48cff",tipo:"col",valor:"Escuridão Absoluta",ativo:true},{t:"Pikachus 30 anos",s:"Coleção completa 01 a 30",c:"#e2b6ff",tipo:"grupo",valor:"Pikachus 30 anos",ativo:true},{t:"151 chinesa",s:"Foil e Pokébola",c:"#f0a6ff",tipo:"col",valor:"Coleção 151 (CN)",ativo:true}]};
 let WA='',CUP={codigo:'',desconto:0};
 let GROUPS=DEF_CFG.grupos;
 const $=s=>document.querySelector(s);
+const CONDN={NM:'praticamente nova',SP:'levemente usada',MP:'moderadamente usada',HP:'muito usada',D:'danificada'};
 const brl=v=>'R$ '+v.toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,'.');
 let cart={};try{cart=JSON.parse(localStorage.getItem('cartGabriel')||'{}')}catch(e){}
 let byId={};
@@ -467,10 +468,10 @@ function render(){
   const t=q.trim().toLowerCase();
   let L=ITEMS.filter(i=>(!PROMO||i.o)&&(!col||colOf(i)===col)&&(!group||i.g===group)&&(!lang||i.l.split('/').includes(lang))&&(!t||(i.n+' '+i.num+' '+i.v+' '+i.g).toLowerCase().includes(t)));
   L.sort(sort==='pa'?(a,b)=>a.p-b.p:sort==='nm'?(a,b)=>a.n.localeCompare(b.n):(a,b)=>b.p-a.p);
-  $('#count').innerHTML=(L.length?`${L.length} ${L.length===1?'carta':'cartas'} na vitrine`:'')+(col||PROMO?`<button class="colf" type="button" data-colx="1">${PROMO?'Ofertas -15%':col} ✕</button>`:'');
+  $('#count').innerHTML=(L.length?`${L.length} ${L.length===1?'carta':'cartas'} na vitrine`:'')+(col||PROMO?`<button class="colf" type="button" data-colx="1">${PROMO?'Ofertas':col} ✕</button>`:'');
   $('#grid').innerHTML=L.length?L.map(i=>`<article class="card" data-id="${i.id}"><div class="in">
-    <button class="art" type="button" data-view="${i.id}" aria-label="Ver fotos de ${i.n}"><img src="${i.img}" alt="${i.n}" loading="lazy" width="200" height="280">${i.o?'<span class="off">-15%</span>':''}${(i.fotos||[]).length>1?`<span class="nf">${i.fotos.length} fotos</span>`:''}<span class="zoom">Ver detalhes</span></button>
-    <div class="meta">${i.g==='Energias'?'Básica':i.num} ${langBadges(i.l)}${i.v?`<span class="b v">${i.v}</span>`:''}<span class="cond ${i.c}" title="${i.c==='NM'?'Near Mint: quase perfeita':'Slightly Played: pouco jogada'}">${i.c}</span></div>
+    <button class="art" type="button" data-view="${i.id}" aria-label="Ver fotos de ${i.n}"><img src="${i.img}" alt="${i.n}" loading="lazy" width="200" height="280">${i.o?`<span class="off">-${Math.round((1-i.p/i.o)*100)}%</span>`:''}${(i.fotos||[]).length>1?`<span class="nf">${i.fotos.length} fotos</span>`:''}<span class="zoom">Ver detalhes</span></button>
+    <div class="meta">${i.g==='Energias'?'Básica':i.num} ${langBadges(i.l)}${i.v?`<span class="b v">${i.v}</span>`:''}<span class="cond ${i.c}" title="${CONDN[i.c]||i.c}">${i.c}</span></div>
     <div class="name">${i.n}</div>
     <div class="pr"><span class="pp">${i.o?`<s class="old">${brl(i.o)}</s>`:''}<span class="price">${brl(i.p)}</span></span><span class="stock">${i.q} disp.</span></div>
     <div class="c">${ctl(i)}</div></div></article>`).join(''):'<p class="empty">Nenhuma carta encontrada com esse filtro.</p>';
@@ -511,7 +512,7 @@ function cartUI(){
   $('#barN').textContent=n+(n===1?' carta':' cartas');$('#barT').textContent=brl(tot);
   if(CUP.codigo&&CUP.sub!==tot){CUP={codigo:'',desconto:0};$('#cupMsg').textContent='Carrinho mudou: aplique o cupom de novo.'}
   const fs=isShip()&&frSel();$('#tot').textContent=brl(tot-CUP.desconto+(fs?fs.preco:0));$('#totL').textContent=(CUP.desconto?'Com cupom ':'')+(fs?'Total com frete':'Total das cartas');
-  $('#lines').innerHTML=ks.length?ks.map(k=>{const i=byId[k],c=cart[k];return `<div class="li"><img src="${i.img}" alt=""><div><div class="nm">${i.n}</div><div class="sm">${i.g==='Energias'?'Básica':i.num} · ${i.l}${i.v?' · '+i.v:''} · ${i.c} · ${brl(i.p)} cada${i.o?' (-15%)':''}</div></div>
+  $('#lines').innerHTML=ks.length?ks.map(k=>{const i=byId[k],c=cart[k];return `<div class="li"><img src="${i.img}" alt=""><div><div class="nm">${i.n}</div><div class="sm">${i.g==='Energias'?'Básica':i.num} · ${i.l}${i.v?' · '+i.v:''} · ${i.c} · ${brl(i.p)} cada${i.o?` (-${Math.round((1-i.p/i.o)*100)}%)`:''}</div></div>
     <div><div class="step"><button data-dec="${k}" aria-label="Tirar uma">−</button><span>${c}</span><button data-inc="${k}" ${c>=i.q?'disabled':''} aria-label="Mais uma">+</button></div><div class="lp">${brl(c*i.p)}</div></div></div>`}).join(''):'<p class="hint">Seu carrinho está vazio.</p>';
   save();
 }
@@ -531,8 +532,8 @@ function drawPV(){const i=PVI,F=fotosOf(i);
  <p class="hint2">Toque na foto para ampliar${F.length>1?' · '+F.length+' fotos':''}</p></div>
  <div class="pvi"><div class="meta">${i.g==='Energias'?'Básica':i.num} ${langBadges(i.l)}${i.v?`<span class="b v">${i.v}</span>`:''}<span class="cond ${i.c}">${i.c}</span></div>
  <h2 id="pvT">${i.n}</h2>
- <dl><dt>Coleção</dt><dd>${colOf(i)||i.g}</dd><dt>Número</dt><dd>${i.g==='Energias'?'Básica':i.num}</dd><dt>Idioma</dt><dd>${i.l}</dd><dt>Estado</dt><dd>${i.c==='NM'?'NM – quase perfeita':'SP – pouco jogada'}</dd><dt>Disponível</dt><dd>${i.q} ${i.q>1?'unidades':'unidade'}</dd></dl>
- <div class="pp3">${i.o?`<s>${brl(i.o)}</s>`:''}<b>${brl(i.p)}</b>${i.o?'<span class="off" style="position:static">-15%</span>':''}</div>
+ <dl><dt>Coleção</dt><dd>${colOf(i)||i.g}</dd><dt>Número</dt><dd>${i.g==='Energias'?'Básica':i.num}</dd><dt>Idioma</dt><dd>${i.l}</dd><dt>Estado</dt><dd>${i.c} – ${CONDN[i.c]||''}</dd><dt>Disponível</dt><dd>${i.q} ${i.q>1?'unidades':'unidade'}</dd></dl>
+ <div class="pp3">${i.o?`<s>${brl(i.o)}</s>`:''}<b>${brl(i.p)}</b>${i.o?`<span class="off" style="position:static">-${Math.round((1-i.p/i.o)*100)}%</span>`:''}</div>
  <div class="c" id="pvC">${ctl(i)}</div></div>`;
  $('#pvClose').onclick=closePV;
  const m=$('#pvm');m.onclick=e=>{if(e.target.closest('button'))return;const r=m.getBoundingClientRect();m.style.setProperty('--zx',((e.clientX-r.left)/r.width*100)+'%');m.style.setProperty('--zy',((e.clientY-r.top)/r.height*100)+'%');m.classList.toggle('zoomed')};
