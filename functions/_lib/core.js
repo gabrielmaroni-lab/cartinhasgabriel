@@ -28,8 +28,19 @@ export async function getSession(request, env) {
   const users = await kvJson(env, "users", []);
   const u = users.find(x => x.usuario === usuario);
   if (u) return { usuario, papel: u.papel, nome: u.nome || usuario };
-  if (usuario === "admin" && env.ADMIN_PASSWORD) return { usuario, papel: "admin", nome: "Administrador" };
+  const m = await getMaster(env);
+  if (m && usuario === m.usuario) return { usuario, papel: "admin", nome: m.nome || "Administrador geral", master: true };
+  if (!m && usuario === "admin" && env.ADMIN_PASSWORD) return { usuario, papel: "admin", nome: "Administrador geral", master: true };
   return null;
+}
+// Administrador geral: nasce de ADMIN_PASSWORD (Cloudflare). Pode trocar usuário/senha UMA vez pelo painel;
+// se a senha for trocada no Cloudflare, a troca feita no painel deixa de valer e o login volta a ser admin + nova senha.
+export async function envTag(env) { return env.ADMIN_PASSWORD ? await hmac("envtag", env.ADMIN_PASSWORD) : "" }
+export async function getMaster(env) {
+  if (!env.ESTOQUE || !env.ADMIN_PASSWORD) return null;
+  const m = await env.ESTOQUE.get("master", "json");
+  if (!m || m.envTag !== await envTag(env)) return null;
+  return m;
 }
 export async function makeCookie(env, usuario) {
   const u64 = b64u(enc.encode(usuario)); const exp = String(Date.now() + 7 * 864e5);
