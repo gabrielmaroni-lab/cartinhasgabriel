@@ -302,6 +302,8 @@ footer{color:var(--muted);font-size:12px;font-weight:700;padding-block:20px 140p
 .resb .qr{background:#fff;padding:10px;border-radius:12px}.resb textarea{width:100%;font:12px monospace;border-radius:10px;padding:8px;background:var(--bg);color:var(--ink);border:2px solid var(--line);resize:none}
 .resb .b1{background:var(--blue);color:#fff;border:0;border-radius:12px;padding:12px 18px;font-weight:900;cursor:pointer;text-decoration:none;display:inline-block}.resb .b2{background:transparent;color:var(--ink);border:2px solid var(--line);border-radius:12px;padding:10px 16px;font-weight:800;cursor:pointer;text-decoration:none}
 .wa[disabled]{opacity:.6;cursor:wait}
+.fact.login{display:inline-flex;align-items:center;gap:6px;text-decoration:none;background:var(--blue);border-color:var(--yellow);margin-left:auto}.fact.login:hover{filter:brightness(1.15)}
+.foot2{text-align:center;padding:0 16px 24px;font-size:12px}.foot2 a{color:var(--muted)}
 .aviso{background:linear-gradient(90deg,var(--blue),var(--red));color:#fff;text-align:center;font-weight:700;font-size:14px;padding:8px 16px}
 </style>
 
@@ -313,6 +315,7 @@ footer{color:var(--muted);font-size:12px;font-weight:700;padding-block:20px 140p
       <span class="fact" id="fact1"><b>Pix</b> único pagamento</span>
       <span class="fact" id="fact2">Retirada em Manaus ou Correios</span>
       <span class="fact" id="fTotal"></span>
+      <a class="fact login" id="loginBtn" href="/admin.html" title="Área da loja (dono e equipe)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg><span id="loginTxt">Entrar</span></a>
     </div>
   </div>
   <section class="slider" id="slider" aria-roledescription="carrossel" aria-label="Destaques">
@@ -353,7 +356,8 @@ footer{color:var(--muted);font-size:12px;font-weight:700;padding-block:20px 140p
   <p class="count" id="count"></p>
   <div class="grid" id="grid"><p class="empty">Carregando cartas...</p></div>
 </main>
-<footer class="wrap" id="rodape">Estado das cartas: NM (Near Mint, quase perfeita) e SP (Slightly Played, pouco jogada) · Preços com base no menor anúncio NM da Liga Pokémon · atualizados em 10/11/2026 · estoque sujeito à confirmação no WhatsApp</footer>
+<div style="display:contents"></div><footer class="wrap" id="rodape">Estado das cartas: NM (Near Mint, quase perfeita) e SP (Slightly Played, pouco jogada) · Preços com base no menor anúncio NM da Liga Pokémon · atualizados em 10/11/2026 · estoque sujeito à confirmação no WhatsApp</footer>
+<p class="foot2"><a href="/admin.html">Área da loja · entrar</a></p>
 
 <div class="bar" id="bar">
   <div class="t"><span id="barN"></span><b id="barT"></b></div>
@@ -623,6 +627,7 @@ async function boot(){
   ITEMS=d.items.filter(i=>i&&i.q>0);CFG=d.cfg||{};byId=Object.fromEntries(ITEMS.map(i=>[i.id,i]));
   for(const k in cart){if(!byId[k])delete cart[k];else cart[k]=Math.min(cart[k],byId[k].q)}
   applyCfg();chips();hero();buildSlider();render();cartUI();
+  fetch('/api/admin/me').then(r=>r.json()).then(m=>{if(m.admin){$('#loginTxt').textContent='Painel · '+(m.nome||m.usuario)}}).catch(()=>{});
   const pid=new URLSearchParams(location.search).get('pedido');
   if(pid){try{const r=await fetch('/api/pedido-status?id='+encodeURIComponent(pid));const d=await r.json();if(r.ok){const st={pago:'Pagamento aprovado! Obrigado pela compra.',aguardando:'Pagamento em análise. Avisaremos quando for aprovado.',recusado:'O pagamento não foi aprovado. Tente de novo ou fale no WhatsApp.'}[d.status]||('Status: '+d.status);
     $('#resb').innerHTML=`<h2 id="resT">Pedido ${esc(d.id)}</h2><p>${st}</p><span class="num">Total ${brl(d.total)}</span><button class="b2" type="button" id="resClose">Fechar</button>`;$('#res').hidden=false;$('#resClose').onclick=()=>{$('#res').hidden=true;history.replaceState(null,'','/')}}}catch(e){}}
