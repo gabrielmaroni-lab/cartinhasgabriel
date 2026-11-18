@@ -195,6 +195,11 @@ footer{color:var(--muted);font-size:12px;font-weight:700;padding-block:20px 140p
 .slides{position:absolute;inset:0}
 .slide{position:absolute;inset:0;opacity:0;transition:opacity .7s ease;cursor:pointer;display:flex;flex-direction:column;align-items:center;text-align:center;padding:clamp(22px,4vw,44px) 16px 0;overflow:hidden}
 .slide.on{opacity:1;z-index:1}
+.slide.art{padding:0;justify-content:flex-end}.slide.art .artbg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.slide.art .artbg.blur{filter:blur(18px) brightness(.6);transform:scale(1.2)}.slide.art .artbg.fit{object-fit:contain}
+.slide.art.txt::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 35%,rgba(12,10,15,.85))}
+.slide.art .cap{position:absolute;left:0;right:0;bottom:0;padding:0 16px clamp(34px,5vw,60px);display:flex;flex-direction:column;align-items:center}
+.logo img{display:block;height:clamp(38px,5vw,56px);width:auto;max-width:60vw;object-fit:contain}.logo .lt{margin-left:10px}.logo.both{display:flex;align-items:center}
 .slide .bg{position:absolute;inset:-20px;display:grid;grid-template-columns:repeat(3,1fr);filter:blur(3px) saturate(1.1) brightness(.45);transform:scale(1.05)}
 .slide .bg img{width:100%;height:100%;object-fit:cover}
 .slide .bg::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(93,42,101,.55),rgba(42,20,51,.35) 50%,rgba(12,10,15,.9)),radial-gradient(ellipse at 50% 35%,transparent,rgba(12,10,15,.6) 75%)}
@@ -432,13 +437,13 @@ function hero(){
   $('#cols').innerHTML=COLS.map(([k,lab])=>{const L=ITEMS.filter(i=>colOf(i)===k);if(!L.length)return '';const top=L.slice().sort((a,b)=>b.p-a.p).slice(0,3);return `<button class="col" type="button" data-col="${k}" aria-pressed="${col===k}" style="--cc:${CC[k]}"><span class="ct"><b>${lab}</b><small>${L.reduce((s,i)=>s+i.q,0)} cartas</small><em>Ver coleção →</em></span><span class="fn">${top.map(i=>`<img src="${i.img}" alt="">`).join('')}</span></button>`}).join('');
 }
 let SLIDES=[];
-const slideF=d=>{const v=d.valor||'';if(d.tipo==='promo')return i=>!!i.o;if(d.tipo==='grupo')return i=>i.g===v;if(d.tipo==='busca'){const t=v.toLowerCase();return i=>(i.n+' '+i.num+' '+i.v).toLowerCase().includes(t)}return i=>colOf(i)===v&&(v!=='30 anos'||i.g!=='Pikachus 30 anos')};
-const slideGo=d=>()=>{const v=d.valor||'';if(d.tipo==='promo'){sort='pd';$('#sort').value='pd';q='';$('#q').value='';col='';group='';PROMO=true;chips();hero();render();goGrid()}else if(d.tipo==='grupo'){PROMO=false;col='';group=v;q='';$('#q').value='';chips();hero();render();goGrid()}else if(d.tipo==='busca')pick(v);else setCol(v)};
+const slideF=d=>{const v=d.valor||'';if(d.tipo==='nenhum'||d.tipo==='link')return ()=>false;if(d.tipo==='promo')return i=>!!i.o;if(d.tipo==='grupo')return i=>i.g===v;if(d.tipo==='busca'){const t=v.toLowerCase();return i=>(i.n+' '+i.num+' '+i.v).toLowerCase().includes(t)}return i=>colOf(i)===v&&(v!=='30 anos'||i.g!=='Pikachus 30 anos')};
+const slideGo=d=>()=>{const v=d.valor||'';if(d.tipo==='nenhum')return;if(d.tipo==='link'){if(/^https?:\/\//.test(v))window.open(v,'_blank','noopener');return}if(d.tipo==='promo'){sort='pd';$('#sort').value='pd';q='';$('#q').value='';col='';group='';PROMO=true;chips();hero();render();goGrid()}else if(d.tipo==='grupo'){PROMO=false;col='';group=v;q='';$('#q').value='';chips();hero();render();goGrid()}else if(d.tipo==='busca')pick(v);else setCol(v)};
 let PROMO=false,sIdx=0,sTimer=null,SL=[];
 function setCol(k){col=k;group='';q='';$('#q').value='';PROMO=false;chips();hero();render();goGrid()}
 function buildSlider(){
-  SL=SLIDES.map(d=>({...d,L:ITEMS.filter(d.f).sort((a,b)=>b.p-a.p)})).filter(d=>d.L.length);
-  $('#slides').innerHTML=SL.map((d,k)=>{const top=d.L.slice(0,5);const fan=[top[3],top[1],top[0],top[2],top[4]].filter(Boolean);const bg=d.L.slice(0,3);while(bg.length<3)bg.push(bg[0]);
+  SL=SLIDES.map(d=>({...d,L:ITEMS.filter(d.f).sort((a,b)=>b.p-a.p)})).filter(d=>d.img||d.L.length);
+  $('#slides').innerHTML=SL.map((d,k)=>{if(d.img){const mob=innerWidth<700,im=(mob&&d.imgCel)?d.imgCel:d.img,fit=mob&&!d.imgCel;return `<div class="slide art${d.texto?' txt':''}${k===0?' on':''}" data-s="${k}" style="--sc:${d.c}" role="group" aria-label="${k+1} de ${SL.length}: ${esc(d.t)}">${fit?`<img class="artbg blur" src="${esc(im)}" alt="">`:''}<img class="artbg${fit?' fit':''}" src="${esc(im)}" alt="${esc(d.t)}">${d.texto?`<div class="cap"><h2>${esc(d.t)}</h2>${d.s?`<h3>${esc(d.s)}</h3>`:''}${d.tipo!=='nenhum'?`<button class="go" type="button" data-s="${k}">${esc(d.botao||'Ver cartas')}</button>`:''}</div>`:''}</div>`}const top=d.L.slice(0,5);const fan=[top[3],top[1],top[0],top[2],top[4]].filter(Boolean);const bg=d.L.slice(0,3);while(bg.length<3)bg.push(bg[0]);
     return `<div class="slide${k===0?' on':''}" data-s="${k}" style="--sc:${d.c}" role="group" aria-label="${k+1} de ${SL.length}: ${d.t}"><div class="bg">${bg.map(i=>`<img src="${i.img}" alt="">`).join('')}</div><h2>${d.t}</h2><h3>${d.s}</h3><button class="go" type="button" data-s="${k}">Ver ${d.L.reduce((s,i)=>s+i.q,0)} cartas</button><div class="fan">${fan.map(i=>`<img src="${i.img}" alt="">`).join('')}</div></div>`}).join('');
   $('#dots').innerHTML=SL.map((d,k)=>`<button type="button" aria-label="${d.t}" data-dot="${k}" ${k===0?'aria-current="true"':''}></button>`).join('');
   showSlide(0);
@@ -605,10 +610,12 @@ function applyCfg(){
   CFG=Object.assign({},DEF_CFG,CFG||{});GROUPS=(CFG.grupos&&CFG.grupos.length)?CFG.grupos:DEF_CFG.grupos;
   SLIDES=(CFG.slides||[]).filter(d=>d.ativo!==false).map(d=>({...d,c:d.c||'#e2b6ff',f:slideF(d),go:slideGo(d)}));
   const rich=t=>esc(t).replace(/&lt;b&gt;/g,'<b>').replace(/&lt;\/b&gt;/g,'</b>');
-  const LN=(CFG.loja&&typeof CFG.loja==='object')?CFG.loja.nome:CFG.loja;$('#logo').textContent=LN||'Loja';document.title=LN||'Loja';
+  const LN=(CFG.loja&&typeof CFG.loja==='object')?CFG.loja.nome:CFG.loja;document.title=LN||'Loja';const LG=CFG.logo||{};
+  if(LG.img){$('#logo').className='logo'+(LG.modo==='ambos'?' both':'');$('#logo').innerHTML=`<img src="${esc(LG.img)}" alt="${esc(LN||'Loja')}">${LG.modo==='ambos'?`<span class="lt">${esc(LN||'')}</span>`:''}`}else $('#logo').textContent=LN||'Loja';
+  if(LG.icone||LG.img){let l=document.querySelector('link[rel=icon]');if(!l){l=document.createElement('link');l.rel='icon';document.head.appendChild(l)}l.href=LG.icone||LG.img}
   $('#fact1').innerHTML=rich(CFG.fato1);$('#fact2').innerHTML=rich(CFG.fato2);$('#favLbl').textContent=CFG.favTitulo||DEF_CFG.favTitulo;
   $('#aviso').hidden=!CFG.aviso;$('#aviso').textContent=CFG.aviso||'';
-  const L=(typeof CFG.loja==='object'&&CFG.loja)||{};if(L.nome){$('#logo').textContent=L.nome;document.title=L.nome}WA=String(L.whatsapp||'').replace(/\D/g,'');
+  const L=(typeof CFG.loja==='object'&&CFG.loja)||{};WA=String(L.whatsapp||'').replace(/\D/g,'');
   $('#num').textContent=WA.length>=12?'('+WA.slice(2,4)+') '+WA.slice(4,-4)+'-'+WA.slice(-4):WA;$('#num').href='https://wa.me/'+WA;$('#rodape').textContent=L.rodape||'';
   const RT=(CFG.retiradas||[]).filter(r=>r.ativo!==false),EV=CFG.envio||{};
   $('#ents').innerHTML=RT.map((r,k)=>`<label class="opt"><input type="radio" name="ent" value="r${k}" ${k===0?'checked':''}><b>Retirar em ${esc(r.nome)}</b><span>${esc(r.endereco)}${r.horario?'<br>'+esc(r.horario):''}</span></label>`).join('')+(EV.ativo!==false?`<label class="opt"><input type="radio" name="ent" value="envio" ${RT.length?'':'checked'}><b>Receber pelo correio / transportadora</b><span>Para todo o Brasil. Digite o CEP e calcule o frete.</span></label>`:'');

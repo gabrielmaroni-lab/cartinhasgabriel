@@ -64,6 +64,16 @@ dialog::backdrop{background:#000a}
 .stack{display:flex;flex-direction:column;gap:8px}
 .pbox{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;background:var(--sf2);border:1px solid var(--ln);border-radius:12px;padding:12px}.pbox .pbt{grid-column:1/-1;font-weight:800;font-size:13px}.pbox .note{grid-column:1/-1;margin:0}
 @media(max-width:600px){.pbox{grid-template-columns:1fr}}
+.upbox{display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap;background:var(--sf2);border:1px solid var(--ln);border-radius:12px;padding:12px}
+.upprev{background:repeating-conic-gradient(#2a2232 0 25%,#1d1724 0 50%) 0 0/16px 16px;border:1.5px dashed var(--ln);border-radius:10px;display:grid;place-items:center;color:var(--mu);font-size:12px;overflow:hidden;flex:0 0 auto}
+.upprev.logo{width:240px;height:90px}.upprev.icon{width:72px;height:72px}.upprev img{max-width:100%;max-height:100%;object-fit:contain}
+.upbtn{cursor:pointer;align-self:flex-start;color:var(--ink)!important;font-size:14px!important}
+.bn{background:var(--sf2);border:1px solid var(--ln);border-radius:12px;padding:12px;display:grid;grid-template-columns:260px 1fr;gap:14px}
+.bn .art{display:flex;flex-direction:column;gap:6px}.bn .art .pv{width:260px;aspect-ratio:16/5;background:#0c0a0f;border:1.5px dashed var(--ln);border-radius:8px;overflow:hidden;display:grid;place-items:center;color:var(--mu);font-size:12px;text-align:center}
+.bn .art .pv img{width:100%;height:100%;object-fit:cover}.bn .art .pv.cel{width:110px;aspect-ratio:8/7}
+.bn .fs{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;align-content:start}
+.bn .hd{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}.bn .hd b{font-size:14px}
+@media(max-width:760px){.bn{grid-template-columns:1fr}.bn .art .pv{width:100%}}
 .toast{position:fixed;top:70px;left:50%;transform:translateX(-50%);background:var(--sf2);border:1.5px solid var(--pu2);padding:10px 18px;border-radius:12px;z-index:20;font-weight:600}
 table{width:100%;border-collapse:collapse;font-size:13.5px}th,td{text-align:left;padding:8px;border-bottom:1px solid var(--ln);vertical-align:top}th{color:var(--mu);font-weight:700}
 tr.click{cursor:pointer}tr.click:hover td{background:var(--sf2)}
@@ -156,6 +166,17 @@ pre.code{background:var(--sf2);border:1px solid var(--ln);border-radius:10px;pad
 
 <!-- APARÊNCIA -->
 <section data-pane="lay" hidden>
+  <div class="card"><h3>Logo da loja</h3>
+    <div class="full upbox"><div class="upprev logo" id="lgPrev"></div>
+      <div class="stack" style="flex:1"><label class="btn s upbtn">Enviar logo (PNG ou JPG)<input type="file" accept="image/*" id="lgFile" hidden></label>
+      <p class="note">Recomendado: PNG com fundo transparente, formato deitado (ex.: 600 × 200 px). A imagem é ajustada automaticamente.</p>
+      <label>Como mostrar no topo<select data-c="logo.modo"><option value="logo">Só a logo</option><option value="ambos">Logo + nome da loja</option></select></label>
+      <button class="btn d sm" type="button" id="lgDel" style="align-self:flex-start">Remover logo (voltar a mostrar só o nome)</button></div></div>
+    <div class="full upbox"><div class="upprev icon" id="icPrev"></div>
+      <div class="stack" style="flex:1"><label class="btn s upbtn">Enviar ícone da aba (opcional)<input type="file" accept="image/*" id="icFile" hidden></label>
+      <p class="note">Ícone quadrado que aparece na aba do navegador (ex.: 256 × 256 px). Se não enviar, usamos a logo.</p>
+      <button class="btn d sm" type="button" id="icDel" style="align-self:flex-start">Remover ícone</button></div></div>
+  </div>
   <div class="card"><h3>Topo da loja</h3>
     <label>Destaque 1 (use &lt;b&gt;texto&lt;/b&gt; para negrito)<input data-c="fato1"></label>
     <label>Destaque 2<input data-c="fato2"></label>
@@ -167,9 +188,9 @@ pre.code{background:var(--sf2);border:1px solid var(--ln);border-radius:10px;pad
     <label>Cor clara (preços)<input type="color" data-cor="claro"></label>
   </div>
   <div class="card"><h3>Banner rolante</h3>
+    <p class="note">Cada banner pode ter <b>uma arte sua</b> (imagem enviada) ou ser <b>automático</b> (o site monta com as cartas da coleção). Tamanho recomendado da arte: <b>1600 × 500 px</b> no computador e, se quiser, <b>800 × 700 px</b> para celular. Use ↑ ↓ para mudar a ordem.</p>
     <div class="full stack" id="slides"></div>
-    <div class="full"><button class="btn s" id="addSl">+ Novo slide</button></div>
-    <p class="note">Tipo "Coleção": 30 anos, Reinado Delta, Escuridão Absoluta, Coleção 151 (CN). "Grupo": nome de um grupo. "Busca": uma palavra (ex.: Charizard). "Ofertas": produtos com preço riscado.</p>
+    <div class="full tools"><button class="btn" id="addSlArt">+ Banner com arte</button><button class="btn s" id="addSl">+ Banner automático</button></div>
   </div>
   <div class="card"><h3>Destaque do dia e favoritos</h3>
     <label>Destaque do dia<select id="dm"><option value="auto">Automático (muda todo dia)</option><option value="fixo">Fixar um produto</option></select></label>
@@ -478,16 +499,30 @@ $('#prX').onclick=()=>$('#prdlg').close();
 $('#prC').onclick=async()=>{try{await navigator.clipboard.writeText($('#prT').textContent);toast('Prompt copiado')}catch(e){alert('Selecione o texto e copie.')}};
 
 /* ---------- Configurações (loja, aparência, frete, pagamentos, cupons) ---------- */
-const TIPOS=[['col','Coleção'],['grupo','Grupo'],['busca','Busca'],['promo','Ofertas']];
+const TIPOS=[['col','Uma coleção'],['grupo','Um grupo'],['busca','Resultado de uma busca'],['promo','Produtos em oferta']];
+const TIPOS_ART=[...TIPOS,['link','Abrir um link'],['nenhum','Nada (só a imagem)']];
+const COLS_OPT=['30 anos','Reinado Delta','Escuridão Absoluta','Coleção 151 (CN)'];
 const listRow=(cls,k,inner)=>`<div class="it ${cls}" data-k="${k}">${inner}<div class="tools"><button class="btn s sm" type="button" data-mv="-1" aria-label="Subir">↑</button><button class="btn s sm" type="button" data-mv="1" aria-label="Descer">↓</button><button class="btn d sm" type="button" data-rm aria-label="Remover">✕</button></div></div>`;
 function renderLay(){
   $$('[data-c]').forEach(el=>{const v=get(CFG,el.dataset.c);if(el.type==='checkbox')el.checked=v!==false&&v!==undefined&&v!==''?!!v:false;else el.value=v??''});
   $$('[data-cor]').forEach(el=>el.value=(CFG.cores||{})[el.dataset.cor]||DEF_LAY.cores[el.dataset.cor]);
   $('#pop').value=(CFG.populares||[]).join(', ');
+  const LG=CFG.logo||{};$('#lgPrev').innerHTML=LG.img?`<img src="${esc(LG.img)}" alt="Logo">`:'Sem logo';$('#icPrev').innerHTML=LG.icone?`<img src="${esc(LG.icone)}" alt="">`:(LG.img?`<img src="${esc(LG.img)}" alt="">`:'—');$('#lgDel').hidden=!LG.img;$('#icDel').hidden=!LG.icone;
   $('#dm').value=(CFG.destaque||{}).modo||'auto';
   $('#did').innerHTML=ITEMS.filter(i=>i.q>0).sort((a,b)=>b.p-a.p).slice(0,300).map(i=>`<option value="${esc(i.id)}">${esc(i.n)} ${esc(i.num)} ${esc(i.l)} – ${brl(i.p)}</option>`).join('');
   $('#did').value=(CFG.destaque||{}).id||'';$('#did').disabled=$('#dm').value!=='fixo';
-  $('#slides').innerHTML=(CFG.slides||[]).map((s,k)=>listRow('sl',k,`<label>Título<input data-l="slides" data-f="t" value="${esc(s.t)}"></label><label>Subtítulo<input data-l="slides" data-f="s" value="${esc(s.s)}"></label><label>Cor<input type="color" data-l="slides" data-f="c" value="${esc(s.c||'#e2b6ff')}"></label><label>Tipo<select data-l="slides" data-f="tipo">${TIPOS.map(([v,t])=>`<option value="${v}" ${s.tipo===v?'selected':''}>${t}</option>`).join('')}</select></label><label>Valor<input data-l="slides" data-f="valor" value="${esc(s.valor)}" ${s.tipo==='promo'?'disabled':''}></label><label class="chk"><input type="checkbox" data-l="slides" data-f="ativo" ${s.ativo!==false?'checked':''}> Ativo</label>`)).join('')||'<p class="note">Nenhum slide.</p>';
+  $('#slides').innerHTML=(CFG.slides||[]).map((d,k)=>{const art=!!d.img||d.modo==='arte';
+    const tsel=(art?TIPOS_ART:TIPOS).map(([v,t])=>`<option value="${v}" ${d.tipo===v?'selected':''}>${t}</option>`).join('');
+    return `<div class="bn" data-k="${k}">
+    <div class="hd full" style="grid-column:1/-1"><b>${k+1}. ${art?'Banner com arte':'Banner automático'}</b><div class="tools"><label class="chk"><input type="checkbox" data-l="slides" data-f="ativo" ${d.ativo!==false?'checked':''}> Mostrar</label><button class="btn s sm" type="button" data-mv="-1" aria-label="Subir">↑</button><button class="btn s sm" type="button" data-mv="1" aria-label="Descer">↓</button><button class="btn d sm" type="button" data-rm aria-label="Remover">✕</button></div></div>
+    <div class="art">${art?`<div class="pv">${d.img?`<img src="${esc(d.img)}" alt="">`:'Sem arte<br>1600 × 500'}</div>
+      <label class="btn s sm upbtn">${d.img?'Trocar arte':'Enviar arte'} (computador)<input type="file" accept="image/*" hidden data-up="img"></label>
+      <div style="display:flex;gap:8px;align-items:center"><div class="pv cel">${d.imgCel?`<img src="${esc(d.imgCel)}" alt="">`:'celular'}</div><div class="stack"><label class="btn s sm upbtn">${d.imgCel?'Trocar':'Enviar'} arte do celular<input type="file" accept="image/*" hidden data-up="imgCel"></label>${d.imgCel?'<button class="btn d sm" type="button" data-updel="imgCel">Remover</button>':'<span class="note" style="margin:0">Opcional</span>'}</div></div>`
+      :`<div class="pv" style="background:linear-gradient(135deg,#5d2a65,#0c0a0f)"><span>O site monta este banner<br>com as cartas mais caras<br>da seleção ao lado</span></div>`}</div>
+    <div class="fs"><label>Título<input data-l="slides" data-f="t" value="${esc(d.t)}"></label><label>Subtítulo<input data-l="slides" data-f="s" value="${esc(d.s)}"></label>
+      ${art?`<label class="chk" style="grid-column:1/-1"><input type="checkbox" data-l="slides" data-f="texto" ${d.texto?'checked':''}> Escrever o título e o botão por cima da arte</label><label>Texto do botão<input data-l="slides" data-f="botao" value="${esc(d.botao||'Ver cartas')}"></label>`:`<label>Cor do subtítulo<input type="color" data-l="slides" data-f="c" value="${esc(d.c||'#e2b6ff')}"></label>`}
+      <label>Ao clicar, mostrar<select data-l="slides" data-f="tipo">${tsel}</select></label>
+      <label>${d.tipo==='link'?'Endereço (https://...)':d.tipo==='col'?'Coleção':d.tipo==='grupo'?'Grupo':'Palavra da busca'}${d.tipo==='col'?`<select data-l="slides" data-f="valor">${COLS_OPT.map(c=>`<option ${d.valor===c?'selected':''}>${c}</option>`).join('')}</select>`:d.tipo==='grupo'?`<select data-l="slides" data-f="valor">${groupsAll().map(c=>`<option ${d.valor===c?'selected':''}>${esc(c)}</option>`).join('')}</select>`:`<input data-l="slides" data-f="valor" value="${esc(d.valor)}" ${['promo','nenhum'].includes(d.tipo)?'disabled placeholder="—"':''}>`}</label></div></div>`}).join('')||'<p class="note">Nenhum banner.</p>';
   $('#gl').innerHTML=(CFG.grupos||[]).map((g,k)=>listRow('fx',k,`<label class="full" style="grid-column:1/4">Grupo ${k+1}<input value="${esc(g)}" data-l="grupos" data-f=""></label>`)).join('');
   $('#rts').innerHTML=(CFG.retiradas||[]).map((r,k)=>listRow('rt',k,`<label>Nome<input data-l="retiradas" data-f="nome" value="${esc(r.nome)}"></label><label>Endereço<input data-l="retiradas" data-f="endereco" value="${esc(r.endereco)}"></label><label>Horário<input data-l="retiradas" data-f="horario" value="${esc(r.horario)}"></label><label class="chk"><input type="checkbox" data-l="retiradas" data-f="ativo" ${r.ativo!==false?'checked':''}> Ativo</label>`)).join('')||'<p class="note">Nenhum ponto de retirada (o cliente só poderá receber por envio).</p>';
   $('#fxs').innerHTML=(CFG.envio.fixos||[]).map((f,k)=>listRow('fx',k,`<label>Nome<input data-l="envio.fixos" data-f="nome" value="${esc(f.nome)}"></label><label>Preço (R$)<input type="number" step="0.5" data-l="envio.fixos" data-f="preco" value="${esc(f.preco)}"></label><label>Prazo (dias)<input data-l="envio.fixos" data-f="prazo" value="${esc(f.prazo)}"></label>`)).join('')||'<p class="note">Nenhuma opção fixa.</p>';
@@ -502,14 +537,18 @@ document.addEventListener('input',e=>{const el=e.target;if(!el.closest('[data-pa
   else if(el.id==='dm'||el.id==='did'){CFG.destaque={modo:$('#dm').value,id:$('#did').value?(+$('#did').value||$('#did').value):null};$('#did').disabled=$('#dm').value!=='fixo'}
   else if(el.dataset.l){const arr=get(CFG,el.dataset.l),k=+el.closest('[data-k]').dataset.k;
     if(el.dataset.l==='grupos'){const old=arr[k],nv=el.value;arr[k]=nv;if(old&&nv.trim())ITEMS.forEach(i=>{if(i.g===old)i.g=nv})}
-    else{let v=el.type==='checkbox'?el.checked:el.value;if(NUMF.includes(el.dataset.f))v=parseFloat(v)||0;if(el.dataset.f==='codigo')v=v.toUpperCase().replace(/\s/g,'');arr[k][el.dataset.f]=v;if(el.dataset.f==='tipo'&&el.dataset.l==='slides')renderLay()}}
+    else{let v=el.type==='checkbox'?el.checked:el.value;if(NUMF.includes(el.dataset.f))v=parseFloat(v)||0;if(el.dataset.f==='codigo')v=v.toUpperCase().replace(/\s/g,'');arr[k][el.dataset.f]=v;if(el.dataset.f==='tipo'&&el.dataset.l==='slides'){const d=arr[k];if(d.tipo==='col')d.valor=COLS_OPT[0];else if(d.tipo==='grupo')d.valor=groupsAll()[0]||'';else if(['promo','nenhum'].includes(d.tipo))d.valor='';renderLay()}}}
   dirty()});
 document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b||!b.closest('[data-pane]'))return;
   const mv=(a,k,d)=>{const j=k+d;if(j<0||j>=a.length)return;[a[k],a[j]]=[a[j],a[k]]};
   const row=b.closest('[data-k]'),lst=row&&row.querySelector('[data-l]')&&get(CFG,row.querySelector('[data-l]').dataset.l);
   if(b.dataset.mv&&lst)mv(lst,+row.dataset.k,+b.dataset.mv);
   else if(b.dataset.rm!==undefined&&lst){const k=+row.dataset.k;if(lst===CFG.grupos&&ITEMS.some(i=>i.g===lst[k])){alert('Ainda há produtos no grupo "'+lst[k]+'". Mova-os para outro grupo antes.');return}lst.splice(k,1)}
-  else if(b.id==='addSl')CFG.slides.push({t:'Novo destaque',s:'',c:'#e2b6ff',tipo:'busca',valor:'',ativo:true});
+  else if(b.id==='addSl')CFG.slides.push({t:'Novo destaque',s:'',c:'#e2b6ff',tipo:'col',valor:COLS_OPT[0],ativo:true});
+  else if(b.id==='addSlArt')CFG.slides.unshift({modo:'arte',img:'',t:'Novo banner',s:'',texto:false,botao:'Ver cartas',tipo:'promo',valor:'',ativo:true});
+  else if(b.dataset.updel){const k=+b.closest('[data-k]').dataset.k;delete CFG.slides[k][b.dataset.updel]}
+  else if(b.id==='lgDel'){CFG.logo={...CFG.logo,img:''}}
+  else if(b.id==='icDel'){CFG.logo={...CFG.logo,icone:''}}
   else if(b.id==='addG')CFG.grupos.push('Novo grupo');
   else if(b.id==='addRt')CFG.retiradas.push({nome:'Novo ponto',endereco:'',horario:'',ativo:true});
   else if(b.id==='addFx')CFG.envio.fixos.push({nome:'Envio',preco:20,prazo:'5 a 10'});
@@ -529,6 +568,20 @@ $('#utb').addEventListener('click',async e=>{const b=e.target.closest('button');
   if(b.dataset.ud&&confirm('Apagar o usuário '+b.dataset.ud+'?')){try{await api('/api/admin/usuarios?u='+encodeURIComponent(b.dataset.ud),{method:'DELETE'});loadUsers()}catch(err){$('#umsg').textContent=err.message}}});
 $('#uNew').onclick=()=>{['usuario','nome','senha'].forEach(k=>$('#u_'+k).value='');$('#u_usuario').readOnly=false;$('#uTit').textContent='Novo usuário';$('#umsg').textContent=''};
 $('#uSave').onclick=async()=>{$('#umsg').textContent='';try{await api('/api/admin/usuarios',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({usuario:$('#u_usuario').value,nome:$('#u_nome').value,papel:$('#u_papel').value,senha:$('#u_senha').value})});toast('Usuário salvo');$('#uNew').click();loadUsers()}catch(err){$('#umsg').textContent=err.message}};
+
+/* ---------- Upload de artes ---------- */
+async function upArte(file,maxW,maxH,png){const im=await loadImg(file);const sc=Math.min(1,maxW/im.naturalWidth,maxH/im.naturalHeight);const c=document.createElement('canvas');c.width=Math.round(im.naturalWidth*sc);c.height=Math.round(im.naturalHeight*sc);c.getContext('2d').drawImage(im,0,0,c.width,c.height);
+  const type=png?'image/png':'image/jpeg';let blob=await new Promise(r=>c.toBlob(r,type,.86));if(blob.size>2.8e6)blob=await new Promise(r=>c.toBlob(r,'image/jpeg',.75));
+  const j=await api('/api/admin/foto',{method:'POST',headers:{'content-type':blob.type},body:blob});return j.url}
+document.addEventListener('change',async e=>{const el=e.target;if(el.type!=='file'||!el.files[0])return;
+  const f=el.files[0];let tgt=null;
+  try{
+    if(el.id==='lgFile'){toast('Enviando logo...');const u=await upArte(f,900,300,true);CFG.logo={...(CFG.logo||{}),img:u,modo:(CFG.logo||{}).modo||'logo'}}
+    else if(el.id==='icFile'){toast('Enviando ícone...');const u=await upArte(f,256,256,true);CFG.logo={...(CFG.logo||{}),icone:u}}
+    else if(el.dataset.up){const k=+el.closest('[data-k]').dataset.k;toast('Enviando arte...');const cel=el.dataset.up==='imgCel';const u=await upArte(f,cel?1000:1920,cel?1000:800,false);CFG.slides[k][el.dataset.up]=u;CFG.slides[k].modo='arte'}
+    else return;
+    renderLay();dirty();toast('Imagem enviada. Clique em Salvar alterações.')}catch(err){alert('Não consegui enviar: '+err.message)}
+  el.value=''});
 
 /* ---------- Minha conta ---------- */
 async function loadConta(){$('#cmsg').textContent='';try{const c=await api('/api/admin/conta');$('#c_usuario').value=c.usuario;
