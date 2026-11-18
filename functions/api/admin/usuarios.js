@@ -1,4 +1,4 @@
-import { J, need, kvJson, pbkdf2, rnd, PAPEIS } from "../../_lib/core.js";
+import { J, need, kvJson, pbkdf2, rnd, PAPEIS, getMaster } from "../../_lib/core.js";
 const pub = u => ({ usuario: u.usuario, nome: u.nome, papel: u.papel, criado: u.criado });
 export async function onRequestGet({ request, env }) {
   const [s, err] = await need(request, env, "admin"); if (err) return err;
@@ -10,6 +10,7 @@ export async function onRequestPost({ request, env }) {
   const usuario = String(b.usuario || "").trim().toLowerCase();
   if (!/^[a-z0-9._-]{3,30}$/.test(usuario)) return J({ erro: "Usuário: 3 a 30 letras minúsculas, números, ponto, traço." }, 400);
   if (!PAPEIS[b.papel]) return J({ erro: "Escolha o tipo de acesso." }, 400);
+  const mm = await getMaster(env); if (usuario === "admin" || (mm && mm.usuario === usuario)) return J({ erro: "Esse nome é do administrador geral." }, 400);
   const users = await kvJson(env, "users", []); let u = users.find(x => x.usuario === usuario);
   if (!u && String(b.senha || "").length < 8) return J({ erro: "A senha precisa ter pelo menos 8 caracteres." }, 400);
   if (!u) { u = { usuario, criado: new Date().toISOString() }; users.push(u) }
