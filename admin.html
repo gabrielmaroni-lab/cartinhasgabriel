@@ -139,7 +139,7 @@ pre.code{background:var(--sf2);border:1px solid var(--ln);border-radius:10px;pad
 <!-- IMPORTAR -->
 <section data-pane="imp" hidden>
   <div class="card"><h3>1. Baixe o modelo ou o estoque atual</h3>
-    <p class="note">A planilha tem estas colunas: <b>grupo; nome; numero; idioma; variante; estado; quantidade; preco; preco_antigo; imagem_url</b>. Você pode editar no Excel, Google Planilhas ou pedir para o ChatGPT preencher.</p>
+    <p class="note">A planilha tem estas colunas: <b>tipo; grupo; nome; numero; idioma; variante; estado; quantidade; preco; preco_antigo; imagem_url; marca; descricao</b>. Use tipo = carta para cartas avulsas e tipo = produto para binders, sleeves, brinquedos etc. (número e idioma ficam vazios). Você pode editar no Excel, Google Planilhas ou pedir para o ChatGPT preencher.</p>
     <div class="tools full"><button class="btn s" id="dlModelo">Baixar modelo vazio</button><button class="btn s" id="dlAtual">Baixar estoque atual</button><button class="btn s" id="verPrompt">Ver prompt para o ChatGPT</button></div>
   </div>
   <div class="card"><h3>2. Envie a planilha preenchida (.csv ou .xlsx)</h3>
@@ -299,12 +299,16 @@ pre.code{background:var(--sf2);border:1px solid var(--ln);border-radius:10px;pad
 <dialog id="dlg"><form method="dialog" id="ef">
   <div class="dh"><h2 id="dt">Editar produto</h2><button class="btn s" value="cancel" formnovalidate>Fechar</button></div>
   <div class="db">
+    <label class="full">Tipo de produto<select id="e_tipo"><option value="carta">Carta avulsa (Pokémon, Magic, Yu-Gi-Oh...)</option><option value="produto">Outro produto (binder, sleeve, deck box, booster, brinquedo, jogo...)</option></select></label>
     <label class="full">Nome<input id="e_n" required></label>
-    <label>Número<input id="e_num" placeholder="Ex.: 025/128"></label>
-    <label>Idioma<select id="e_l"><option>PT</option><option>EN</option><option>JP</option><option>CN</option></select></label>
-    <label>Variante<input id="e_v" placeholder="Foil, SAR, AR..."></label>
-    <label>Estado<select id="e_c"><option value="NM">NM – Praticamente nova</option><option value="SP">SP – Levemente usada</option><option value="MP">MP – Moderadamente usada</option><option value="HP">HP – Muito usada</option><option value="D">D – Danificada</option></select></label>
-    <label>Grupo<select id="e_g"></select></label>
+    <label data-ct>Número<input id="e_num" placeholder="Ex.: 025/128"></label>
+    <label data-ct>Idioma<select id="e_l"><option>PT</option><option>EN</option><option>JP</option><option>CN</option></select></label>
+    <label data-ct>Variante<input id="e_v" placeholder="Foil, SAR, AR..."></label>
+    <label data-pt hidden>Marca<input id="e_marca" placeholder="Ex.: Ultra Pro, Dragon Shield"></label>
+    <label data-pt hidden>Condição<select id="e_cp"><option value="novo">Novo / lacrado</option><option value="usado">Usado</option></select></label>
+    <label data-pt hidden class="full">Descrição<textarea id="e_desc" rows="3" placeholder="Tamanho, cor, quantidade de sleeves, o que vem na caixa..."></textarea></label>
+    <label data-ct>Estado<select id="e_c"><option value="NM">NM – Praticamente nova</option><option value="SP">SP – Levemente usada</option><option value="MP">MP – Moderadamente usada</option><option value="HP">HP – Muito usada</option><option value="D">D – Danificada</option></select></label>
+    <label>Grupo / categoria<input id="e_g" list="e_gl" placeholder="Escolha ou digite uma nova (ex.: Binders)"><datalist id="e_gl"></datalist></label>
     <label>Quantidade<input id="e_q" type="number" min="0" step="1" required></label>
     <div class="full pbox"><span class="pbt">Preço</span>
       <label>Preço cheio (R$)<input id="e_base" type="number" min="0" step="0.5" placeholder="Ex.: 150"></label>
@@ -359,16 +363,16 @@ $$('#tabs button').forEach(b=>b.onclick=()=>tab(b.dataset.tab));
 
 /* ---------- Produtos ---------- */
 function groupsAll(){return [...new Set([...(CFG.grupos||[]),...ITEMS.map(i=>i.g)])].filter(Boolean)}
-function fillGroups(){const gs=groupsAll();const cur=$('#fg').value;$('#fg').innerHTML='<option value="">Todos</option>'+gs.map(g=>`<option>${esc(g)}</option>`).join('');$('#fg').value=cur;$('#e_g').innerHTML=gs.map(g=>`<option>${esc(g)}</option>`).join('')}
+function fillGroups(){const gs=groupsAll();const cur=$('#fg').value;$('#fg').innerHTML='<option value="">Todos</option>'+gs.map(g=>`<option>${esc(g)}</option>`).join('');$('#fg').value=cur;$('#e_gl').innerHTML=gs.map(g=>`<option value="${esc(g)}">`).join('')}
 const origMap=()=>Object.fromEntries(JSON.parse(ORIG).map(i=>[i.id,JSON.stringify(i)]));
 function renderList(){
   const t=$('#q').value.trim().toLowerCase(),g=$('#fg').value,l=$('#fl').value,z=$('#fz').checked,om=origMap();
-  const L=ITEMS.filter(i=>(z||i.q>0)&&(!g||i.g===g)&&(!l||String(i.l).split('/').includes(l))&&(!t||(i.n+' '+i.num+' '+(i.v||'')+' '+i.g).toLowerCase().includes(t)));
+  const L=ITEMS.filter(i=>(z||i.q>0)&&(!g||i.g===g)&&(!l||String(i.l||'').split('/').includes(l))&&(!t||(i.n+' '+i.num+' '+(i.v||'')+' '+i.g).toLowerCase().includes(t)));
   const tq=ITEMS.reduce((s,i)=>s+i.q,0),tv=ITEMS.reduce((s,i)=>s+i.q*i.p,0);
   $('#sum').textContent=`${L.length} produtos na lista · estoque total: ${tq} unidades · ${brl(tv)}`;
   $('#list').innerHTML=L.slice(0,400).map(i=>`<div class="row${om[i.id]!==JSON.stringify(i)?' dirty':''}${i.q?'':' zero'}" data-id="${esc(i.id)}">
     <img src="${esc(i.img||'')}" alt="" loading="lazy">
-    <div style="min-width:0"><div class="nm">${esc(i.n)}</div><div class="sm">${esc(i.num||'')} ${String(i.l).split('/').map(x=>`<span class="b ${esc(x)}">${esc(x)}</span>`).join('')}${i.v?`<span class="b">${esc(i.v)}</span>`:''}<span>${esc(i.c)}</span><span>· ${esc(i.g)}</span>${(i.fotos||[]).length?`<span>· ${i.fotos.length} fotos</span>`:''}</div></div>
+    <div style="min-width:0"><div class="nm">${esc(i.n)}</div><div class="sm">${esc(i.num||'')} ${i.tipo==='produto'?`<span class="b">produto</span>${i.marca?esc(i.marca):''}`:String(i.l||'').split('/').filter(Boolean).map(x=>`<span class="b ${esc(x)}">${esc(x)}</span>`).join('')}${i.v?`<span class="b">${esc(i.v)}</span>`:''}<span>${esc(i.c)}</span><span>· ${esc(i.g)}</span>${(i.fotos||[]).length?`<span>· ${i.fotos.length} fotos</span>`:''}</div></div>
     <div class="ctl"><div class="qty"><button type="button" data-d="-1" aria-label="Tirar uma">−</button><span>${i.q}</span><button type="button" data-d="1" aria-label="Mais uma">+</button></div>
     <label class="pr" aria-label="Preço"><input type="number" min="0" step="0.5" value="${i.p}" data-p></label>
     <button class="btn s sm" type="button" data-ed>Editar</button></div></div>`).join('')+(L.length>400?'<p class="note">Mostrando 400. Use a busca para achar os outros.</p>':'')||'<p class="note">Nenhum produto com esse filtro.</p>';
@@ -382,7 +386,8 @@ const nextId=()=>Math.max(9000,...ITEMS.map(x=>+x.id||0))+1;
 function openEd(i){
   EDIT=i?JSON.parse(JSON.stringify(i)):{id:nextId(),g:$('#fg').value||groupsAll()[0]||'Geral',n:'',num:'',l:'PT',v:'',q:1,p:0,c:'NM',img:'',fotos:[],_novo:true};
   $('#dt').textContent=i?'Editar produto':'Novo produto';$('#e_del').hidden=!i;
-  for(const k of ['n','num','l','v','c','g','q','p'])$('#e_'+k).value=EDIT[k]??'';
+  for(const k of ['n','num','l','v','g','q','p','marca','desc'])$('#e_'+k).value=EDIT[k]??'';
+  $('#e_tipo').value=EDIT.tipo==='produto'?'produto':'carta';if(EDIT.tipo==='produto')$('#e_cp').value=EDIT.c==='usado'?'usado':'novo';else $('#e_c').value=EDIT.c||'NM';tipoUI();
   $('#e_base').value=EDIT.o||EDIT.p||'';$('#e_pct').value=EDIT.o&&EDIT.o>EDIT.p?Math.round((1-EDIT.p/EDIT.o)*1000)/10:'';
   drawPh();$('#e_up').textContent='';$('#e_if').value='';$('#e_ff').value='';$('#dlg').showModal();
 }
@@ -405,7 +410,9 @@ $('#e_ff').onchange=async e=>{const fs=[...e.target.files];if(!fs.length)return;
 $('#ef').addEventListener('submit',e=>{if(e.submitter&&e.submitter.value!=='ok')return;
   const g=k=>$('#e_'+k).value.trim();const p=parseFloat(g('p')),q=parseInt(g('q'),10),o=parseFloat(g('base'));
   if(!g('n')||!(p>=0)||!(q>=0)){e.preventDefault();alert('Preencha nome, quantidade e preço.');return}
-  Object.assign(EDIT,{n:g('n'),num:g('num'),l:g('l'),v:g('v'),c:g('c'),g:g('g'),q,p:Math.round(p*100)/100});
+  if(!g('g')){e.preventDefault();alert('Escolha ou digite um grupo / categoria.');return}
+  if($('#e_tipo').value==='produto'){Object.assign(EDIT,{tipo:'produto',n:g('n'),num:'',l:'',v:'',c:$('#e_cp').value,marca:g('marca'),desc:$('#e_desc').value.trim(),g:g('g'),q,p:Math.round(p*100)/100})}
+  else{Object.assign(EDIT,{n:g('n'),num:g('num'),l:g('l'),v:g('v'),c:g('c'),g:g('g'),q,p:Math.round(p*100)/100});delete EDIT.tipo;delete EDIT.marca;delete EDIT.desc}
   if(o>p)EDIT.o=Math.round(o*100)/100;else delete EDIT.o;
   if(!EDIT.fotos||!EDIT.fotos.length)delete EDIT.fotos;
   if(!EDIT.img)EDIT.img=placeholder(EDIT.n);
@@ -413,6 +420,8 @@ $('#ef').addEventListener('submit',e=>{if(e.submitter&&e.submitter.value!=='ok')
   renderList();dirty()});
 $('#e_del').onclick=()=>{if(!confirm('Excluir "'+EDIT.n+'" da loja? (Só some de verdade quando você clicar em Salvar.)'))return;ITEMS=ITEMS.filter(x=>String(x.id)!==String(EDIT.id));$('#dlg').close();renderList();dirty()};
 $('#nova').onclick=()=>openEd(null);
+function tipoUI(){const pr=$('#e_tipo').value==='produto';$$('[data-ct]').forEach(x=>x.hidden=pr);$$('[data-pt]').forEach(x=>x.hidden=!pr)}
+$('#e_tipo').onchange=tipoUI;
 const r50=v=>Math.round(v*100)/100;
 $('#e_pct').addEventListener('input',()=>{const b=parseFloat($('#e_base').value),c=parseFloat($('#e_pct').value);if(b>0&&c>=0&&c<100)$('#e_p').value=r50(b*(1-c/100))});
 $('#e_p').addEventListener('input',()=>{const b=parseFloat($('#e_base').value),p=parseFloat($('#e_p').value);if(b>0&&p>=0){$('#e_pct').value=p<b?Math.round((1-p/b)*1000)/10:''}else if(!(b>0)&&p>0){$('#e_base').value=p}});
@@ -450,11 +459,11 @@ $('#pdX').onclick=()=>$('#pdlg').close();
 async function reloadItems(){if(JSON.stringify(ITEMS)!==ORIG)return;const d=await api('/api/loja');ITEMS=d.items;ORIG=JSON.stringify(ITEMS);renderList();dirty()}
 
 /* ---------- Importar ---------- */
-const COLS=['grupo','nome','numero','idioma','variante','estado','quantidade','preco','preco_antigo','imagem_url'];
+const COLS=['tipo','grupo','nome','numero','idioma','variante','estado','quantidade','preco','preco_antigo','imagem_url','marca','descricao'];
 function dl(name,txt){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['﻿'+txt],{type:'text/csv;charset=utf-8'}));a.download=name;a.click()}
 const csvCell=v=>{v=String(v??'');return /[;"\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};
-$('#dlModelo').onclick=()=>dl('modelo_estoque.csv',COLS.join(';')+'\nColeção 30 anos;Pikachu ex;054/128;PT;;NM;1;9,00;;\n');
-$('#dlAtual').onclick=()=>dl('estoque_atual.csv',COLS.join(';')+'\n'+ITEMS.map(i=>[i.g,i.n,i.num,i.l,i.v,i.c,i.q,String(i.p).replace('.',','),i.o?String(i.o).replace('.',','):'',/^https?:/.test(i.img||'')?i.img:''].map(csvCell).join(';')).join('\n'));
+$('#dlModelo').onclick=()=>dl('modelo_estoque.csv',COLS.join(';')+'\ncarta;Coleção 30 anos;Pikachu ex;054/128;PT;;NM;1;9,00;;;;\nproduto;Binders;Binder 9 bolsos 360 cartas;;;;novo;3;89,90;;;Ultra Pro;Binder com zíper, 20 páginas\n');
+$('#dlAtual').onclick=()=>dl('estoque_atual.csv',COLS.join(';')+'\n'+ITEMS.map(i=>[i.tipo==='produto'?'produto':'carta',i.g,i.n,i.num,i.l,i.v,i.c,i.q,String(i.p).replace('.',','),i.o?String(i.o).replace('.',','):'',/^https?:/.test(i.img||'')?i.img:'',i.marca||'',i.desc||''].map(csvCell).join(';')).join('\n'));
 function parseCSV(t){t=t.replace(/^﻿/,'');const sep=(t.split('\n')[0].match(/;/g)||[]).length>=(t.split('\n')[0].match(/,/g)||[]).length?';':',';const rows=[];let r=[],c='',q=false;
   for(let i=0;i<t.length;i++){const ch=t[i];if(q){if(ch==='"'){if(t[i+1]==='"'){c+='"';i++}else q=false}else c+=ch}else if(ch==='"')q=true;else if(ch===sep){r.push(c);c=''}else if(ch==='\n'){r.push(c);rows.push(r);r=[];c=''}else if(ch!=='\r')c+=ch}
   if(c||r.length){r.push(c);rows.push(r)}return rows.filter(x=>x.some(v=>String(v).trim()))}
@@ -466,7 +475,7 @@ $('#impF').onchange=async e=>{const f=e.target.files[0];if(!f)return;let rows;
   const H=rows.shift().map(h=>String(h).trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\s+/g,'_'));
   const ix=k=>H.indexOf(k);if(ix('nome')<0||ix('quantidade')<0||ix('preco')<0){alert('A planilha precisa ter as colunas nome, quantidade e preco (baixe o modelo).');return}
   const map=Object.fromEntries(ITEMS.map(i=>[keyOf(i.n,i.num,i.l,i.v),i]));
-  IMP=rows.map((r,k)=>{const g=c=>ix(c)>=0?String(r[ix(c)]??'').trim():'';const o={g:g('grupo')||'Geral',n:g('nome'),num:g('numero'),l:(g('idioma')||'PT').toUpperCase(),v:g('variante'),c:(g('estado')||'NM').toUpperCase(),q:Math.max(0,Math.round(num(g('quantidade'))||0)),p:Math.round((num(g('preco'))||0)*100)/100,o:num(g('preco_antigo'))||0,img:g('imagem_url')};
+  IMP=rows.map((r,k)=>{const g=c=>ix(c)>=0?String(r[ix(c)]??'').trim():'';const tp=/^prod/i.test(g('tipo'))?'produto':'carta';const o={tipo:tp,marca:g('marca'),desc:g('descricao'),g:g('grupo')||'Geral',n:g('nome'),num:tp==='produto'?'':g('numero'),l:tp==='produto'?'':(g('idioma')||'PT').toUpperCase(),v:tp==='produto'?'':g('variante'),c:tp==='produto'?(/usad/i.test(g('estado'))?'usado':'novo'):(g('estado')||'NM').toUpperCase(),q:Math.max(0,Math.round(num(g('quantidade'))||0)),p:Math.round((num(g('preco'))||0)*100)/100,o:num(g('preco_antigo'))||0,img:g('imagem_url')};
     o.erro=!o.n?'sem nome':!(o.p>0)?'preço inválido':'';o.ex=map[keyOf(o.n,o.num,o.l,o.v)];return o});
   const nNovo=IMP.filter(x=>!x.erro&&!x.ex).length,nAt=IMP.filter(x=>!x.erro&&x.ex).length,nErr=IMP.filter(x=>x.erro).length;
   $('#impTab').innerHTML=`<p class="note"><b>${nAt}</b> para atualizar · <b>${nNovo}</b> novos · <b class="${nErr?'warn':''}">${nErr}</b> com erro (serão ignorados)${$('#impZero').checked?' · os que não estão na planilha ficarão com quantidade 0':''}</p><table><thead><tr><th></th><th>Produto</th><th>Grupo</th><th>Qtd</th><th>Preço</th></tr></thead><tbody>${IMP.slice(0,300).map(x=>`<tr><td>${x.erro?`<span class="warn">${x.erro}</span>`:x.ex?'atualiza':'<b class="ok">novo</b>'}</td><td>${esc(x.n)} ${esc(x.num)} ${esc(x.l)} ${esc(x.v)}</td><td>${esc(x.g)}</td><td>${x.ex?x.ex.q+' → ':''}${x.q}</td><td>${x.ex?brl(x.ex.p)+' → ':''}${brl(x.p)}</td></tr>`).join('')}</tbody></table>`;
@@ -474,8 +483,8 @@ $('#impF').onchange=async e=>{const f=e.target.files[0];if(!f)return;let rows;
 $('#impNo').onclick=()=>{IMP=null;$('#impPrev').hidden=true;$('#impF').value=''};
 $('#impOk').onclick=()=>{if(!IMP)return;const seen=new Set();let id=nextId();
   for(const x of IMP){if(x.erro)continue;let it=x.ex;
-    if(it){it.q=x.q;it.p=x.p;it.g=x.g||it.g;it.c=x.c||it.c;if(x.o>x.p)it.o=x.o;else delete it.o;if(/^https?:\/\//.test(x.img))it.img=x.img}
-    else{it={id:id++,g:x.g,n:x.n,num:x.num,l:x.l,v:x.v,c:x.c,q:x.q,p:x.p,img:/^https?:\/\//.test(x.img)?x.img:placeholder(x.n)};if(x.o>x.p)it.o=x.o;ITEMS.push(it)}
+    if(it){it.q=x.q;it.p=x.p;it.g=x.g||it.g;it.c=x.c||it.c;if(x.tipo==='produto'){it.tipo='produto';if(x.marca)it.marca=x.marca;if(x.desc)it.desc=x.desc}if(x.o>x.p)it.o=x.o;else delete it.o;if(/^https?:\/\//.test(x.img))it.img=x.img}
+    else{it={id:id++,g:x.g,n:x.n,num:x.num,l:x.l,v:x.v,c:x.c,q:x.q,p:x.p,img:/^https?:\/\//.test(x.img)?x.img:placeholder(x.n)};if(x.tipo==='produto'){it.tipo='produto';it.marca=x.marca;it.desc=x.desc}if(x.o>x.p)it.o=x.o;ITEMS.push(it)}
     seen.add(it)}
   if($('#impZero').checked)ITEMS.forEach(i=>{if(!seen.has(i))i.q=0});
   IMP=null;$('#impPrev').hidden=true;$('#impF').value='';fillGroups();renderList();dirty();tab('prod');toast('Planilha aplicada. Confira e clique em Salvar alterações.')};
@@ -489,8 +498,11 @@ Eu vou te mandar fotos das cartas (ou uma lista). Para cada carta diferente:
 5. Se o preço for R$ 100 ou mais e eu pedir desconto, coloque o preço cheio em preco_antigo e o preço com desconto em preco.
 6. Grupo: use um destes nomes, iguais: ${'${GRUPOS}'}. Se não souber, use "Geral".
 
+Se eu mandar produtos que não são cartas (binder, sleeve, deck box, booster, brinquedo), use tipo = produto, deixe numero, idioma e variante vazios, estado = novo ou usado, e preencha marca e uma descricao curta.
+
 Responda SOMENTE com uma tabela em CSV, separada por ponto e vírgula, com esta primeira linha exatamente:
-grupo;nome;numero;idioma;variante;estado;quantidade;preco;preco_antigo;imagem_url
+tipo;grupo;nome;numero;idioma;variante;estado;quantidade;preco;preco_antigo;imagem_url;marca;descricao
+(use tipo = carta para cartas avulsas)
 
 Regras do CSV: preços com vírgula (ex.: 9,50), sem "R$"; deixe imagem_url vazio; uma carta por linha; não junte idiomas diferentes na mesma linha.
 No final, fora da tabela, liste as cartas em que você ficou em dúvida.`;
