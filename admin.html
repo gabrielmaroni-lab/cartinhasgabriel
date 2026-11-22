@@ -97,10 +97,11 @@ pre.code{background:var(--sf2);border:1px solid var(--ln);border-radius:10px;pad
 
 <div id="app" hidden>
 <header><div class="wrap"><b id="hTitle">Painel da loja</b><span class="who" id="who"></span>
-  <a class="btn s sm" href="/" target="_blank" rel="noopener">Ver site</a><button class="btn s sm" id="out">Sair</button></div>
+  <a class="btn s sm" href="/">← Voltar à loja</a><button class="btn s sm" id="out">Sair</button></div>
   <div class="wrap"><nav class="tabs" role="tablist" id="tabs">
     <button role="tab" data-tab="prod" aria-selected="true">Produtos</button>
     <button role="tab" data-tab="ped">Pedidos</button>
+    <button role="tab" data-tab="cli">Clientes</button>
     <button role="tab" data-tab="imp">Importar planilha</button>
     <button role="tab" data-tab="loja" data-adm>Loja e retirada</button>
     <button role="tab" data-tab="lay" data-adm>Aparência</button>
@@ -121,7 +122,7 @@ pre.code{background:var(--sf2);border:1px solid var(--ln);border-radius:10px;pad
     <label style="flex:0 1 180px">Grupo<select id="fg"></select></label>
     <label style="flex:0 1 130px">Idioma<select id="fl"><option value="">Todos</option><option>PT</option><option>EN</option><option>JP</option><option>CN</option></select></label>
     <label class="chk" style="flex:0 0 auto"><input type="checkbox" id="fz"> Mostrar esgotados</label>
-    <button class="btn" id="nova">+ Novo produto</button>
+    <button class="btn s" id="minis" title="Busca a imagem oficial das cartas sem foto no banco público TCGdex">Buscar miniaturas</button><button class="btn" id="nova">+ Novo produto</button>
   </div>
   <p class="note" id="sum"></p>
   <div class="list" id="list"></div>
@@ -136,14 +137,41 @@ pre.code{background:var(--sf2);border:1px solid var(--ln);border-radius:10px;pad
   <p class="note">O estoque só baixa quando o pedido vira <b>pago</b> (pelo Mercado Pago, automaticamente, ou por você aqui). Se cancelar depois, as cartas voltam para o estoque.</p>
 </section>
 
+<!-- CLIENTES -->
+<section data-pane="cli" hidden>
+  <div class="kpis" id="kkpis"></div>
+  <div class="bar"><label>Buscar<input id="kq" placeholder="WhatsApp, CPF, nome ou cidade"></label><button class="btn" id="kNew">Novo cliente</button><button class="btn s" id="kRef">Atualizar</button></div>
+  <div class="scroll"><table><thead><tr><th>Cliente</th><th>WhatsApp</th><th>CPF</th><th>Cidade</th><th>Pedidos</th><th>Comprado</th><th>Último pedido</th></tr></thead><tbody id="ktb"></tbody></table></div>
+  <p class="note">Cada cliente é identificado pelo <b>WhatsApp</b> ou pelo <b>CPF</b>. O cadastro é criado sozinho quando alguém compra pelo site ou quando você cria um pedido pela loja (modo equipe). Aqui você pode criar, completar ou corrigir.</p>
+</section>
+<dialog id="kdlg"><form method="dialog" onsubmit="return false">
+  <div class="dh"><h2 id="kT">Cliente</h2><button class="btn s" type="button" id="kX">Fechar</button></div>
+  <div class="card" style="margin:0">
+    <label>WhatsApp (com DDD)<input id="k_telefone" inputmode="tel" placeholder="(92) 99999-9999"></label>
+    <label>CPF<input id="k_cpf" inputmode="numeric" placeholder="000.000.000-00"></label>
+    <label>Nome<input id="k_nome"></label>
+    <label>E-mail<input id="k_email" type="email"></label>
+    <label>CEP<input id="k_cep" inputmode="numeric"></label>
+    <label>Rua e número<input id="k_rua"></label>
+    <label>Complemento<input id="k_comp"></label>
+    <label>Bairro<input id="k_bairro"></label>
+    <label>Cidade / UF<input id="k_cidade"></label>
+    <label class="full">Anotações<textarea id="k_obs" rows="2" placeholder="Ex.: coleciona Pikachu, prefere retirar na CNT"></textarea></label>
+    <p class="msg full" id="kmsg"></p>
+    <div class="tools full"><button class="btn" type="button" id="kSave">Salvar cliente</button><button class="btn d" type="button" id="kDel" data-adm>Excluir</button></div>
+    <div class="full" id="kHist"></div>
+  </div>
+</form></dialog>
+
 <!-- IMPORTAR -->
 <section data-pane="imp" hidden>
   <div class="card"><h3>1. Baixe o modelo ou o estoque atual</h3>
-    <p class="note">A planilha tem estas colunas: <b>tipo; grupo; nome; numero; idioma; variante; estado; quantidade; preco; preco_antigo; imagem_url; marca; descricao</b>. Use tipo = carta para cartas avulsas e tipo = produto para binders, sleeves, brinquedos etc. (número e idioma ficam vazios). Você pode editar no Excel, Google Planilhas ou pedir para o ChatGPT preencher.</p>
+    <p class="note">A planilha tem estas colunas: <b>tipo; grupo; nome; numero; idioma; variante; estado; quantidade; preco; preco_antigo; imagem_url; marca; descricao; raridade</b>. Em variante vai o acabamento (vazio = normal, Foil, Reverse Foil, Pokébola, Master Ball). Use tipo = carta para cartas avulsas e tipo = produto para binders, sleeves, brinquedos etc. (número e idioma ficam vazios). Você pode editar no Excel, Google Planilhas ou pedir para o ChatGPT preencher.</p>
     <div class="tools full"><button class="btn s" id="dlModelo">Baixar modelo vazio</button><button class="btn s" id="dlAtual">Baixar estoque atual</button><button class="btn s" id="verPrompt">Ver prompt para o ChatGPT</button></div>
   </div>
   <div class="card"><h3>2. Envie a planilha preenchida (.csv ou .xlsx)</h3>
     <label class="full">Arquivo<input type="file" id="impF" accept=".csv,.xlsx,.xls,text/csv"></label>
+    <label class="chk full"><input type="checkbox" id="impMini" checked> Buscar as miniaturas das cartas novas automaticamente (pelo número e coleção)</label>
     <label class="chk full"><input type="checkbox" id="impZero"> Zerar a quantidade dos produtos que não estiverem na planilha (use quando a planilha for o estoque completo)</label>
     <p class="note">Os produtos são reconhecidos por <b>nome + número + idioma + variante</b>. Se já existir, atualiza quantidade e preço; se não existir, cria um produto novo (depois você coloca as fotos na aba Produtos).</p>
   </div>
@@ -157,6 +185,7 @@ pre.code{background:var(--sf2);border:1px solid var(--ln);border-radius:10px;pad
     <label>Nome da loja<input data-c="loja.nome"></label>
     <label>WhatsApp (com DDI e DDD, só números)<input data-c="loja.whatsapp" placeholder="5592999999999"></label>
     <label class="full">Texto do rodapé<input data-c="loja.rodape"></label>
+    <label>Reserva de pedido aguardando pagamento (horas)<input data-c="reservaHoras" type="number" min="1" max="168" placeholder="24"></label>
   </div>
   <div class="card"><h3>Pontos de retirada</h3>
     <div class="full stack" id="rts"></div>
@@ -199,6 +228,7 @@ pre.code{background:var(--sf2);border:1px solid var(--ln);border-radius:10px;pad
     <label class="full">Botões rápidos (separe por vírgula)<input id="pop"></label>
   </div>
   <div class="card"><h3>Grupos da vitrine (ordem das abas)</h3>
+    <p class="note">Preencha o <b>total da coleção</b> (ex.: 30) para a vitrine mostrar a barra "temos X de 30" quando o cliente abrir esse grupo.</p>
     <div class="full stack" id="gl"></div>
     <div class="full"><button class="btn s" id="addG">+ Novo grupo</button></div>
   </div>
@@ -210,6 +240,7 @@ pre.code{background:var(--sf2);border:1px solid var(--ln);border-radius:10px;pad
     <label class="chk full"><input type="checkbox" data-c="envio.ativo"> Oferecer envio (correio / transportadora)</label>
     <label>Serviço de frete<select data-c="envio.provedor"><option value="superfrete">SuperFrete</option><option value="melhorenvio">Melhor Envio</option><option value="frenet">Frenet</option><option value="fixo">Valores fixos (sem API)</option></select></label>
     <label>CEP de origem (de onde sai)<input data-c="envio.cepOrigem" inputmode="numeric"></label>
+    <label>Frete grátis acima de (R$)<input type="number" step="any" min="0" data-c="envio.gratisAcima" placeholder="vazio = sem frete grátis"></label>
     <label>E-mail da conta (Melhor Envio pede)<input data-c="envio.email" type="email"></label>
   </div>
   <div class="card"><h3>Pacote padrão</h3>
@@ -303,7 +334,8 @@ pre.code{background:var(--sf2);border:1px solid var(--ln);border-radius:10px;pad
     <label class="full">Nome<input id="e_n" required></label>
     <label data-ct>Número<input id="e_num" placeholder="Ex.: 025/128"></label>
     <label data-ct>Idioma<select id="e_l"><option>PT</option><option>EN</option><option>JP</option><option>CN</option></select></label>
-    <label data-ct>Variante<input id="e_v" placeholder="Foil, SAR, AR..."></label>
+    <label data-ct>Acabamento<select id="e_vs"><option value="">Normal</option><option>Foil</option><option>Reverse Foil</option><option>Pokébola</option><option>Master Ball</option><option value="__o">Outro (digitar)</option></select><input id="e_v" placeholder="Ex.: SAR, AR, Gold" hidden style="margin-top:6px"></label>
+    <label data-ct>Raridade<input id="e_r" list="e_rl" placeholder="Ex.: Comum, Ilustração Rara"><datalist id="e_rl"><option>Comum</option><option>Incomum</option><option>Rara</option><option>Rara Dupla</option><option>Ilustração Rara</option><option>Ilustração Rara Especial</option><option>Ultra Rara</option><option>Hiper Rara</option><option>Mega Hiper Raro</option><option>Rara Mega Ataque</option><option>Rara Pikachu</option><option>Promo</option></datalist></label>
     <label data-pt hidden>Marca<input id="e_marca" placeholder="Ex.: Ultra Pro, Dragon Shield"></label>
     <label data-pt hidden>Condição<select id="e_cp"><option value="novo">Novo / lacrado</option><option value="usado">Usado</option></select></label>
     <label data-pt hidden class="full">Descrição<textarea id="e_desc" rows="3" placeholder="Tamanho, cor, quantidade de sleeves, o que vem na caixa..."></textarea></label>
@@ -311,17 +343,18 @@ pre.code{background:var(--sf2);border:1px solid var(--ln);border-radius:10px;pad
     <label>Grupo / categoria<input id="e_g" list="e_gl" placeholder="Escolha ou digite uma nova (ex.: Binders)"><datalist id="e_gl"></datalist></label>
     <label>Quantidade<input id="e_q" type="number" min="0" step="1" required></label>
     <div class="full pbox"><span class="pbt">Preço</span>
-      <label>Preço cheio (R$)<input id="e_base" type="number" min="0" step="0.5" placeholder="Ex.: 150"></label>
-      <label>Desconto (%)<input id="e_pct" type="number" min="0" max="99" step="0.5" placeholder="0"></label>
-      <label>Preço final (R$)<input id="e_p" type="number" min="0" step="0.5" required></label>
+      <label>Preço cheio (R$)<input id="e_base" type="number" min="0" step="any" placeholder="Ex.: 150"></label>
+      <label>Desconto (%)<input id="e_pct" type="number" min="0" max="99.99" step="any" placeholder="0"></label>
+      <label>Preço final (R$)<input id="e_p" type="number" min="0" step="any" required></label>
       <p class="note">Preencha o preço cheio e depois <b>o desconto ou o preço final</b>: o outro é calculado sozinho. Com desconto, o site mostra o preço cheio riscado e a etiqueta de %.</p></div>
-    <div class="full"><label>Imagem da vitrine</label><div class="ph" id="e_img"></div><input type="file" id="e_if" accept="image/*" style="margin-top:6px"></div>
+    <div class="full"><label>Imagem da vitrine</label><div class="ph" id="e_img"></div><input type="file" id="e_if" accept="image/*" style="margin-top:6px"><div class="tools" style="margin-top:6px;flex-wrap:wrap" data-ct><button type="button" class="btn s sm" id="e_auto">Buscar imagem pelo número da carta</button><a class="btn s sm" id="e_liga" target="_blank" rel="noopener">Ver na Liga ↗</a></div><p class="note" id="e_am"></p></div>
     <div class="full"><label>Fotos do anúncio (frente, verso...)</label><div class="ph" id="e_fotos"></div>
       <input type="file" id="e_ff" accept="image/*" multiple style="margin-top:6px"><p class="note" id="e_up"></p></div>
   </div>
   <div class="df"><button class="btn d" type="button" id="e_del">Excluir produto</button><button class="btn" value="ok" id="e_ok">Aplicar</button></div>
 </form></dialog>
 
+<dialog id="mindlg"><div class="dh"><h2>Miniaturas</h2><button class="btn s" type="button" onclick="this.closest('dialog').close()">Fechar</button></div><div class="db" id="minR" style="display:block"></div></dialog>
 <dialog id="pdlg"><div class="dh"><h2 id="pdT">Pedido</h2><button class="btn s" id="pdX">Fechar</button></div><div class="db" id="pdB" style="display:block"></div></dialog>
 
 <dialog id="prdlg"><div class="dh"><h2>Prompt para o ChatGPT</h2><button class="btn s" id="prX">Fechar</button></div>
@@ -346,7 +379,7 @@ async function start(){
   if(!me.admin){$('#login').hidden=false;$('#app').hidden=true;if(me.senha===false)$('#lmsg').textContent='Nenhuma senha cadastrada ainda. Cadastre ADMIN_PASSWORD no Cloudflare.';$('#pw').focus();return}
   ME=me;$('#login').hidden=true;$('#app').hidden=false;$('#who').textContent=me.nome+' · '+(isAdm()?'administrador':'operador');
   $$('[data-adm]').forEach(b=>b.hidden=!isAdm());
-  const d=await api('/api/loja');KV=!!d.kv;$('#kvwarn').hidden=KV;
+  const d=await api('/api/loja?todos=1');KV=!!d.kv;$('#kvwarn').hidden=KV;
   ITEMS=d.items;
   let full=d.cfg||{};if(isAdm()){try{const c=await api('/api/admin/cfg');full=c}catch(e){}}
   CFG=Object.assign(JSON.parse(JSON.stringify(DEF_LAY)),full);delete CFG.temCupom;
@@ -358,7 +391,7 @@ async function start(){
 }
 $('#lf').onsubmit=async e=>{e.preventDefault();$('#lmsg').textContent='';try{await api('/api/admin/login',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({usuario:$('#lu').value||'admin',senha:$('#pw').value})});$('#pw').value='';start()}catch(err){$('#lmsg').textContent=err.message}};
 $('#out').onclick=async()=>{if(isDirty()&&!confirm('Há alterações não salvas. Sair mesmo assim?'))return;await api('/api/admin/logout',{method:'POST'}).catch(()=>{});location.reload()};
-function tab(t){$$('#tabs button').forEach(x=>x.setAttribute('aria-selected',x.dataset.tab===t));$$('[data-pane]').forEach(p=>p.hidden=p.dataset.pane!==t);$('#saveBar').hidden=['ped','imp','usr','conta'].includes(t);if(t==='usr')loadUsers();if(t==='conta')loadConta();if(t==='ped')loadPed()}
+function tab(t){$$('#tabs button').forEach(x=>x.setAttribute('aria-selected',x.dataset.tab===t));$$('[data-pane]').forEach(p=>p.hidden=p.dataset.pane!==t);$('#saveBar').hidden=['ped','cli','imp','usr','conta'].includes(t);if(t==='usr')loadUsers();if(t==='conta')loadConta();if(t==='ped')loadPed();if(t==='cli')loadCli()}
 $$('#tabs button').forEach(b=>b.onclick=()=>tab(b.dataset.tab));
 
 /* ---------- Produtos ---------- */
@@ -374,7 +407,7 @@ function renderList(){
     <img src="${esc(i.img||'')}" alt="" loading="lazy">
     <div style="min-width:0"><div class="nm">${esc(i.n)}</div><div class="sm">${esc(i.num||'')} ${i.tipo==='produto'?`<span class="b">produto</span>${i.marca?esc(i.marca):''}`:String(i.l||'').split('/').filter(Boolean).map(x=>`<span class="b ${esc(x)}">${esc(x)}</span>`).join('')}${i.v?`<span class="b">${esc(i.v)}</span>`:''}<span>${esc(i.c)}</span><span>· ${esc(i.g)}</span>${(i.fotos||[]).length?`<span>· ${i.fotos.length} fotos</span>`:''}</div></div>
     <div class="ctl"><div class="qty"><button type="button" data-d="-1" aria-label="Tirar uma">−</button><span>${i.q}</span><button type="button" data-d="1" aria-label="Mais uma">+</button></div>
-    <label class="pr" aria-label="Preço"><input type="number" min="0" step="0.5" value="${i.p}" data-p></label>
+    <label class="pr" aria-label="Preço"><input type="number" min="0" step="any" value="${i.p}" data-p></label>
     <button class="btn s sm" type="button" data-ed>Editar</button></div></div>`).join('')+(L.length>400?'<p class="note">Mostrando 400. Use a busca para achar os outros.</p>':'')||'<p class="note">Nenhum produto com esse filtro.</p>';
 }
 ['#q','#fg','#fl','#fz'].forEach(s=>$(s).addEventListener('input',renderList));
@@ -386,10 +419,10 @@ const nextId=()=>Math.max(9000,...ITEMS.map(x=>+x.id||0))+1;
 function openEd(i){
   EDIT=i?JSON.parse(JSON.stringify(i)):{id:nextId(),g:$('#fg').value||groupsAll()[0]||'Geral',n:'',num:'',l:'PT',v:'',q:1,p:0,c:'NM',img:'',fotos:[],_novo:true};
   $('#dt').textContent=i?'Editar produto':'Novo produto';$('#e_del').hidden=!i;
-  for(const k of ['n','num','l','v','g','q','p','marca','desc'])$('#e_'+k).value=EDIT[k]??'';
+  for(const k of ['n','num','l','v','r','g','q','p','marca','desc'])$('#e_'+k).value=EDIT[k]??'';vsSync();
   $('#e_tipo').value=EDIT.tipo==='produto'?'produto':'carta';if(EDIT.tipo==='produto')$('#e_cp').value=EDIT.c==='usado'?'usado':'novo';else $('#e_c').value=EDIT.c||'NM';tipoUI();
-  $('#e_base').value=EDIT.o||EDIT.p||'';$('#e_pct').value=EDIT.o&&EDIT.o>EDIT.p?Math.round((1-EDIT.p/EDIT.o)*1000)/10:'';
-  drawPh();$('#e_up').textContent='';$('#e_if').value='';$('#e_ff').value='';$('#dlg').showModal();
+  $('#e_base').value=EDIT.o||EDIT.p||'';$('#e_pct').value=EDIT.o&&EDIT.o>EDIT.p?Math.round((1-EDIT.p/EDIT.o)*10000)/100:'';
+  drawPh();$('#e_am').textContent='';$('#e_liga').href=ligaURL(EDIT);$('#e_n').oninput=()=>$('#e_liga').href=ligaURL({n:$('#e_n').value});$('#e_up').textContent='';$('#e_if').value='';$('#e_ff').value='';$('#dlg').showModal();
 }
 function drawPh(){
   $('#e_img').innerHTML=EDIT.img?`<figure><img src="${esc(EDIT.img)}" alt="Imagem da vitrine"></figure>`:'<p class="note">Sem imagem. Envie uma foto do produto.</p>';
@@ -400,6 +433,7 @@ function loadImg(file){return new Promise((ok,no)=>{const u=URL.createObjectURL(
 async function resize(file,W,H,fit){const im=await loadImg(file);let w=im.naturalWidth,h=im.naturalHeight,c=document.createElement('canvas'),x=c.getContext('2d');
   if(fit==='cover'){c.width=W;c.height=H;const s=Math.max(W/w,H/h);x.drawImage(im,(W-w*s)/2,(H-h*s)/2,w*s,h*s)}else{const s=Math.min(1,W/w,H/h);c.width=Math.round(w*s);c.height=Math.round(h*s);x.drawImage(im,0,0,c.width,c.height)}
   return c}
+$('#e_auto').onclick=async()=>{const b=$('#e_auto');b.disabled=true;$('#e_am').textContent='Procurando…';try{const t={...EDIT,num:($('#e_num')||{}).value??EDIT.num,l:($('#e_l')||{}).value??EDIT.l,n:($('#e_n')||{}).value??EDIT.n};const r=await acharImg(t);if(!r){$('#e_am').textContent='Não achei essa carta no banco (confira número e idioma, ou envie uma foto).';return}EDIT.img=await baixarImg(r.url);drawPh();$('#e_am').textContent='Imagem encontrada ('+r.id+(r.lang!==langsDe(t)[0]?', arte em '+r.lang:'')+')'+(r.duvida?' · confira se é a coleção certa':'')+'.'}catch(e){$('#e_am').textContent='Não deu para buscar agora: '+e.message}finally{b.disabled=false}};
 $('#e_if').onchange=async e=>{const f=e.target.files[0];if(!f)return;const c=await resize(f,200,280,'cover');EDIT.img=c.toDataURL('image/jpeg',.82);drawPh()};
 $('#e_ff').onchange=async e=>{const fs=[...e.target.files];if(!fs.length)return;if(!KV){$('#e_up').textContent='O banco ainda não está ligado.';return}
   $('#e_ok').disabled=true;let n=0;
@@ -412,27 +446,68 @@ $('#ef').addEventListener('submit',e=>{if(e.submitter&&e.submitter.value!=='ok')
   if(!g('n')||!(p>=0)||!(q>=0)){e.preventDefault();alert('Preencha nome, quantidade e preço.');return}
   if(!g('g')){e.preventDefault();alert('Escolha ou digite um grupo / categoria.');return}
   if($('#e_tipo').value==='produto'){Object.assign(EDIT,{tipo:'produto',n:g('n'),num:'',l:'',v:'',c:$('#e_cp').value,marca:g('marca'),desc:$('#e_desc').value.trim(),g:g('g'),q,p:Math.round(p*100)/100})}
-  else{Object.assign(EDIT,{n:g('n'),num:g('num'),l:g('l'),v:g('v'),c:g('c'),g:g('g'),q,p:Math.round(p*100)/100});delete EDIT.tipo;delete EDIT.marca;delete EDIT.desc}
+  else{Object.assign(EDIT,{n:g('n'),num:g('num'),l:g('l'),v:g('v'),r:g('r'),c:g('c'),g:g('g'),q,p:Math.round(p*100)/100});if(!EDIT.r)delete EDIT.r;delete EDIT.tipo;delete EDIT.marca;delete EDIT.desc}
   if(o>p)EDIT.o=Math.round(o*100)/100;else delete EDIT.o;
   if(!EDIT.fotos||!EDIT.fotos.length)delete EDIT.fotos;
   if(!EDIT.img)EDIT.img=placeholder(EDIT.n);
   if(EDIT._novo){delete EDIT._novo;ITEMS.unshift(EDIT)}else{const k=ITEMS.findIndex(x=>String(x.id)===String(EDIT.id));ITEMS[k]=EDIT}
   renderList();dirty()});
+const VS=['','Foil','Reverse Foil','Pokébola','Master Ball'];
+function vsSync(){const v=$('#e_v').value.trim(),k=VS.findIndex(x=>x.toLowerCase()===v.toLowerCase()||(x===''&&/^normal$/i.test(v)));if(k>=0){$('#e_vs').value=VS[k];$('#e_v').value=VS[k];$('#e_v').hidden=true}else{$('#e_vs').value='__o';$('#e_v').hidden=false}}
+$('#e_vs').onchange=()=>{const v=$('#e_vs').value;if(v==='__o'){$('#e_v').hidden=false;$('#e_v').value='';$('#e_v').focus()}else{$('#e_v').hidden=true;$('#e_v').value=v}};
 $('#e_del').onclick=()=>{if(!confirm('Excluir "'+EDIT.n+'" da loja? (Só some de verdade quando você clicar em Salvar.)'))return;ITEMS=ITEMS.filter(x=>String(x.id)!==String(EDIT.id));$('#dlg').close();renderList();dirty()};
 $('#nova').onclick=()=>openEd(null);
 function tipoUI(){const pr=$('#e_tipo').value==='produto';$$('[data-ct]').forEach(x=>x.hidden=pr);$$('[data-pt]').forEach(x=>x.hidden=!pr)}
 $('#e_tipo').onchange=tipoUI;
 const r50=v=>Math.round(v*100)/100;
 $('#e_pct').addEventListener('input',()=>{const b=parseFloat($('#e_base').value),c=parseFloat($('#e_pct').value);if(b>0&&c>=0&&c<100)$('#e_p').value=r50(b*(1-c/100))});
-$('#e_p').addEventListener('input',()=>{const b=parseFloat($('#e_base').value),p=parseFloat($('#e_p').value);if(b>0&&p>=0){$('#e_pct').value=p<b?Math.round((1-p/b)*1000)/10:''}else if(!(b>0)&&p>0){$('#e_base').value=p}});
+$('#e_p').addEventListener('input',()=>{const b=parseFloat($('#e_base').value),p=parseFloat($('#e_p').value);if(b>0&&p>=0){$('#e_pct').value=p<b?Math.round((1-p/b)*10000)/100:''}else if(!(b>0)&&p>0){$('#e_base').value=p}});
 $('#e_base').addEventListener('input',()=>{const b=parseFloat($('#e_base').value),c=parseFloat($('#e_pct').value);if(b>0)$('#e_p').value=r50(c>0&&c<100?b*(1-c/100):b)});
 function placeholder(n){const s=`<svg xmlns="http://www.w3.org/2000/svg" width="200" height="280"><rect width="200" height="280" rx="10" fill="#2a1d33"/><text x="100" y="140" fill="#e2b6ff" font-family="sans-serif" font-size="15" text-anchor="middle">${esc(String(n).slice(0,22))}</text><text x="100" y="165" fill="#8f7da0" font-family="sans-serif" font-size="11" text-anchor="middle">foto em breve</text></svg>`;return 'data:image/svg+xml;base64,'+btoa(unescape(encodeURIComponent(s)))}
 
+/* ---------- Miniaturas automáticas (banco público TCGdex) ---------- */
+const TCG='https://api.tcgdex.net/v2/',SETS={};
+const langsDe=i=>({PT:['pt','en'],EN:['en'],JP:['ja','en'],CN:['zh-cn','zh-tw','ja','en']})[String(i.l||'PT').split('/')[0].toUpperCase()]||['pt','en'];
+const semImg=i=>!i.img||/^data:image\/svg/.test(i.img);
+const normN=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\b(ex|gx|v|vmax|vstar)\b/g,m=>m).replace(/[^a-z0-9]/g,'');
+const tiraZ=x=>String(x||'').replace(/^0+(?=\d)/,'').toLowerCase();
+function setsDe(lg){if(!SETS[lg])SETS[lg]=fetch(TCG+lg+'/sets').then(r=>r.ok?r.json():[]).then(L=>{const m={};for(const s of L)m[s.id]=s.cardCount||{};return m}).catch(()=>({}));return SETS[lg]}
+async function acharImg(i){
+  if(i.tipo==='produto')return null;const m=String(i.num||'').match(/^\s*([A-Za-z]*\d+[A-Za-z]*)\s*(?:\/\s*[A-Za-z]*(\d+))?/);if(!m)return null;
+  const loc=m[1],tot=m[2]?parseInt(m[2],10):0,nn=normN(i.n).replace(/\d{1,2}30$/,'');
+  const busca=async(lg,id)=>{let L=[];try{const r=await fetch(TCG+lg+'/cards?localId='+encodeURIComponent(tiraZ(id)));if(r.ok)L=await r.json()}catch(e){}return (L||[]).filter(c=>c.image&&tiraZ(c.localId)===tiraZ(id))};
+  const doSet=(sets,c)=>sets[c.id.slice(0,c.id.lastIndexOf('-'))]||{};
+  const porNome=L=>nn?L.filter(c=>{const x=normN(c.name);return x&&(x.includes(nn)||nn.includes(x))}):[];
+  // 1) mesmo idioma: número + total impresso da coleção (+ nome, quando o nome é latino)
+  for(const lg of langsDe(i)){const sets=await setsDe(lg);if(!tot&&!['pt','en'].includes(lg))continue;const L=await busca(lg,loc);if(!L.length)continue;
+    let C=tot?L.filter(c=>doSet(sets,c).official===tot):L;
+    if(['pt','en'].includes(lg))C=porNome(C);
+    if(C.length)return{url:C[0].image+'/low.webp',id:C[0].id,lang:lg,duvida:C.length>1}}
+  // 2) último recurso: arte em inglês pelo número (sem letra) e pelo nome
+  const d=loc.replace(/\D/g,'');if(!d||!nn)return null;const sets=await setsDe('en');const L=porNome(await busca('en',d));
+  // chinesa 151 (número com C, ex.: 146C/151) usa a mesma numeração da coleção 151
+  let C=/\dC$/i.test(loc)&&tot===151?L.filter(c=>c.id.startsWith('sv03.5-')):(tot?L.filter(c=>doSet(sets,c).official===tot):[]);
+  return C.length?{url:C[0].image+'/low.webp',id:C[0].id,lang:'en',duvida:C.length>1}:null}
+async function baixarImg(url){const r=await fetch(url);if(!r.ok)throw new Error('imagem indisponível');const c=await resize(await r.blob(),200,280,'cover');return c.toDataURL('image/jpeg',.82)}
+async function buscarMinis(lista){
+  lista=lista||ITEMS.filter(i=>i.tipo!=='produto'&&semImg(i)&&i.num);
+  if(!lista.length){toast('Todas as cartas já têm imagem.');return}
+  const b=$('#minis');b.disabled=true;let ok=0,duv=[],nao=[],k=0;
+  const fila=[...lista];const work=async()=>{while(fila.length){const i=fila.shift();k++;b.textContent='Buscando '+k+'/'+lista.length+'…';
+    try{const r=await acharImg(i);if(r){i.img=await baixarImg(r.url);ok++;if(r.duvida)duv.push(i)}else nao.push(i)}catch(e){nao.push(i)}}};
+  await Promise.all([work(),work(),work(),work()]);
+  b.disabled=false;b.textContent='Buscar miniaturas';renderList();dirty();
+  const nm=i=>esc(i.n+' '+(i.num||'')+' '+(i.l||''));
+  $('#minR').innerHTML=`<p><b>${ok}</b> imagem(ns) encontrada(s) de ${lista.length}.${ok?' Clique em <b>Salvar alterações</b> para publicar.':''}</p>${duv.length?`<p class="warn">Confira a coleção (havia mais de uma carta com esse número):</p><ul>${duv.map(i=>'<li>'+nm(i)+'</li>').join('')}</ul>`:''}${nao.length?`<p>Não encontradas (envie uma foto ou confira número e idioma):</p><ul>${nao.map(i=>'<li>'+nm(i)+'</li>').join('')}</ul>`:''}<p class="note">As imagens vêm do banco público TCGdex. Cartas em português e inglês quase sempre são encontradas; japonesas e chinesas, principalmente das coleções mais novas, muitas vezes ainda não estão no banco: nesses casos, envie uma foto.</p>`;
+  $('#mindlg').showModal()}
+$('#minis').onclick=()=>buscarMinis();
+const ligaURL=i=>'https://www.ligapokemon.com.br/?view=cards/search&card='+encodeURIComponent(i.n||'');
+
 /* ---------- Pedidos ---------- */
 async function loadPed(){try{const d=await api('/api/admin/pedidos');PEDIDOS=d.pedidos||[];renderPed()}catch(e){$('#ptb').innerHTML=`<tr><td colspan="6">${esc(e.message)}</td></tr>`}}
-const PGN={whatsapp:'WhatsApp',pix:'Pix QR',mp:'Mercado Pago'};
+const PGN={whatsapp:'WhatsApp',pix:'Pix QR',mp:'Mercado Pago',manual_pix:'Manual · Pix',manual_dinheiro:'Manual · Dinheiro',manual_cartao:'Manual · Cartão',manual_link:'Manual · Link',manual_outro:'Manual'};
 function renderPed(){const f=$('#pf').value,t=$('#pq').value.trim().toLowerCase();
-  const L=PEDIDOS.filter(p=>(!f||p.status===f)&&(!t||(p.id+' '+p.nome).toLowerCase().includes(t)));
+  const L=PEDIDOS.filter(p=>(!f||p.status===f)&&(!t||(p.id+' '+p.nome+' '+(p.telefone||'')+' '+(p.cpf||'')).toLowerCase().includes(t)));
   const m=new Date().toISOString().slice(0,7),pagos=PEDIDOS.filter(p=>['pago','enviado','entregue'].includes(p.status));
   $('#kpis').innerHTML=`<div class="kpi"><b>${PEDIDOS.filter(p=>p.status==='aguardando').length}</b><span>aguardando pagamento</span></div><div class="kpi"><b>${PEDIDOS.filter(p=>p.status==='pago').length}</b><span>pagos para enviar/entregar</span></div><div class="kpi"><b>${brl(pagos.filter(p=>p.em.slice(0,7)===m).reduce((s,p)=>s+p.total,0))}</b><span>vendido no mês</span></div><div class="kpi"><b>${brl(pagos.reduce((s,p)=>s+p.total,0))}</b><span>vendido no total</span></div>`;
   $('#ptb').innerHTML=L.map(p=>`<tr class="click" data-p="${esc(p.id)}"><td><b>${esc(p.id)}</b></td><td>${new Date(p.em).toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'})}</td><td>${esc(p.nome)}</td><td>${PGN[p.pagamento]||esc(p.pagamento)}</td><td>${brl(p.total)}</td><td><span class="st ${esc(p.status)}">${esc(p.status)}</span></td></tr>`).join('')||'<tr><td colspan="6" class="note">Nenhum pedido ainda.</td></tr>'}
@@ -456,10 +531,35 @@ function drawPed(o){$('#pdT').textContent='Pedido '+o.id;const E=o.entrega||{};c
   $('#pdS').onclick=async()=>{const n=await api('/api/admin/pedidos',{method:'PUT',headers:{'content-type':'application/json'},body:JSON.stringify({id:o.id,rastreio:$('#pdR').value,nota:$('#pdN').value})});drawPed(n);toast('Salvo')};
 }
 $('#pdX').onclick=()=>$('#pdlg').close();
-async function reloadItems(){if(JSON.stringify(ITEMS)!==ORIG)return;const d=await api('/api/loja');ITEMS=d.items;ORIG=JSON.stringify(ITEMS);renderList();dirty()}
+/* ---------- Clientes ---------- */
+let CLIS=[],CLI=null;const dg=v=>String(v||'').replace(/\D/g,'');
+const fTel=d=>{d=dg(d);return d.length===11?`(${d.slice(0,2)}) ${d.slice(2,7)}-${d.slice(7)}`:d.length===10?`(${d.slice(0,2)}) ${d.slice(2,6)}-${d.slice(6)}`:d};
+const fCpf=d=>{d=dg(d);return d.length===11?`${d.slice(0,3)}.${d.slice(3,6)}.${d.slice(6,9)}-${d.slice(9)}`:d};
+async function loadCli(){try{const d=await api('/api/admin/clientes');CLIS=d.clientes||[];renderCli()}catch(e){$('#ktb').innerHTML=`<tr><td colspan="7">${esc(e.message)}</td></tr>`}}
+function renderCli(){const t=$('#kq').value.trim().toLowerCase(),td=dg(t);
+  const L=CLIS.filter(c=>!t||(td.length>=3&&((c.telefone||'').includes(td)||(c.cpf||'').includes(td)))||[c.nome,c.cidade,c.email].join(' ').toLowerCase().includes(t)).sort((a,b)=>(b.ultimo||b.criado||'').localeCompare(a.ultimo||a.criado||''));
+  const comp=CLIS.filter(c=>c.comprado>0);
+  $('#kkpis').innerHTML=`<div class="kpi"><b>${CLIS.length}</b><span>clientes cadastrados</span></div><div class="kpi"><b>${comp.length}</b><span>já compraram</span></div><div class="kpi"><b>${CLIS.filter(c=>c.pedidos>1).length}</b><span>compraram mais de uma vez</span></div><div class="kpi"><b>${comp.length?brl(comp.reduce((s,c)=>s+c.comprado,0)/comp.length):'—'}</b><span>gasto médio por cliente</span></div>`;
+  $('#ktb').innerHTML=L.map(c=>`<tr class="click" data-cl="${esc(c.id)}"><td><b>${esc(c.nome||'—')}</b></td><td>${esc(fTel(c.telefone))}</td><td>${esc(fCpf(c.cpf))}</td><td>${esc(c.cidade||'')}</td><td>${c.pedidos}${c.aberto?` <span class="st aguardando">${c.aberto} aberto</span>`:''}</td><td>${c.comprado?brl(c.comprado):'—'}</td><td>${c.ultimo?new Date(c.ultimo).toLocaleDateString('pt-BR'):'—'}</td></tr>`).join('')||'<tr><td colspan="7" class="note">Nenhum cliente encontrado.</td></tr>'}
+$('#kq').oninput=renderCli;$('#kRef').onclick=loadCli;$('#kX').onclick=()=>$('#kdlg').close();
+$('#ktb').addEventListener('click',e=>{const r=e.target.closest("[data-cl]");if(r)openCli(r.dataset.cl)});
+$('#kNew').onclick=()=>openCli(null);
+const CF=['telefone','cpf','nome','email','cep','rua','comp','bairro','cidade','obs'];
+async function openCli(id){CLI=null;let h=[];$('#kmsg').textContent='';
+  if(id){const d=await api('/api/admin/clientes?id='+encodeURIComponent(id));CLI=d.cliente;h=d.historico||[]}
+  CF.forEach(k=>$('#k_'+k).value=CLI?(k==='telefone'?fTel(CLI[k]):k==='cpf'?fCpf(CLI[k]):CLI[k]||''):'');
+  $('#kT').textContent=CLI?(CLI.nome||'Cliente'):'Novo cliente';$('#kDel').hidden=!CLI||ME.papel!=='admin';
+  const tel=CLI&&dg(CLI.telefone);
+  $('#kHist').innerHTML=CLI?`<p class="note">${CLI.pedidos} pedido(s) · comprado ${brl(CLI.comprado||0)}${tel?` · <a href="https://wa.me/55${tel}" target="_blank" rel="noopener">abrir WhatsApp</a>`:''}</p>`+(h.length?`<table><tbody>${h.map(p=>`<tr class="click" data-hp="${esc(p.id)}"><td><b>${esc(p.id)}</b></td><td>${new Date(p.em).toLocaleDateString('pt-BR')}</td><td>${p.origem==='manual'?'WhatsApp/balcão':'site'}</td><td>${brl(p.total)}</td><td><span class="st ${esc(p.status)}">${esc(p.status)}</span></td></tr>`).join('')}</tbody></table>`:''):'';
+  $$('#kHist [data-hp]').forEach(r=>r.onclick=()=>{$('#kdlg').close();openPed(r.dataset.hp)});
+  $('#kdlg').showModal()}
+$('#kSave').onclick=async()=>{const b={id:CLI&&CLI.id};CF.forEach(k=>b[k]=$('#k_'+k).value);
+  try{const d=await api('/api/admin/clientes',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(b)});CLI=d.cliente;$('#kmsg').textContent='Salvo.';toast('Cliente salvo');loadCli();$('#kT').textContent=CLI.nome}catch(e){$('#kmsg').textContent=e.message}};
+$('#kDel').onclick=async()=>{if(!CLI||!confirm('Excluir o cadastro de '+(CLI.nome||'este cliente')+'? Os pedidos continuam no histórico.'))return;await api('/api/admin/clientes?id='+encodeURIComponent(CLI.id),{method:'DELETE'});$('#kdlg').close();loadCli()};
+async function reloadItems(){if(JSON.stringify(ITEMS)!==ORIG)return;const d=await api('/api/loja?todos=1');ITEMS=d.items;ORIG=JSON.stringify(ITEMS);renderList();dirty()}
 
 /* ---------- Importar ---------- */
-const COLS=['tipo','grupo','nome','numero','idioma','variante','estado','quantidade','preco','preco_antigo','imagem_url','marca','descricao'];
+const COLS=['tipo','grupo','nome','numero','idioma','variante','estado','quantidade','preco','preco_antigo','imagem_url','marca','descricao','raridade'];
 function dl(name,txt){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['﻿'+txt],{type:'text/csv;charset=utf-8'}));a.download=name;a.click()}
 const csvCell=v=>{v=String(v??'');return /[;"\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};
 $('#dlModelo').onclick=()=>dl('modelo_estoque.csv',COLS.join(';')+'\ncarta;Coleção 30 anos;Pikachu ex;054/128;PT;;NM;1;9,00;;;;\nproduto;Binders;Binder 9 bolsos 360 cartas;;;;novo;3;89,90;;;Ultra Pro;Binder com zíper, 20 páginas\n');
@@ -475,7 +575,7 @@ $('#impF').onchange=async e=>{const f=e.target.files[0];if(!f)return;let rows;
   const H=rows.shift().map(h=>String(h).trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\s+/g,'_'));
   const ix=k=>H.indexOf(k);if(ix('nome')<0||ix('quantidade')<0||ix('preco')<0){alert('A planilha precisa ter as colunas nome, quantidade e preco (baixe o modelo).');return}
   const map=Object.fromEntries(ITEMS.map(i=>[keyOf(i.n,i.num,i.l,i.v),i]));
-  IMP=rows.map((r,k)=>{const g=c=>ix(c)>=0?String(r[ix(c)]??'').trim():'';const tp=/^prod/i.test(g('tipo'))?'produto':'carta';const o={tipo:tp,marca:g('marca'),desc:g('descricao'),g:g('grupo')||'Geral',n:g('nome'),num:tp==='produto'?'':g('numero'),l:tp==='produto'?'':(g('idioma')||'PT').toUpperCase(),v:tp==='produto'?'':g('variante'),c:tp==='produto'?(/usad/i.test(g('estado'))?'usado':'novo'):(g('estado')||'NM').toUpperCase(),q:Math.max(0,Math.round(num(g('quantidade'))||0)),p:Math.round((num(g('preco'))||0)*100)/100,o:num(g('preco_antigo'))||0,img:g('imagem_url')};
+  IMP=rows.map((r,k)=>{const g=c=>ix(c)>=0?String(r[ix(c)]??'').trim():'';const tp=/^prod/i.test(g('tipo'))?'produto':'carta';const o={tipo:tp,marca:g('marca'),desc:g('descricao'),g:g('grupo')||'Geral',n:g('nome'),num:tp==='produto'?'':g('numero'),l:tp==='produto'?'':(g('idioma')||'PT').toUpperCase(),v:tp==='produto'?'':g('variante'),c:tp==='produto'?(/usad/i.test(g('estado'))?'usado':'novo'):(g('estado')||'NM').toUpperCase(),q:Math.max(0,Math.round(num(g('quantidade'))||0)),p:Math.round((num(g('preco'))||0)*100)/100,o:num(g('preco_antigo'))||0,img:g('imagem_url'),r:g('raridade')};
     o.erro=!o.n?'sem nome':!(o.p>0)?'preço inválido':'';o.ex=map[keyOf(o.n,o.num,o.l,o.v)];return o});
   const nNovo=IMP.filter(x=>!x.erro&&!x.ex).length,nAt=IMP.filter(x=>!x.erro&&x.ex).length,nErr=IMP.filter(x=>x.erro).length;
   $('#impTab').innerHTML=`<p class="note"><b>${nAt}</b> para atualizar · <b>${nNovo}</b> novos · <b class="${nErr?'warn':''}">${nErr}</b> com erro (serão ignorados)${$('#impZero').checked?' · os que não estão na planilha ficarão com quantidade 0':''}</p><table><thead><tr><th></th><th>Produto</th><th>Grupo</th><th>Qtd</th><th>Preço</th></tr></thead><tbody>${IMP.slice(0,300).map(x=>`<tr><td>${x.erro?`<span class="warn">${x.erro}</span>`:x.ex?'atualiza':'<b class="ok">novo</b>'}</td><td>${esc(x.n)} ${esc(x.num)} ${esc(x.l)} ${esc(x.v)}</td><td>${esc(x.g)}</td><td>${x.ex?x.ex.q+' → ':''}${x.q}</td><td>${x.ex?brl(x.ex.p)+' → ':''}${brl(x.p)}</td></tr>`).join('')}</tbody></table>`;
@@ -483,29 +583,29 @@ $('#impF').onchange=async e=>{const f=e.target.files[0];if(!f)return;let rows;
 $('#impNo').onclick=()=>{IMP=null;$('#impPrev').hidden=true;$('#impF').value=''};
 $('#impOk').onclick=()=>{if(!IMP)return;const seen=new Set();let id=nextId();
   for(const x of IMP){if(x.erro)continue;let it=x.ex;
-    if(it){it.q=x.q;it.p=x.p;it.g=x.g||it.g;it.c=x.c||it.c;if(x.tipo==='produto'){it.tipo='produto';if(x.marca)it.marca=x.marca;if(x.desc)it.desc=x.desc}if(x.o>x.p)it.o=x.o;else delete it.o;if(/^https?:\/\//.test(x.img))it.img=x.img}
-    else{it={id:id++,g:x.g,n:x.n,num:x.num,l:x.l,v:x.v,c:x.c,q:x.q,p:x.p,img:/^https?:\/\//.test(x.img)?x.img:placeholder(x.n)};if(x.tipo==='produto'){it.tipo='produto';it.marca=x.marca;it.desc=x.desc}if(x.o>x.p)it.o=x.o;ITEMS.push(it)}
+    if(it){it.q=x.q;it.p=x.p;it.g=x.g||it.g;it.c=x.c||it.c;if(x.tipo==='produto'){it.tipo='produto';if(x.marca)it.marca=x.marca;if(x.desc)it.desc=x.desc}if(x.o>x.p)it.o=x.o;else delete it.o;if(/^https?:\/\//.test(x.img))it.img=x.img;if(x.r&&x.tipo!=='produto')it.r=x.r}
+    else{it={id:id++,g:x.g,n:x.n,num:x.num,l:x.l,v:x.v,c:x.c,q:x.q,p:x.p,img:/^https?:\/\//.test(x.img)?x.img:placeholder(x.n)};if(x.tipo==='produto'){it.tipo='produto';it.marca=x.marca;it.desc=x.desc}else if(x.r)it.r=x.r;if(x.o>x.p)it.o=x.o;ITEMS.push(it)}
     seen.add(it)}
   if($('#impZero').checked)ITEMS.forEach(i=>{if(!seen.has(i))i.q=0});
-  IMP=null;$('#impPrev').hidden=true;$('#impF').value='';fillGroups();renderList();dirty();tab('prod');toast('Planilha aplicada. Confira e clique em Salvar alterações.')};
+  const novos=[...seen].filter(i=>i.tipo!=='produto'&&semImg(i));IMP=null;$('#impPrev').hidden=true;$('#impF').value='';fillGroups();renderList();dirty();tab('prod');toast('Planilha aplicada. Confira e clique em Salvar alterações.');if($('#impMini').checked&&novos.length)buscarMinis(novos)};
 const PROMPT=`Você vai me ajudar a montar a planilha de estoque da minha loja de cartas Pokémon.
 
 Eu vou te mandar fotos das cartas (ou uma lista). Para cada carta diferente:
-1. Identifique o nome, o número impresso no canto inferior (ex.: 054/128), o idioma (PT, EN, JP ou CN) e a variante, se houver (ex.: Foil, SAR, AR, IR, Pokébola, Master Ball). Se não houver variante, deixe vazio.
+1. Identifique o nome, o número impresso no canto inferior (ex.: 054/128), o idioma (PT, EN, JP ou CN), o acabamento na coluna variante (deixe vazio se for normal; senão Foil, Reverse Foil, Pokébola ou Master Ball) e a raridade (Comum, Incomum, Rara, Rara Dupla, Ilustração Rara, Ilustração Rara Especial, Ultra Rara, Hiper Rara...).
 2. Conte quantas cópias iguais aparecem (mesmo nome + número + idioma + variante = mesma linha).
 3. Estado: NM (praticamente nova), SP (levemente usada), MP (moderadamente usada), HP (muito usada) ou D (danificada).
-4. Preço: procure o menor preço NM da carta no mesmo idioma no site Liga Pokémon (ligapokemon.com.br). Arredonde para cima em múltiplos de R$ 0,50. Se não conseguir pesquisar, deixe o preço em branco e me avise quais ficaram sem preço.
+4. Preço: procure o menor preço NM da carta no mesmo idioma no site Liga Pokémon (ligapokemon.com.br). Arredonde para cima em múltiplos de R$ 0,50. Só use um preço que você realmente viu na Liga: NUNCA estime nem pegue de outro site. Se não conseguir abrir a página da carta na Liga, deixe o preço em branco.
 5. Se o preço for R$ 100 ou mais e eu pedir desconto, coloque o preço cheio em preco_antigo e o preço com desconto em preco.
 6. Grupo: use um destes nomes, iguais: ${'${GRUPOS}'}. Se não souber, use "Geral".
 
 Se eu mandar produtos que não são cartas (binder, sleeve, deck box, booster, brinquedo), use tipo = produto, deixe numero, idioma e variante vazios, estado = novo ou usado, e preencha marca e uma descricao curta.
 
 Responda SOMENTE com uma tabela em CSV, separada por ponto e vírgula, com esta primeira linha exatamente:
-tipo;grupo;nome;numero;idioma;variante;estado;quantidade;preco;preco_antigo;imagem_url;marca;descricao
+tipo;grupo;nome;numero;idioma;variante;estado;quantidade;preco;preco_antigo;imagem_url;marca;descricao;raridade
 (use tipo = carta para cartas avulsas)
 
-Regras do CSV: preços com vírgula (ex.: 9,50), sem "R$"; deixe imagem_url vazio; uma carta por linha; não junte idiomas diferentes na mesma linha.
-No final, fora da tabela, liste as cartas em que você ficou em dúvida.`;
+Regras do CSV: preços com vírgula (ex.: 9,50), sem "R$"; deixe imagem_url vazio (o painel da loja busca a imagem sozinho pelo número); uma carta por linha; não junte idiomas diferentes na mesma linha. O número deve ser exatamente o impresso na carta, com a barra (ex.: 054/128).
+No final, fora da tabela: (a) liste as cartas em que você ficou em dúvida na identificação; (b) liste as cartas que ficaram sem preço, cada uma com o nome, número e idioma, para eu conferir na Liga.`;
 $('#verPrompt').onclick=()=>{$('#prT').textContent=PROMPT.replace('${GRUPOS}',groupsAll().map(g=>'"'+g+'"').join(', '));$('#prdlg').showModal()};
 $('#prX').onclick=()=>$('#prdlg').close();
 $('#prC').onclick=async()=>{try{await navigator.clipboard.writeText($('#prT').textContent);toast('Prompt copiado')}catch(e){alert('Selecione o texto e copie.')}};
@@ -535,10 +635,10 @@ function renderLay(){
       ${art?`<label class="chk" style="grid-column:1/-1"><input type="checkbox" data-l="slides" data-f="texto" ${d.texto?'checked':''}> Escrever o título e o botão por cima da arte</label><label>Texto do botão<input data-l="slides" data-f="botao" value="${esc(d.botao||'Ver cartas')}"></label>`:`<label>Cor do subtítulo<input type="color" data-l="slides" data-f="c" value="${esc(d.c||'#e2b6ff')}"></label>`}
       <label>Ao clicar, mostrar<select data-l="slides" data-f="tipo">${tsel}</select></label>
       <label>${d.tipo==='link'?'Endereço (https://...)':d.tipo==='col'?'Coleção':d.tipo==='grupo'?'Grupo':'Palavra da busca'}${d.tipo==='col'?`<select data-l="slides" data-f="valor">${COLS_OPT.map(c=>`<option ${d.valor===c?'selected':''}>${c}</option>`).join('')}</select>`:d.tipo==='grupo'?`<select data-l="slides" data-f="valor">${groupsAll().map(c=>`<option ${d.valor===c?'selected':''}>${esc(c)}</option>`).join('')}</select>`:`<input data-l="slides" data-f="valor" value="${esc(d.valor)}" ${['promo','nenhum'].includes(d.tipo)?'disabled placeholder="—"':''}>`}</label></div></div>`}).join('')||'<p class="note">Nenhum banner.</p>';
-  $('#gl').innerHTML=(CFG.grupos||[]).map((g,k)=>listRow('fx',k,`<label class="full" style="grid-column:1/4">Grupo ${k+1}<input value="${esc(g)}" data-l="grupos" data-f=""></label>`)).join('');
+  $('#gl').innerHTML=(CFG.grupos||[]).map((g,k)=>listRow('fx',k,`<label class="full" style="grid-column:1/3">Grupo ${k+1}<input value="${esc(g)}" data-l="grupos" data-f=""></label><label>Total da coleção<input type="number" min="0" step="1" data-tot="${k}" value="${esc((CFG.totais||{})[g]||'')}" placeholder="opcional"></label>`)).join('');
   $('#rts').innerHTML=(CFG.retiradas||[]).map((r,k)=>listRow('rt',k,`<label>Nome<input data-l="retiradas" data-f="nome" value="${esc(r.nome)}"></label><label>Endereço<input data-l="retiradas" data-f="endereco" value="${esc(r.endereco)}"></label><label>Horário<input data-l="retiradas" data-f="horario" value="${esc(r.horario)}"></label><label class="chk"><input type="checkbox" data-l="retiradas" data-f="ativo" ${r.ativo!==false?'checked':''}> Ativo</label>`)).join('')||'<p class="note">Nenhum ponto de retirada (o cliente só poderá receber por envio).</p>';
-  $('#fxs').innerHTML=(CFG.envio.fixos||[]).map((f,k)=>listRow('fx',k,`<label>Nome<input data-l="envio.fixos" data-f="nome" value="${esc(f.nome)}"></label><label>Preço (R$)<input type="number" step="0.5" data-l="envio.fixos" data-f="preco" value="${esc(f.preco)}"></label><label>Prazo (dias)<input data-l="envio.fixos" data-f="prazo" value="${esc(f.prazo)}"></label>`)).join('')||'<p class="note">Nenhuma opção fixa.</p>';
-  $('#cps').innerHTML=(CFG.cupons||[]).map((c,k)=>listRow('cp',k,`<label>Código<input data-l="cupons" data-f="codigo" value="${esc(c.codigo)}" style="text-transform:uppercase"></label><label>Tipo<select data-l="cupons" data-f="tipo"><option value="pct" ${c.tipo!=='valor'?'selected':''}>%</option><option value="valor" ${c.tipo==='valor'?'selected':''}>R$</option></select></label><label>Valor<input type="number" step="0.5" data-l="cupons" data-f="valor" value="${esc(c.valor)}"></label><label>Mínimo R$<input type="number" step="1" data-l="cupons" data-f="minimo" value="${esc(c.minimo||'')}"></label><label>Validade<input type="date" data-l="cupons" data-f="validade" value="${esc(c.validade||'')}"></label><label class="chk"><input type="checkbox" data-l="cupons" data-f="ativo" ${c.ativo!==false?'checked':''}> Ativo</label>`)).join('')||'<p class="note">Nenhum cupom.</p>';
+  $('#fxs').innerHTML=(CFG.envio.fixos||[]).map((f,k)=>listRow('fx',k,`<label>Nome<input data-l="envio.fixos" data-f="nome" value="${esc(f.nome)}"></label><label>Preço (R$)<input type="number" step="any" data-l="envio.fixos" data-f="preco" value="${esc(f.preco)}"></label><label>Prazo (dias)<input data-l="envio.fixos" data-f="prazo" value="${esc(f.prazo)}"></label>`)).join('')||'<p class="note">Nenhuma opção fixa.</p>';
+  $('#cps').innerHTML=(CFG.cupons||[]).map((c,k)=>listRow('cp',k,`<label>Código<input data-l="cupons" data-f="codigo" value="${esc(c.codigo)}" style="text-transform:uppercase"></label><label>Tipo<select data-l="cupons" data-f="tipo"><option value="pct" ${c.tipo!=='valor'?'selected':''}>%</option><option value="valor" ${c.tipo==='valor'?'selected':''}>R$</option></select></label><label>Valor<input type="number" step="any" data-l="cupons" data-f="valor" value="${esc(c.valor)}"></label><label>Mínimo R$<input type="number" step="1" data-l="cupons" data-f="minimo" value="${esc(c.minimo||'')}"></label><label>Validade<input type="date" data-l="cupons" data-f="validade" value="${esc(c.validade||'')}"></label><label class="chk"><input type="checkbox" data-l="cupons" data-f="ativo" ${c.ativo!==false?'checked':''}> Ativo</label>`)).join('')||'<p class="note">Nenhum cupom.</p>';
 }
 const NUMF=['preco','valor','minimo','altura','largura','comprimento','peso'];
 document.addEventListener('input',e=>{const el=e.target;if(!el.closest('[data-pane]')||el.closest('[data-pane="prod"],[data-pane="imp"],[data-pane="usr"],[data-pane="ped"]'))return;
@@ -547,8 +647,9 @@ document.addEventListener('input',e=>{const el=e.target;if(!el.closest('[data-pa
   else if(el.dataset.cor){CFG.cores={...CFG.cores,[el.dataset.cor]:el.value}}
   else if(el.id==='pop')CFG.populares=el.value.split(',').map(x=>x.trim()).filter(Boolean);
   else if(el.id==='dm'||el.id==='did'){CFG.destaque={modo:$('#dm').value,id:$('#did').value?(+$('#did').value||$('#did').value):null};$('#did').disabled=$('#dm').value!=='fixo'}
+  else if(el.dataset.tot!==undefined){const g=CFG.grupos[+el.dataset.tot];const T={...(CFG.totais||{})};const n=parseInt(el.value,10);if(n>0)T[g]=n;else delete T[g];CFG.totais=T}
   else if(el.dataset.l){const arr=get(CFG,el.dataset.l),k=+el.closest('[data-k]').dataset.k;
-    if(el.dataset.l==='grupos'){const old=arr[k],nv=el.value;arr[k]=nv;if(old&&nv.trim())ITEMS.forEach(i=>{if(i.g===old)i.g=nv})}
+    if(el.dataset.l==='grupos'){const old=arr[k],nv=el.value;arr[k]=nv;if(old&&nv.trim())ITEMS.forEach(i=>{if(i.g===old)i.g=nv});if(old&&CFG.totais&&CFG.totais[old]!=null){const T={...CFG.totais};T[nv]=T[old];delete T[old];CFG.totais=T}}
     else{let v=el.type==='checkbox'?el.checked:el.value;if(NUMF.includes(el.dataset.f))v=parseFloat(v)||0;if(el.dataset.f==='codigo')v=v.toUpperCase().replace(/\s/g,'');arr[k][el.dataset.f]=v;if(el.dataset.f==='tipo'&&el.dataset.l==='slides'){const d=arr[k];if(d.tipo==='col')d.valor=COLS_OPT[0];else if(d.tipo==='grupo')d.valor=groupsAll()[0]||'';else if(['promo','nenhum'].includes(d.tipo))d.valor='';renderLay()}}}
   dirty()});
 document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b||!b.closest('[data-pane]'))return;
