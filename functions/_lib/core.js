@@ -63,6 +63,21 @@ export async function loadItems(env, request) {
 }
 export async function saveItems(env, items) {
   const old = await env.ESTOQUE.get("items"); if (old) await env.ESTOQUE.put("items_anterior", old);
+  // histórico leve por produto: quando entrou (desde), quando voltou ao estoque (volta) e o maior estoque já visto (qmax)
+  try {
+    const ant = old ? JSON.parse(old) : null;
+    if (Array.isArray(ant) && ant.length) {
+      const by = new Map(ant.map(i => [String(i.id), i])), agora = new Date().toISOString();
+      for (const it of items) {
+        const o = by.get(String(it.id));
+        if (!o) { if (!it.desde) it.desde = agora; it.qmax = Math.max(it.qmax || 0, it.q || 0); continue }
+        if (o.desde && !it.desde) it.desde = o.desde;
+        if (o.volta && !it.volta) it.volta = o.volta;
+        it.qmax = Math.max(it.qmax || 0, o.qmax || 0, o.q || 0, it.q || 0);
+        if ((o.q || 0) === 0 && (it.q || 0) > 0) it.volta = agora;
+      }
+    }
+  } catch (e) { }
   await env.ESTOQUE.put("items", JSON.stringify(items)); await env.ESTOQUE.put("items_em", new Date().toISOString());
 }
 export const DEF_CFG = {
@@ -73,7 +88,8 @@ export const DEF_CFG = {
     { nome: "Mercadia Game Store", endereco: "R. Rio Jutaí, 90 · Vieiralves", horario: "Ter a sex 15h–22h · sáb 14h–21h", ativo: true }],
   envio: { ativo: true, provedor: "superfrete", cepOrigem: "69033120", pacote: { altura: 2, largura: 11, comprimento: 16, peso: 0.1 }, email: "", fixos: [{ nome: "Envio padrão", preco: 25, prazo: "7 a 12" }] },
   pagamentos: { whatsapp: { ativo: true }, pix: { ativo: false, chave: "", nome: "", cidade: "" }, mp: { ativo: false } },
-  cupons: []
+  cupons: [],
+  totais: { "Pikachus 30 anos": 30 }
 };
 export async function readCfg(env) {
   const c = await kvJson(env, "cfg", {});
@@ -95,7 +111,12 @@ export async function cotarFrete(env, cep, valor = 0) {
   if (!e.ativo) return { erro: "Envio desativado" };
   cep = String(cep || "").replace(/\D/g, ""); if (cep.length !== 8) return { erro: "CEP inválido" };
   const origem = String(e.cepOrigem || "").replace(/\D/g, "");
-  const ok = arr => ({ opcoes: arr.filter(o => o.preco > 0).sort((a, b) => a.preco - b.preco) });
+  const gratis = Number(e.gratisAcima) || 0;
+  const ok = arr => {
+    let o = arr.filter(x => x.preco > 0).sort((a, b) => a.preco - b.preco);
+    if (gratis > 0 && Number(valor) >= gratis && o.length) o = o.map((x, k) => k === 0 ? { ...x, precoOriginal: x.preco, preco: 0, gratis: true } : x);
+    return { opcoes: o };
+  };
   try {
     if (e.provedor === "fixo") return ok((e.fixos || []).map(f => ({ nome: f.nome, preco: Number(f.preco), prazo: f.prazo })));
     if (e.provedor === "superfrete") {
@@ -136,7 +157,7 @@ export async function listPedidos(env) { return await kvJson(env, "pedidos", [])
 export async function savePedido(env, o) {
   await env.ESTOQUE.put("o:" + o.id, JSON.stringify(o));
   const idx = await listPedidos(env); const i = idx.findIndex(x => x.id === o.id);
-  const resumo = { id: o.id, em: o.em, nome: o.cliente.nome, total: o.total, status: o.status, pagamento: o.pagamento };
+  const resumo = { id: o.id, em: o.em, nome: o.cliente.nome, telefone: normTel(o.cliente.telefone), cpf: normCpf(o.cliente.cpf || (o.entrega && o.entrega.cpf)), total: o.total, status: o.status, pagamento: o.pagamento, origem: o.origem || "", itens: (o.itens || []).map(l => ({ id: l.id, q: l.q })) };
   if (i >= 0) idx[i] = resumo; else idx.unshift(resumo);
   await env.ESTOQUE.put("pedidos", JSON.stringify(idx.slice(0, 1000)));
 }
@@ -163,4 +184,43 @@ export function aplicarCupom(cfg, codigo, subtotal) {
   let d = c.tipo === "valor" ? Number(c.valor) : subtotal * Number(c.valor) / 100;
   d = Math.min(subtotal, Math.round(d * 100) / 100);
   return { desconto: d, codigo: c.codigo, descricao: c.tipo === "valor" ? "R$ " + Number(c.valor).toFixed(2).replace(".", ",") + " de desconto" : c.valor + "% de desconto" };
+}
+
+// ---------- Reservas: pedido aguardando pagamento segura as cartas por algumas horas ----------
+export async function reservas(env, horas) {
+  const h = Number(horas) > 0 ? Number(horas) : 24, lim = Date.now() - h * 3600e3, r = {};
+  for (const p of await listPedidos(env)) {
+    if (p.status !== "aguardando" || !p.itens || Date.parse(p.em) < lim) continue;
+    for (const l of p.itens) r[l.id] = (r[l.id] || 0) + l.q;
+  }
+  return r;
+}
+export function comReservas(items, r) { return items.map(i => r[i.id] ? { ...i, q: Math.max(0, i.q - r[i.id]), res: Math.min(i.q, r[i.id]) } : i) }
+// ---------- Clientes (cadastro pelo telefone ou CPF) ----------
+export function normTel(v) { let d = String(v || "").replace(/\D/g, ""); if ((d.length === 12 || d.length === 13) && d.startsWith("55")) d = d.slice(2); return d.length >= 10 && d.length <= 11 ? d : "" }
+export function normCpf(v) { const d = String(v || "").replace(/\D/g, ""); return d.length === 11 ? d : "" }
+const CLI_CAMPOS = ["nome", "email", "cep", "rua", "comp", "bairro", "cidade", "obs"];
+export async function listClientes(env) { return await kvJson(env, "clientes", []) }
+export function acharCliente(L, tel, cpf) { return L.find(x => (tel && x.telefone === tel) || (cpf && x.cpf === cpf)) }
+// Junta os dados novos ao cadastro (sem apagar o que já existe). Cria se não existir.
+export async function upsertCliente(env, d, substituir) {
+  const tel = normTel(d.telefone), cpf = normCpf(d.cpf); if (!tel && !cpf) return null;
+  const L = await listClientes(env); const agora = new Date().toISOString();
+  let c = (d.id && L.find(x => x.id === d.id)) || acharCliente(L, tel, cpf);
+  if (!c) { c = { id: tel || "cpf" + cpf, criado: agora }; L.unshift(c) }
+  for (const k of CLI_CAMPOS) { const v = d[k] == null ? "" : String(d[k]).trim().slice(0, k === "obs" ? 500 : 200); if (v || substituir) c[k] = v }
+  if (tel || substituir) c.telefone = tel; if (cpf || substituir) c.cpf = cpf;
+  c.atualizado = agora;
+  await env.ESTOQUE.put("clientes", JSON.stringify(L.slice(0, 5000)));
+  return c;
+}
+// ---------- Mercado Pago: link de pagamento de um pedido ----------
+export async function linkMP(env, request, o, cfg) {
+  const sec = await readSec(env); if (!sec.mercadopago) return null;
+  const origin = new URL(request.url).origin;
+  const body = { items: [{ title: ("Pedido " + o.id + " · " + ((cfg.loja && cfg.loja.nome) || "Loja")).slice(0, 250), quantity: 1, unit_price: o.total, currency_id: "BRL" }], external_reference: o.id, payer: { name: o.cliente.nome },
+    back_urls: { success: origin + "/?pedido=" + o.id, failure: origin + "/?pedido=" + o.id, pending: origin + "/?pedido=" + o.id }, auto_return: "approved", notification_url: origin + "/api/mp-webhook", statement_descriptor: String((cfg.loja && cfg.loja.nome) || "LOJA").slice(0, 13) };
+  const r = await fetch("https://api.mercadopago.com/checkout/preferences", { method: "POST", headers: { Authorization: "Bearer " + sec.mercadopago, "Content-Type": "application/json", "X-Idempotency-Key": "m" + o.id }, body: JSON.stringify(body) });
+  const dj = await r.json().catch(() => ({}));
+  return r.ok && dj.init_point ? { url: dj.init_point, pref: dj.id } : null;
 }
