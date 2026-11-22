@@ -1,10 +1,10 @@
-import { J, readCfg, readSec, loadItems, cotarFrete, aplicarCupom, pixPayload, savePedido } from "../_lib/core.js";
+import { J, readCfg, readSec, loadItems, cotarFrete, aplicarCupom, pixPayload, savePedido, reservas, comReservas, upsertCliente } from "../_lib/core.js";
 const s = (v, n = 200) => String(v || "").trim().slice(0, n);
 const brl = v => "R$ " + v.toFixed(2).replace(".", ",");
 export async function onRequestPost({ request, env }) {
   if (!env.ESTOQUE) return J({ erro: "Loja sem banco configurado." }, 503);
   let b; try { b = await request.json() } catch (e) { return J({ erro: "Pedido inválido." }, 400) }
-  const cfg = await readCfg(env), items = await loadItems(env, request);
+  const cfg = await readCfg(env), items = comReservas(await loadItems(env, request), await reservas(env, cfg.reservaHoras));
   // 1. Itens: confere estoque e usa o preço do servidor
   const linhas = []; let subtotal = 0;
   for (const l of (Array.isArray(b.itens) ? b.itens : []).slice(0, 100)) {
@@ -62,5 +62,6 @@ export async function onRequestPost({ request, env }) {
     out.mp = dj.init_point; o.mpPref = dj.id;
   }
   await savePedido(env, o);
+  try { const E = o.entrega || {}; await upsertCliente(env, { nome, telefone: o.cliente.telefone, cpf: E.cpf, cep: E.cep, rua: E.rua, comp: E.comp, bairro: E.bairro, cidade: E.cidade }) } catch (e) { }
   return J(out);
 }
