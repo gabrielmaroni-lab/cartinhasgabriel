@@ -141,7 +141,16 @@ body.adm .selos{top:46px}
 .colprog small{color:var(--muted);font-weight:700;font-size:12px}
 .fgr{background:var(--bg);border:2px dashed var(--line);border-radius:12px;padding:10px 12px;font-weight:800;font-size:13px;display:flex;flex-direction:column;gap:7px}
 .fgr.ok{border-style:solid;border-color:#22c55e}
+.admP s.orig{color:var(--muted,#9a8aa6);font-size:11px;margin-left:4px}
+.moPdfB{margin-top:8px;width:100%;border:2px dashed var(--line);background:none;color:var(--ink);border-radius:12px;padding:11px;font:800 14px var(--body);cursor:pointer}
+.moPdfB:disabled{opacity:.6}
+.cfM{position:fixed;inset:0;z-index:9999;background:rgba(10,6,14,.62);display:flex;align-items:center;justify-content:center;padding:16px}
+.cfM .bx{background:#fff;color:#1b1222;border-radius:16px;max-width:420px;width:100%;padding:18px 18px 14px;box-shadow:0 18px 50px rgba(0,0,0,.4);font-family:var(--body)}
+.cfM h3{margin:0 0 8px;font-size:18px;display:flex;gap:8px;align-items:center}.cfM h3:before{content:"!";display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:#f2a541;color:#fff;font-weight:900;font-size:15px}
+.cfM p{margin:0 0 14px;font-size:14.5px;line-height:1.45}.cfM .bt{display:flex;flex-direction:column;gap:8px}
+.cfM button{border:0;border-radius:11px;padding:12px;font:800 15px var(--body);cursor:pointer;background:#efe7f5;color:#3b1d52}.cfM button.pr{background:#7b2fbf;color:#fff}
 /* gaveta */
+
 .shade{position:fixed;inset:0;background:rgba(10,16,32,.55);z-index:30}
 .drawer{position:fixed;top:0;right:0;bottom:0;width:min(460px,100%);z-index:31;background:var(--surface);display:flex;flex-direction:column;padding-bottom:env(safe-area-inset-bottom,0px);padding-right:env(safe-area-inset-right,0px);box-shadow:-10px 0 30px rgba(0,0,0,.3)}
 .dh{display:flex;justify-content:space-between;align-items:center;padding:calc(14px + env(safe-area-inset-top,0px)) 18px 14px;background:var(--red);color:#fff;border-bottom:4px solid var(--navy)}
@@ -481,7 +490,7 @@ footer{color:var(--muted);font-size:12px;font-weight:700;padding-block:20px 140p
         <label>Cidade / UF<input id="moCidade" placeholder="Manaus / AM"></label></div>
       <div class="moRow"><label>Pagamento<select id="moPay"><option value="pix">Pix</option><option value="dinheiro">Dinheiro</option><option value="cartao">Cartão (gera link MP)</option><option value="link">Link de pagamento (MP)</option><option value="outro">Outro</option></select></label>
         <label>Desconto<input id="moDesc" inputmode="decimal" placeholder="R$ ou 10%"></label></div>
-      <label>Situação<select id="moSt"><option value="aguardando">Aguardando pagamento · reserva as cartas</option><option value="pago">Já pago · baixa estoque</option><option value="entregue">Pago e entregue · baixa estoque</option></select></label>
+      <label>Situação<select id="moSt"><option value="aguardando">Não pago · reserva as cartas</option><option value="pago">Pago · baixa estoque</option><option value="preparacao">Pago · em preparação</option><option value="enviado">Pago · enviado</option><option value="entregue">Pago · recebido pelo cliente</option></select></label>
       <label>Observação<input id="moObs" placeholder="Opcional, aparece no resumo"></label>
       <div class="moT" id="moTot"></div>
     </div>
@@ -491,12 +500,13 @@ footer{color:var(--muted);font-size:12px;font-weight:700;padding-block:20px 140p
     <label class="f">Resumo para o cliente (pode editar antes de enviar)<textarea id="moTxt"></textarea></label>
     <button class="moBig alt" id="moWa" type="button">Enviar no WhatsApp do cliente</button>
     <button class="moBig" id="moCopy" type="button">Copiar resumo</button>
+    <button class="moBig gh" id="moPdfP" type="button">Baixar PDF do pedido</button>
     <button class="moBig gh" id="moPago" type="button" hidden>Cliente pagou: marcar como pago</button>
     <button class="moBig gh" id="moNew" type="button">Novo pedido</button>
   </div>
   <div class="df">
     <span class="err" id="err" hidden></span>
-    <button class="wa" id="fin" type="button">Finalizar pedido</button><button class="wa admOnly" id="admGo" type="button">Criar pedido e gerar resumo</button><button class="admLk" id="admCli" type="button" hidden></button><button class="admLk" id="admSair" type="button" hidden>Sair da conta</button>
+    <button class="wa" id="fin" type="button">Finalizar pedido</button><button class="wa admOnly" id="admGo" type="button">Criar pedido e gerar resumo</button><button class="moPdfB admOnly admPed" id="moPdf" type="button">Gerar orçamento em PDF (não reserva)</button><button class="admLk" id="admCli" type="button" hidden></button><button class="admLk" id="admSair" type="button" hidden>Sair da conta</button>
     <p class="hint">Dúvidas? WhatsApp <a id="num" target="_blank" rel="noopener"></a></p>
   </div>
 </aside>
@@ -625,9 +635,9 @@ function cartUI(){
   $('#barN').textContent=n+(ADM?(n===1?' item':' itens'):(n===1?' carta':' cartas'));$('#barT').textContent=brl(tot);
   if(CUP.codigo&&CUP.sub!==tot){CUP={codigo:'',desconto:0};$('#cupMsg').textContent='Carrinho mudou: aplique o cupom de novo.'}
   const fs=isShip()&&frSel();$('#tot').textContent=brl(tot-CUP.desconto+(fs?fs.preco:0));$('#totL').textContent=(CUP.desconto?'Com cupom ':'')+(fs?'Total com frete':'Total das cartas');
-  $('#lines').innerHTML=ks.length?ks.map(k=>{const i=byId[k],c=cart[k];return `<div class="li"><img src="${i.img}" alt=""><div><div class="nm">${i.n}</div><div class="sm">${subT2(i)} · ${ADM?i.q+' livre':brl(i.p)+' cada'}${!ADM&&i.o?` (-${Math.round((1-i.p/i.o)*100)}%)`:''}</div>${ADM?`<label class="admP">R$ un.<input data-pr="${k}" inputmode="decimal" class="${PR[k]!=null?'chg':''}" value="${prOf(k).toFixed(2).replace('.',',')}"></label>`:''}</div>
+  $('#lines').innerHTML=ks.length?ks.map(k=>{const i=byId[k],c=cart[k];return `<div class="li"><img src="${i.img}" alt=""><div><div class="nm">${i.n}</div><div class="sm">${subT2(i)} · ${ADM?i.q+' livre':brl(i.p)+' cada'}${!ADM&&i.o?` (-${Math.round((1-i.p/i.o)*100)}%)`:''}</div>${ADM?`<label class="admP">Preço un. ✎<input data-pr="${k}" inputmode="decimal" class="${PR[k]!=null?'chg':''}" value="${prOf(k).toFixed(2).replace('.',',')}">${PR[k]!=null?`<s class="orig">${brl(i.p)}</s>`:''}</label>`:''}</div>
     <div><div class="step"><button data-dec="${k}" aria-label="Tirar uma">−</button><span>${c}</span><button data-inc="${k}" ${c>=i.q?'disabled':''} aria-label="Mais uma">+</button></div><div class="lp">${brl(c*prOf(k))}</div></div></div>`}).join(''):`<p class="hint">${ADM?'Nenhum item ainda. Busque acima ou toque em “Adicionar” nos cards da loja.':'Seu carrinho está vazio.'}</p>`;
-  if(ADM){$('#lines').querySelectorAll('[data-pr]').forEach(inp=>inp.onchange=()=>{const k=inp.dataset.pr,v=String(inp.value).trim();const n=/^0+([,.]0*)?$/.test(v)?0:moNum(v);if(v===''||n===byId[k].p)delete PR[k];else PR[k]=n;cartUI()});moTot()}
+  if(ADM){$('#lines').querySelectorAll('[data-pr]').forEach(inp=>inp.onchange=async()=>{const k=inp.dataset.pr,v=String(inp.value).trim();const n=/^0+([,.]0*)?$/.test(v)?0:moNum(v);if(v===''||n===byId[k].p)delete PR[k];else if(await prCheck(k,n))PR[k]=n;else delete PR[k];cartUI()});moTot()}
   fgrUI(tot);save();
 }
 function change(id,d){
@@ -757,7 +767,7 @@ function moInit(){
   $('#moEnt').innerHTML=RT.map((r,k)=>`<option value="r${k}">Retirada · ${esc(r.nome)}</option>`).join('')+'<option value="comb">Entrega combinada com o cliente</option><option value="envio">Envio (correio/transportadora)</option>';
   $('#admCli').hidden=false;$('#admCli').onclick=()=>admSet(!ADM);
   $('#moEnt').onchange=()=>{$('#moShip').hidden=$('#moEnt').value!=='envio';if($('#moEnt').value==='envio')moEndCli();moTot()};
-  ['moFrete','moDesc'].forEach(k=>$('#'+k).oninput=moTot);
+  ['moFrete','moDesc'].forEach(k=>$('#'+k).oninput=moTot);$('#moDesc').onchange=()=>{descCheck()};$('#moPdf').onclick=moOrcPdf;$('#moPdfP').onclick=moPedPdf;
   $('#moQ').oninput=moBusca;$('#admGo').onclick=moCriar;
   $('#moTel').oninput=$('#moCpfC').oninput=moCliBusca;
   $('#moCopy').onclick=async()=>{const t=$('#moTxt');try{await navigator.clipboard.writeText(t.value)}catch(e){t.select();document.execCommand('copy')}$('#moCopy').textContent='Copiado!';setTimeout(()=>$('#moCopy').textContent='Copiar resumo',1600)};
@@ -793,7 +803,7 @@ async function moCriar(){
   const err=m=>{$('#err').textContent=m;$('#err').hidden=false};$('#err').hidden=true;
   const ks=Object.keys(cart);if(!ks.length)return err('Adicione pelo menos um produto.');
   const nome=$('#moNome').value.trim();if(!nome){$('#moNome').focus();return err('Informe o nome do cliente.')}
-  const ev=$('#moEnt').value,c=moCalc();
+  if(!await descCheck())return;const ev=$('#moEnt').value,c=moCalc();
   const body={itens:ks.map(k=>({id:byId[k].id,q:cart[k],p:prOf(k)})),nome,telefone:$('#moTel').value.trim(),cpf:$('#moCpfC').value.trim(),pagamento:$('#moPay').value,desconto:c.desc,frete:c.fr,status:$('#moSt').value,obs:$('#moObs').value.trim(),
     entrega:ev==='envio'?{tipo:'envio',servico:$('#moServ').value,cep:$('#moCep').value,rua:$('#moRua').value,bairro:$('#moBairro').value,cidade:$('#moCidade').value}:ev==='comb'?{tipo:'retirada',ponto:-1}:{tipo:'retirada',ponto:Number(ev.slice(1))}};
   const g=$('#admGo');g.disabled=true;g.textContent='Criando…';
@@ -808,7 +818,7 @@ function moTirar(o){for(const l of o.itens){const i=byId[l.id];if(i){i.q=Math.ma
 function moDone(o){
   MO.tel=moFone(o.cliente.telefone);
   $('#moTxt').value=moResumo(o);
-  $('#moOk').innerHTML=`Pedido <b>${esc(o.id)}</b> · ${brl(o.total)}<br><span style="font-weight:700;font-size:12px">${o.status==='aguardando'?`Aguardando pagamento · cartas reservadas por ${o.reservaHoras||RESH()}h.`:'Pago · estoque já baixado.'}${o.avisoLink?'<br>'+esc(o.avisoLink):''}</span>`;
+  $('#moOk').innerHTML=`Pedido <b>${esc(o.id)}</b> · ${brl(o.total)}<br><span style="font-weight:700;font-size:12px">${o.status==='aguardando'?`Não pago · cartas reservadas por ${o.reservaHoras||RESH()}h.`:'Pago'+(o.status!=='pago'?' · '+STX[o.status]:'')+' · estoque já baixado.'}${o.avisoLink?'<br>'+esc(o.avisoLink):''}</span>`;
   $('#moWa').textContent=MO.tel?'Enviar no WhatsApp do cliente':'Abrir no WhatsApp (escolher contato)';
   $('#moPago').hidden=o.status!=='aguardando';moView(true);
 }
@@ -823,7 +833,7 @@ function moResumo(o,lembrete){
   const L=o.itens.map(l=>`• ${l.q}x ${l.n}${l.num?' '+l.num:''}${l.l?' '+l.l:''}${l.v?' '+l.v:''}${l.c?' ('+l.c+')':''} — ${brl(l.q*l.p)}`).join('\n');
   const e=o.entrega||{};
   const ent=e.tipo==='envio'?`Entrega: ${e.servico||'Envio'}${o.frete?' ('+brl(o.frete)+')':''}${e.rua?'\n'+e.rua:''}${e.bairro?' – '+e.bairro:''}${e.cidade?' – '+e.cidade:''}${e.cep?'\nCEP '+e.cep:''}`:`Entrega: ${e.ponto&&!/combinad/i.test(e.ponto)?'retirada em '+e.ponto+(e.endereco?' – '+e.endereco:''):'combinada com você'}`;
-  const st={aguardando:'aguardando pagamento',pago:'pagamento confirmado',enviado:'enviado',entregue:'pago e entregue'}[o.status]||o.status;
+  const st={aguardando:'aguardando pagamento',pago:'pagamento confirmado',preparacao:'pago · em preparação',enviado:'pago · enviado',entregue:'pago · recebido'}[o.status]||o.status;
   const nm=o.cliente.nome.split(' ')[0];
   let t=lembrete?`Olá, ${nm}! Tudo bem? Passando para lembrar do seu pedido${loja?' na '+loja:''}, que ainda está aguardando pagamento:\n\n*Pedido ${o.id}*\n${L}\n\n`:`Olá, ${nm}! Segue o resumo do seu pedido${loja?' na '+loja:''}:\n\n*Pedido ${o.id}*\n${L}\n\n`;
   if(o.desconto||o.frete)t+=`Subtotal: ${brl(o.subtotal)}\n`+(o.desconto?`Desconto: −${brl(o.desconto)}\n`:'')+(o.frete?`Frete: ${brl(o.frete)}\n`:'');
@@ -849,14 +859,14 @@ function drawRec(){
   $('#admRec').querySelectorAll('[data-cx]').forEach(b=>b.onclick=async()=>{const o=await get(b.dataset.cx);await moStatus(o,'cancelado')});
 }
 function drawVen(){
-  const V=PEDS.filter(p=>['pago','enviado','entregue'].includes(p.status)),h=hojeM(),m=h.slice(0,7);
+  const V=PEDS.filter(p=>['pago','preparacao','enviado','entregue'].includes(p.status)),h=hojeM(),m=h.slice(0,7);
   const soma=L=>L.reduce((s,p)=>s+p.total,0),site=p=>p.origem!=='manual';
   const H=V.filter(p=>dManaus(p.em)===h),M=V.filter(p=>dManaus(p.em).slice(0,7)===m);
   const ab=PEDS.filter(p=>p.status==='aguardando');
   $('#admVen').innerHTML=`<div class="ven"><div><b>${brl(soma(H))}</b><span>vendido hoje · ${H.length} pedido${H.length===1?'':'s'}</span></div><div><b>${brl(soma(M))}</b><span>vendido no mês · ${M.length} pedido${M.length===1?'':'s'}</span></div>
    <div><b>${brl(soma(M.filter(site)))}</b><span>no mês pelo site</span></div><div><b>${brl(soma(M.filter(p=>!site(p))))}</b><span>no mês pelo WhatsApp/balcão</span></div>
    <div class="w2"><b>${brl(soma(ab))}</b><span>a receber · ${ab.length} pedido${ab.length===1?'':'s'} aguardando pagamento</span></div></div>
-   <p class="fm">Conta os pedidos pagos, enviados e entregues, pela data do pedido (horário de Manaus). Detalhes na aba Pedidos do painel.</p>`;
+   <p class="fm">Conta os pedidos pagos (em preparação, enviados e recebidos também), pela data do pedido (horário de Manaus).</p>`;drawAnd();
 }
 // --- edição rápida no card ---
 let EDI=null;
@@ -903,6 +913,85 @@ function fgrUI(tot){const el=$('#fgr');if(!el)return;const E=CFG.envio||{},g=Num
   el.innerHTML=(falta>0?`<span>Faltam <b>${brl(falta)}</b> para ganhar <b>frete grátis</b> 🚚</span>`:`<span>🎉 <b>Frete grátis liberado</b> no envio mais em conta!</span>`)+`<div class="bar2"><i style="width:${pct}%"></i></div>`}
 document.addEventListener('pointermove',e=>{const a=e.target.closest&&e.target.closest('.card .art.holo');if(!a)return;const r=a.getBoundingClientRect(),x=(e.clientX-r.left)/r.width,y=(e.clientY-r.top)/r.height;
   a.style.setProperty('--hx',(x*100).toFixed(1)+'%');a.style.setProperty('--hy',(y*100).toFixed(1)+'%');a.style.setProperty('--ry',((x-.5)*14).toFixed(1)+'deg');a.style.setProperty('--rx',((.5-y)*14).toFixed(1)+'deg')},{passive:true});
+const STX={aguardando:'não pago',pago:'pago',preparacao:'em preparação',enviado:'enviado',entregue:'recebido',cancelado:'cancelado'};
+// ---------- Orçamento: avisos de desconto/preço e PDF ----------
+function cfAsk(tit,msg,ops){return new Promise(res=>{const m=document.createElement('div');m.className='cfM';m.innerHTML=`<div class="bx" role="dialog" aria-modal="true"><h3>${esc(tit)}</h3><p>${msg}</p><div class="bt">${ops.map((o,k)=>`<button type="button" data-k="${k}" class="${o.pr?'pr':''}">${esc(o.t)}</button>`).join('')}</div></div>`;document.body.appendChild(m);m.querySelectorAll('button').forEach(b=>b.onclick=()=>{m.remove();res(ops[+b.dataset.k].v)});m.querySelector('button.pr')?.focus()})}
+function descCheck(){return MO.descP||(MO.descP=descCheck0().finally(()=>{MO.descP=null}))}
+async function descCheck0(){
+  const inp=$('#moDesc'),dv=String(inp.value).trim();if(!dv)return true;const c=moCalc();if(!c.sub)return true;
+  const key=dv+'|'+c.sub;if(MO.descOk===key)return true;
+  const pct=c.desc/c.sub*100,isP=/%$/.test(dv),n=moNum(isP?dv.slice(0,-1):dv);let r='ok';
+  if(!isP&&pct>=30){const ops=[];if(n>0&&n<=90)ops.push({t:`Usar ${String(n).replace('.',',')}% (− ${brl(Math.round(c.sub*n)/100)})`,v:'pct',pr:1});ops.push({t:`Manter ${brl(n)} de desconto`,v:'ok'},{t:'Corrigir',v:'no'});
+    r=await cfAsk('Desconto alto',`Você colocou <b>${brl(n)}</b> de desconto, que é <b>${Math.round(pct)}%</b> do valor das cartas (${brl(c.sub)}).<br>Queria dar <b>${String(n).replace('.',',')}%</b>? Para porcentagem, digite com o símbolo %, por exemplo <b>${String(n).replace('.',',')}%</b>.`,ops)}
+  else if(isP&&pct>=50)r=await cfAsk('Desconto alto',`Desconto de <b>${Math.round(pct)}%</b> (− ${brl(c.desc)}) sobre ${brl(c.sub)}. Confirma?`,[{t:'Confirmar desconto',v:'ok',pr:1},{t:'Corrigir',v:'no'}]);
+  if(r==='pct'){inp.value=String(n).replace('.',',')+'%';moTot();MO.descOk=String(inp.value).trim()+'|'+c.sub;return true}
+  if(r==='ok'){MO.descOk=key;return true}
+  inp.focus();inp.select();return false}
+async function prCheck(k,n){const p=byId[k].p;if(!(p>0)||n>=p*0.5)return true;
+  return await cfAsk('Preço muito abaixo',n===0?`Deixar <b>${esc(byId[k].n)}</b> de graça (preço da loja ${brl(p)})?`:`O preço de <b>${brl(n)}</b> para <b>${esc(byId[k].n)}</b> está <b>${Math.round((1-n/p)*100)}%</b> abaixo do preço da loja (${brl(p)}). Confirma?`,[{t:'Confirmar preço',v:true,pr:1},{t:'Voltar ao preço da loja',v:false}])}
+let JSPDF=null;function pdfLib(){return JSPDF||(JSPDF=new Promise((res,rej)=>{if(window.jspdf)return res(window.jspdf.jsPDF);const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';s.onload=()=>res(window.jspdf.jsPDF);s.onerror=()=>{JSPDF=null;rej(new Error('Não carregou o gerador de PDF. Verifique a internet.'))};document.head.appendChild(s)}))}
+const pdfTx=s=>String(s==null?'':s).replace(/[−–—]/g,'-').replace(/[“”]/g,'"').replace(/[‘’]/g,"'").replace(/[^\x20-\xFF•\n]/g,'');
+function pdfImg(src){return new Promise(res=>{if(!src)return res(null);const im=new Image();if(!/^data:/.test(src))im.crossOrigin='anonymous';im.onload=()=>{try{const c=document.createElement('canvas');c.width=160;c.height=Math.round(160*im.naturalHeight/im.naturalWidth);c.getContext('2d').drawImage(im,0,0,c.width,c.height);res(c.toDataURL('image/jpeg',0.8))}catch(e){res(null)}};im.onerror=()=>res(null);im.src=src})}
+async function pdfGerar(D){
+  const J=await pdfLib(),doc=new J({unit:'mm',format:'a4'}),W=210,H=297,M=14,ROX=[123,47,191],TX=[27,18,34],MU=[110,96,122];
+  const loja=(typeof CFG.loja==='object'&&CFG.loja.nome)||CFG.loja||'Loja',wa=(typeof CFG.loja==='object'&&CFG.loja.whatsapp)||'';
+  const T=(s,x,y,o)=>doc.text(pdfTx(s),x,y,o);let y=0;
+  const head=()=>{doc.setFillColor(...ROX);doc.rect(0,0,W,30,'F');doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(19);T(loja,M,13);doc.setFontSize(10);doc.setFont('helvetica','normal');if(wa)T('WhatsApp '+fmtTel(wa),M,20);T(location.host,M,25);
+    doc.setFont('helvetica','bold');doc.setFontSize(17);T(D.tipo.toUpperCase(),W-M,13,{align:'right'});doc.setFontSize(10);doc.setFont('helvetica','normal');T(D.id,W-M,20,{align:'right'});T(D.data,W-M,25,{align:'right'});y=38;doc.setTextColor(...TX)};
+  head();
+  doc.setFontSize(10);doc.setTextColor(...MU);T('CLIENTE',M,y);doc.setTextColor(...TX);doc.setFont('helvetica','bold');doc.setFontSize(12);T(D.cliente||'—',M,y+6);doc.setFont('helvetica','normal');doc.setFontSize(10);
+  const cl=[D.tel?'WhatsApp '+D.tel:'',D.cpf?'CPF '+D.cpf:''].filter(Boolean).join('   ·   ');if(cl)T(cl,M,y+11.5);
+  if(D.ent){doc.setTextColor(...MU);T('ENTREGA',W/2+8,y);doc.setTextColor(...TX);doc.splitTextToSize(pdfTx(D.ent),W/2-8-M).slice(0,3).forEach((l,k)=>doc.text(l,W/2+8,y+6+k*5))}
+  y+=20;
+  const th=()=>{doc.setFillColor(243,236,248);doc.rect(M,y,W-2*M,8,'F');doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(...MU);T('CARTA',M+18,y+5.4);T('QTD',128,y+5.4,{align:'center'});T('PREÇO UN.',160,y+5.4,{align:'right'});T('SUBTOTAL',W-M-2,y+5.4,{align:'right'});y+=10;doc.setTextColor(...TX)};
+  th();
+  for(const l of D.itens){if(y+20>H-40){doc.addPage();head();th()}
+    const im=await pdfImg(l.img);if(im){try{doc.addImage(im,'JPEG',M+1,y,12,16.8)}catch(e){}}else{doc.setDrawColor(220,210,230);doc.rect(M+1,y,12,16.8)}
+    doc.setFont('helvetica','bold');doc.setFontSize(11);T(doc.splitTextToSize(pdfTx(l.n),95)[0],M+18,y+5.5);doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(...MU);T([l.num,l.l,l.v,l.c].filter(Boolean).join(' · '),M+18,y+10.5);doc.setTextColor(...TX);
+    doc.setFontSize(11);T(String(l.q),128,y+7,{align:'center'});
+    if(l.po&&l.po>l.p){doc.setFontSize(8.5);doc.setTextColor(...MU);const s=brl(l.po);T(s,160,y+11.5,{align:'right'});const w=doc.getTextWidth(pdfTx(s));doc.setDrawColor(...MU);doc.line(160-w,y+10.5,160,y+10.5);doc.setTextColor(...TX);doc.setFontSize(11)}
+    T(brl(l.p),160,y+7,{align:'right'});doc.setFont('helvetica','bold');T(brl(l.q*l.p),W-M-2,y+7,{align:'right'});doc.setFont('helvetica','normal');
+    y+=19;doc.setDrawColor(236,228,242);doc.line(M,y-1.2,W-M,y-1.2)}
+  if(y+42>H-14){doc.addPage();head()}
+  y+=3;const rx=W-M-2,lx=118,y0=y;doc.setFontSize(10.5);
+  const row=(a,b,bold)=>{doc.setFont('helvetica',bold?'bold':'normal');T(a,lx,y);T(b,rx,y,{align:'right'});y+=6.2};
+  const un=D.itens.reduce((s,l)=>s+l.q,0),eco=D.itens.reduce((s,l)=>s+l.q*Math.max(0,(l.po||l.p)-l.p),0);
+  row(`Subtotal (${un} ${un===1?'item':'itens'})`,brl(D.sub));if(D.desc)row('Desconto','- '+brl(D.desc));if(D.fr)row('Frete',brl(D.fr));
+  y+=2.5;doc.setFillColor(...ROX);doc.roundedRect(lx-4,y-6.3,rx-lx+6,9.6,2,2,'F');doc.setTextColor(255,255,255);doc.setFontSize(13);row('TOTAL',brl(D.tot),1);doc.setTextColor(...TX);y+=2.5;
+  if(eco+D.desc>0.009){doc.setFontSize(9.5);doc.setTextColor(31,157,85);doc.setFont('helvetica','bold');T('Você economiza '+brl(eco+D.desc),rx,y,{align:'right'});doc.setTextColor(...TX);y+=6}
+  const notas=[D.pag?'Pagamento: '+D.pag:'',D.obs?'Obs.: '+D.obs:'',...D.notas].filter(Boolean);
+  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(...MU);let ny=y0;
+  for(const n of notas){for(const l of doc.splitTextToSize(pdfTx(n),lx-M-12)){doc.text(l,M,ny);ny+=4.6}ny+=1.5}
+  const pg=doc.getNumberOfPages();for(let k=1;k<=pg;k++){doc.setPage(k);doc.setFontSize(8);doc.setTextColor(...MU);T(`${loja} · ${D.tipo} ${D.id} · página ${k} de ${pg}`,W/2,H-7,{align:'center'})}
+  const nome=(D.tipo+'_'+D.id+(D.cliente?'_'+D.cliente.split(' ')[0]:'')).normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^\w-]+/g,'_')+'.pdf';
+  const blob=doc.output('blob'),file=new File([blob],nome,{type:'application/pdf'});
+  if(navigator.canShare&&/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],title:D.tipo+' '+D.id});return}catch(e){if(e.name==='AbortError')return}}
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=nome;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},4000)}
+const agoraTxt=()=>{const d=new Date();return d.toLocaleDateString('pt-BR')+' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})};
+function entTxtForm(){const ev=$('#moEnt').value,RT=(CFG.retiradas||[]).filter(r=>r.ativo!==false);if(ev==='envio'){return [$('#moServ').value||'Envio',[$('#moRua').value,$('#moBairro').value,$('#moCidade').value].filter(Boolean).join(' - '),$('#moCep').value?'CEP '+$('#moCep').value:''].filter(Boolean).join('\n')}if(ev==='comb')return 'Combinada com o cliente';const r=RT[Number(ev.slice(1))];return r?'Retirada em '+r.nome+(r.endereco?' - '+r.endereco:''):''}
+async function moOrcPdf(){
+  const err=m=>{$('#err').textContent=m;$('#err').hidden=false};$('#err').hidden=true;
+  const ks=Object.keys(cart);if(!ks.length)return err('Adicione pelo menos um produto ao orçamento.');
+  if(!await descCheck())return;const c=moCalc(),b=$('#moPdf');b.disabled=true;b.textContent='Gerando PDF…';
+  const d=new Date(),id='ORC-'+String(d.getFullYear()).slice(2)+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')+'-'+String(d.getHours()).padStart(2,'0')+String(d.getMinutes()).padStart(2,'0');
+  const pagT={pix:'Pix',dinheiro:'Dinheiro',cartao:'Cartão',link:'Link de pagamento',outro:''}[$('#moPay').value]||'';
+  try{await pdfGerar({tipo:'Orçamento',id,data:agoraTxt(),cliente:$('#moNome').value.trim(),tel:fmtTel($('#moTel').value),cpf:'',ent:entTxtForm(),
+    itens:ks.map(k=>{const i=byId[k];return{n:i.n,num:i.g==='Energias'?'Energia básica':i.num,l:i.l,v:i.v,c:i.c,q:cart[k],p:prOf(k),po:Math.max(i.o||0,i.p),img:i.img}}),
+    sub:c.sub,desc:c.desc,fr:c.fr,tot:c.tot,pag:pagT,obs:$('#moObs').value.trim(),notas:[`Orçamento válido por ${RESH()}h, sujeito à disponibilidade do estoque (as cartas não ficam reservadas).`,'Estado das cartas: NM = quase perfeita · SP = pouco jogada.']})}
+  catch(e){err(e.message)}finally{b.disabled=false;b.textContent='Gerar orçamento em PDF (não reserva)'}}
+async function moPedPdf(){const o=MO.ped;if(!o)return;const b=$('#moPdfP');b.disabled=true;b.textContent='Gerando PDF…';
+  const e=o.entrega||{};const ent=e.tipo==='envio'?[e.servico||'Envio',[e.rua,e.bairro,e.cidade].filter(Boolean).join(' - '),e.cep?'CEP '+e.cep:''].filter(Boolean).join('\n'):(e.ponto&&!/combinad/i.test(e.ponto)?'Retirada em '+e.ponto+(e.endereco?' - '+e.endereco:''):'Combinada com o cliente');
+  const st=STX[o.status]||o.status;
+  try{await pdfGerar({tipo:'Pedido',id:o.id,data:o.em?new Date(o.em).toLocaleDateString('pt-BR'):agoraTxt(),cliente:o.cliente.nome,tel:fmtTel(o.cliente.telefone||''),cpf:o.cliente.cpf?fmtCpf(o.cliente.cpf):'',ent,
+    itens:o.itens.map(l=>{const i=byId[l.id]||ITEMS0.find(x=>String(x.id)===String(l.id))||{};return{n:l.n,num:l.num,l:l.l,v:l.v,c:l.c,q:l.q,p:l.p,po:Math.max(i.o||0,i.p||0),img:i.img}}),
+    sub:o.subtotal||o.itens.reduce((s,l)=>s+l.q*l.p,0),desc:o.desconto||0,fr:o.frete||0,tot:o.total,pag:(o.pagamentoTxt||{pix:'Pix',mp:'Mercado Pago',whatsapp:'Pix',dinheiro:'Dinheiro',cartao:'Cartão',link:'Link de pagamento'}[o.pagamento]||'')+' · '+st,obs:o.obs||'',
+    notas:o.status==='aguardando'?[`Cartas reservadas por ${o.reservaHoras||RESH()}h aguardando o pagamento.`]:[]})}
+  catch(e){alert(e.message)}finally{b.disabled=false;b.textContent='Baixar PDF do pedido'}}
+function drawAnd(){const L=PEDS.filter(p=>['pago','preparacao','enviado'].includes(p.status)).slice(0,40);const nx={pago:['preparacao','enviado','entregue'],preparacao:['enviado','entregue'],enviado:['entregue']};const BT={preparacao:'Em preparação',enviado:'Enviado',entregue:'Recebido'};
+  const box=document.createElement('div');box.innerHTML=`<h4 style="margin:14px 0 6px;font-size:15px">Pedidos em andamento <span class="fm" style="font-weight:700">(${L.length})</span></h4>`+(L.length?L.map(p=>`<div class="rec" style="margin-bottom:8px"><div class="t"><span>${esc(p.nome)}</span><span>${brl(p.total)}</span></div><div class="s">${esc(p.id)} · ${new Date(p.em).toLocaleDateString('pt-BR')} · <b class="stb ${p.status}">${STX[p.status]}</b></div><div class="bt">${nx[p.status].map(s=>`<button data-ns="${s}" data-id="${esc(p.id)}">${BT[s]}</button>`).join('')}${p.telefone?`<button class="w" data-av="${esc(p.id)}">Avisar cliente</button>`:''}</div></div>`).join(''):'<p class="fm">Nenhum pedido pago aguardando preparo, envio ou recebimento.</p>');
+  $('#admVen').appendChild(box);
+  box.querySelectorAll('[data-ns]').forEach(b=>b.onclick=async()=>{b.disabled=true;const o=await api2('/api/admin/pedidos?id='+encodeURIComponent(b.dataset.id)).catch(()=>null);if(o)await moStatus(o,b.dataset.ns);b.disabled=false});
+  box.querySelectorAll('[data-av]').forEach(b=>b.onclick=()=>{const p=PEDS.find(x=>x.id===b.dataset.av);const nm=(p.nome||'').split(' ')[0];const m={pago:'recebemos o seu pagamento',preparacao:'o seu pedido está em preparação',enviado:'o seu pedido foi enviado',entregue:'o seu pedido consta como recebido'}[p.status];window.open('https://wa.me/'+moFone(p.telefone)+'?text='+encodeURIComponent(`Olá, ${nm}! Passando para avisar que ${m} (pedido ${p.id}). Obrigado pela compra!`),'_blank')})}
 async function boot(){
   let d=window.__DEMO||null;
   if(!d)try{const r=await fetch('/api/loja',{cache:'no-store'});if(r.ok&&(r.headers.get('content-type')||'').includes('json'))d=await r.json()}catch(e){}
@@ -912,7 +1001,7 @@ async function boot(){
   applyCfg();chips();hero();buildSlider();render();cartUI();lgIni();if(window.__DEMO&&window.__DEMO.admin)moInit();
   fetch('/api/admin/me').then(r=>r.json()).then(m=>{if(m.admin&&!window.__DEMO)lgPronto(m.nome||m.usuario)}).catch(()=>{});
   const pid=new URLSearchParams(location.search).get('pedido');
-  if(pid){try{const r=await fetch('/api/pedido-status?id='+encodeURIComponent(pid));const d=await r.json();if(r.ok){const st={pago:'Pagamento aprovado! Obrigado pela compra.',aguardando:'Pagamento em análise. Avisaremos quando for aprovado.',recusado:'O pagamento não foi aprovado. Tente de novo ou fale no WhatsApp.'}[d.status]||('Status: '+d.status);
+  if(pid){try{const r=await fetch('/api/pedido-status?id='+encodeURIComponent(pid));const d=await r.json();if(r.ok){const st={pago:'Pagamento aprovado! Obrigado pela compra.',aguardando:'Pagamento em análise. Avisaremos quando for aprovado.',preparacao:'Pagamento aprovado! Seu pedido está em preparação.',enviado:'Seu pedido foi enviado!',entregue:'Pedido entregue. Obrigado pela compra!',recusado:'O pagamento não foi aprovado. Tente de novo ou fale no WhatsApp.'}[d.status]||('Status: '+d.status);
     $('#resb').innerHTML=`<h2 id="resT">Pedido ${esc(d.id)}</h2><p>${st}</p><span class="num">Total ${brl(d.total)}</span><button class="b2" type="button" id="resClose">Fechar</button>`;$('#res').hidden=false;$('#resClose').onclick=()=>{$('#res').hidden=true;history.replaceState(null,'','/')}}}catch(e){}}
 }
 boot();

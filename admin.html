@@ -78,7 +78,7 @@ dialog::backdrop{background:#000a}
 table{width:100%;border-collapse:collapse;font-size:13.5px}th,td{text-align:left;padding:8px;border-bottom:1px solid var(--ln);vertical-align:top}th{color:var(--mu);font-weight:700}
 tr.click{cursor:pointer}tr.click:hover td{background:var(--sf2)}
 .st{font-size:11.5px;font-weight:800;padding:2px 8px;border-radius:999px;background:var(--sf2);border:1px solid var(--ln);white-space:nowrap}
-.st.pago,.st.entregue{color:var(--ok);border-color:#2c6b2a}.st.enviado{color:var(--lt)}.st.aguardando{color:var(--warn)}.st.cancelado,.st.recusado,.st.devolvido{color:var(--err)}
+.st.pago,.st.entregue{color:var(--ok);border-color:#2c6b2a}.st.enviado,.st.preparacao{color:var(--lt)}.st.aguardando{color:var(--warn)}.st.cancelado,.st.recusado,.st.devolvido{color:var(--err)}
 .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin:16px 0}
 .kpi{background:var(--sf);border:1.5px solid var(--ln);border-radius:12px;padding:12px}.kpi b{display:block;font-size:20px}.kpi span{font-size:12.5px;color:var(--mu)}
 .scroll{overflow-x:auto}
@@ -131,7 +131,7 @@ pre.code{background:var(--sf2);border:1px solid var(--ln);border-radius:10px;pad
 <!-- PEDIDOS -->
 <section data-pane="ped" hidden>
   <div class="kpis" id="kpis"></div>
-  <div class="bar"><label style="flex:0 1 220px">Status<select id="pf"><option value="">Todos</option><option>aguardando</option><option>pago</option><option>enviado</option><option>entregue</option><option>cancelado</option><option>recusado</option><option>devolvido</option></select></label>
+  <div class="bar"><label style="flex:0 1 220px">Status<select id="pf"><option value="">Todos</option><option value="aguardando">Não pago</option><option value="pago">Pago</option><option value="preparacao">Em preparação</option><option value="enviado">Enviado</option><option value="entregue">Recebido</option><option>cancelado</option><option>recusado</option><option>devolvido</option></select></label>
   <label>Buscar<input id="pq" placeholder="Número ou nome do cliente"></label><button class="btn s" id="pRef">Atualizar</button></div>
   <div class="scroll"><table><thead><tr><th>Pedido</th><th>Data</th><th>Cliente</th><th>Pagamento</th><th>Total</th><th>Status</th></tr></thead><tbody id="ptb"></tbody></table></div>
   <p class="note">O estoque só baixa quando o pedido vira <b>pago</b> (pelo Mercado Pago, automaticamente, ou por você aqui). Se cancelar depois, as cartas voltam para o estoque.</p>
@@ -369,6 +369,7 @@ const esc=t=>String(t??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&g
 let ITEMS=[],CFG={},ORIG='',ORIGC='',EDIT=null,KV=false,ME={},SECM={},SECN={},PEDIDOS=[];
 const DEF_LAY={fato1:'<b>Pix</b> único pagamento',fato2:'Retirada em Manaus ou Correios',aviso:'',favTitulo:'Qual é o seu Pokémon favorito?',populares:['Pikachu','Charizard','Mew','Mewtwo','Gengar','Lugia','Eevee','Snorlax','Greninja'],destaque:{modo:'auto',id:null},grupos:['Coleção 30 anos','Pikachus 30 anos','Listagem','Inglês','Energias'],cores:{principal:'#5d2a65',destaque:'#8e44ad',claro:'#e2b6ff'},slides:[{t:"Celebração 30 anos",s:"Português, inglês, japonês e chinês",c:"#e2b6ff",tipo:"col",valor:"30 anos",ativo:true},{t:"Ofertas",s:"Cartas com desconto",c:"#ff8fb1",tipo:"promo",valor:"",ativo:true},{t:"Reinado Delta",s:"Megaevolução em português",c:"#c9a7ff",tipo:"col",valor:"Reinado Delta",ativo:true},{t:"Escuridão Absoluta",s:"Megaevolução",c:"#b48cff",tipo:"col",valor:"Escuridão Absoluta",ativo:true},{t:"Pikachus 30 anos",s:"Coleção completa 01 a 30",c:"#e2b6ff",tipo:"grupo",valor:"Pikachus 30 anos",ativo:true},{t:"151 chinesa",s:"Foil e Pokébola",c:"#f0a6ff",tipo:"col",valor:"Coleção 151 (CN)",ativo:true}]};
 function toast(t){const d=document.createElement('div');d.className='toast';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),2800)}
+const STL={aguardando:'Não pago',pago:'Pago',preparacao:'Em preparação',enviado:'Enviado',entregue:'Recebido',cancelado:'Cancelado',recusado:'Recusado',devolvido:'Devolvido'};
 const api=(u,o={})=>fetch(u,{credentials:'same-origin',...o}).then(async r=>{let j={};try{j=await r.json()}catch(e){}if(!r.ok)throw Object.assign(new Error(j.erro||('Erro '+r.status)),{status:r.status});return j});
 const isAdm=()=>ME.papel==='admin';
 const get=(o,p)=>p.split('.').reduce((a,k)=>a==null?a:a[k],o);
@@ -508,21 +509,21 @@ async function loadPed(){try{const d=await api('/api/admin/pedidos');PEDIDOS=d.p
 const PGN={whatsapp:'WhatsApp',pix:'Pix QR',mp:'Mercado Pago',manual_pix:'Manual · Pix',manual_dinheiro:'Manual · Dinheiro',manual_cartao:'Manual · Cartão',manual_link:'Manual · Link',manual_outro:'Manual'};
 function renderPed(){const f=$('#pf').value,t=$('#pq').value.trim().toLowerCase();
   const L=PEDIDOS.filter(p=>(!f||p.status===f)&&(!t||(p.id+' '+p.nome+' '+(p.telefone||'')+' '+(p.cpf||'')).toLowerCase().includes(t)));
-  const m=new Date().toISOString().slice(0,7),pagos=PEDIDOS.filter(p=>['pago','enviado','entregue'].includes(p.status));
+  const m=new Date().toISOString().slice(0,7),pagos=PEDIDOS.filter(p=>['pago','preparacao','enviado','entregue'].includes(p.status));
   $('#kpis').innerHTML=`<div class="kpi"><b>${PEDIDOS.filter(p=>p.status==='aguardando').length}</b><span>aguardando pagamento</span></div><div class="kpi"><b>${PEDIDOS.filter(p=>p.status==='pago').length}</b><span>pagos para enviar/entregar</span></div><div class="kpi"><b>${brl(pagos.filter(p=>p.em.slice(0,7)===m).reduce((s,p)=>s+p.total,0))}</b><span>vendido no mês</span></div><div class="kpi"><b>${brl(pagos.reduce((s,p)=>s+p.total,0))}</b><span>vendido no total</span></div>`;
-  $('#ptb').innerHTML=L.map(p=>`<tr class="click" data-p="${esc(p.id)}"><td><b>${esc(p.id)}</b></td><td>${new Date(p.em).toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'})}</td><td>${esc(p.nome)}</td><td>${PGN[p.pagamento]||esc(p.pagamento)}</td><td>${brl(p.total)}</td><td><span class="st ${esc(p.status)}">${esc(p.status)}</span></td></tr>`).join('')||'<tr><td colspan="6" class="note">Nenhum pedido ainda.</td></tr>'}
+  $('#ptb').innerHTML=L.map(p=>`<tr class="click" data-p="${esc(p.id)}"><td><b>${esc(p.id)}</b></td><td>${new Date(p.em).toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'})}</td><td>${esc(p.nome)}</td><td>${PGN[p.pagamento]||esc(p.pagamento)}</td><td>${brl(p.total)}</td><td><span class="st ${esc(p.status)}">${esc(STL[p.status]||p.status)}</span></td></tr>`).join('')||'<tr><td colspan="6" class="note">Nenhum pedido ainda.</td></tr>'}
 $('#pf').oninput=renderPed;$('#pq').oninput=renderPed;$('#pRef').onclick=loadPed;
 $('#ptb').addEventListener('click',e=>{const r=e.target.closest('[data-p]');if(r)openPed(r.dataset.p)});
 async function openPed(id){const o=await api('/api/admin/pedidos?id='+encodeURIComponent(id));drawPed(o);$('#pdlg').showModal()}
 function drawPed(o){$('#pdT').textContent='Pedido '+o.id;const E=o.entrega||{};const tel=String(o.cliente.telefone||'').replace(/\D/g,'');
-  $('#pdB').innerHTML=`<p><span class="st ${esc(o.status)}">${esc(o.status)}</span> · ${new Date(o.em).toLocaleString('pt-BR')} · ${PGN[o.pagamento]||esc(o.pagamento)}${o.alerta?` · <b class="warn">${esc(o.alerta)}</b>`:''}</p>
+  $('#pdB').innerHTML=`<p><span class="st ${esc(o.status)}">${esc(STL[o.status]||o.status)}</span> · ${new Date(o.em).toLocaleString('pt-BR')} · ${PGN[o.pagamento]||esc(o.pagamento)}${o.alerta?` · <b class="warn">${esc(o.alerta)}</b>`:''}</p>
   <p><b>${esc(o.cliente.nome)}</b>${tel?` · <a href="https://wa.me/${tel.length<=11?'55'+tel:tel}" target="_blank" rel="noopener">WhatsApp ${esc(o.cliente.telefone)}</a>`:''}</p>
   <table><tbody>${o.itens.map(l=>`<tr><td>${l.q}x</td><td>${esc(l.n)} ${esc(l.num)} ${esc(l.l)} ${esc(l.v)} (${esc(l.c)})</td><td>${brl(l.q*l.p)}</td></tr>`).join('')}
   <tr><td></td><td>Subtotal</td><td>${brl(o.subtotal)}</td></tr>${o.desconto?`<tr><td></td><td>Cupom ${esc(o.cupom)}</td><td>-${brl(o.desconto)}</td></tr>`:''}${o.frete?`<tr><td></td><td>Frete ${esc(E.servico)}</td><td>${brl(o.frete)}</td></tr>`:''}<tr><td></td><td><b>Total</b></td><td><b>${brl(o.total)}</b></td></tr></tbody></table>
   <p>${E.tipo==='envio'?`<b>Envio:</b> ${esc(E.servico)} (${esc(E.prazo)} dias)<br>${esc(E.rua)}${E.comp?', '+esc(E.comp):''} – ${esc(E.bairro)} – ${esc(E.cidade)} · CEP ${esc(E.cep)} · CPF ${esc(E.cpf)}`:`<b>Retirada:</b> ${esc(E.ponto)} – ${esc(E.endereco)}`}</p>
   ${o.obs?`<p><b>Obs. do cliente:</b> ${esc(o.obs)}</p>`:''}
   <p class="note">Estoque ${o.baixado?'<b class="ok">já baixado</b>':'ainda não baixado (baixa ao marcar como pago)'}.</p>
-  <div class="tools" style="flex-wrap:wrap;margin:10px 0">${['pago','enviado','entregue','cancelado'].map(s=>`<button class="btn ${s==='cancelado'?'d':'s'} sm" data-ps="${s}" ${o.status===s?'disabled':''}>Marcar ${s}</button>`).join('')}</div>
+  <div class="tools" style="flex-wrap:wrap;margin:10px 0">${['pago','preparacao','enviado','entregue','cancelado'].map(s=>`<button class="btn ${s==='cancelado'?'d':'s'} sm" data-ps="${s}" ${o.status===s?'disabled':''}>${STL[s]}</button>`).join('')}</div>
   <label>Código de rastreio<input id="pdR" value="${esc(o.rastreio||'')}"></label>
   <label style="margin-top:8px">Anotação interna<textarea id="pdN" rows="2">${esc(o.nota||'')}</textarea></label>
   <div class="tools" style="margin-top:8px"><button class="btn sm" id="pdS">Salvar rastreio e anotação</button></div>
@@ -550,7 +551,7 @@ async function openCli(id){CLI=null;let h=[];$('#kmsg').textContent='';
   CF.forEach(k=>$('#k_'+k).value=CLI?(k==='telefone'?fTel(CLI[k]):k==='cpf'?fCpf(CLI[k]):CLI[k]||''):'');
   $('#kT').textContent=CLI?(CLI.nome||'Cliente'):'Novo cliente';$('#kDel').hidden=!CLI||ME.papel!=='admin';
   const tel=CLI&&dg(CLI.telefone);
-  $('#kHist').innerHTML=CLI?`<p class="note">${CLI.pedidos} pedido(s) · comprado ${brl(CLI.comprado||0)}${tel?` · <a href="https://wa.me/55${tel}" target="_blank" rel="noopener">abrir WhatsApp</a>`:''}</p>`+(h.length?`<table><tbody>${h.map(p=>`<tr class="click" data-hp="${esc(p.id)}"><td><b>${esc(p.id)}</b></td><td>${new Date(p.em).toLocaleDateString('pt-BR')}</td><td>${p.origem==='manual'?'WhatsApp/balcão':'site'}</td><td>${brl(p.total)}</td><td><span class="st ${esc(p.status)}">${esc(p.status)}</span></td></tr>`).join('')}</tbody></table>`:''):'';
+  $('#kHist').innerHTML=CLI?`<p class="note">${CLI.pedidos} pedido(s) · comprado ${brl(CLI.comprado||0)}${tel?` · <a href="https://wa.me/55${tel}" target="_blank" rel="noopener">abrir WhatsApp</a>`:''}</p>`+(h.length?`<table><tbody>${h.map(p=>`<tr class="click" data-hp="${esc(p.id)}"><td><b>${esc(p.id)}</b></td><td>${new Date(p.em).toLocaleDateString('pt-BR')}</td><td>${p.origem==='manual'?'WhatsApp/balcão':'site'}</td><td>${brl(p.total)}</td><td><span class="st ${esc(p.status)}">${esc(STL[p.status]||p.status)}</span></td></tr>`).join('')}</tbody></table>`:''):'';
   $$('#kHist [data-hp]').forEach(r=>r.onclick=()=>{$('#kdlg').close();openPed(r.dataset.hp)});
   $('#kdlg').showModal()}
 $('#kSave').onclick=async()=>{const b={id:CLI&&CLI.id};CF.forEach(k=>b[k]=$('#k_'+k).value);
