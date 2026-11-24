@@ -23,7 +23,7 @@ export async function onRequestPost({ request, env }) {
   const frete = Math.max(0, Math.round((Number(b.frete) || 0) * 100) / 100);
   const total = Math.round((subtotal - desconto + frete) * 100) / 100;
   const metodo = PG[b.pagamento] ? b.pagamento : "outro";
-  const status = ["aguardando", "pago", "entregue"].includes(b.status) ? b.status : "aguardando";
+  const status = ["aguardando", "pago", "preparacao", "enviado", "entregue"].includes(b.status) ? b.status : "aguardando";
   let entrega; const be = b.entrega || {};
   if (be.tipo === "envio") entrega = { tipo: "envio", servico: s(be.servico, 60) || "Envio", prazo: "", preco: frete, cep: s(be.cep, 9), cpf: cpf, rua: s(be.rua, 200), comp: s(be.comp, 80), bairro: s(be.bairro, 80), cidade: s(be.cidade, 80) };
   else { const r = Number(be.ponto) >= 0 ? (cfg.retiradas || []).filter(x => x.ativo !== false)[Number(be.ponto)] : null; entrega = r ? { tipo: "retirada", ponto: r.nome, endereco: r.endereco || "" } : { tipo: "retirada", ponto: "Combinado com o cliente", endereco: "" } }

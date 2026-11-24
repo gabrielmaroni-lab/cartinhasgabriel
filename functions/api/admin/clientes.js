@@ -1,5 +1,5 @@
 import { J, need, listPedidos, listClientes, acharCliente, upsertCliente, normTel, normCpf } from "../../_lib/core.js";
-const VENDA = ["pago", "enviado", "entregue"];
+const VENDA = ["pago", "preparacao", "enviado", "entregue"];
 // Cadastro de clientes, identificados pelo telefone (WhatsApp) ou pelo CPF.
 export async function onRequestGet({ request, env }) {
   const [s, err] = await need(request, env); if (err) return err;
