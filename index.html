@@ -99,10 +99,16 @@ body.adm #form,body.adm .tot,body.adm #fin,body.adm .df .hint{display:none!impor
 .moOk{background:color-mix(in srgb,#25d366 18%,transparent);border:2px solid #25d366;border-radius:12px;padding:10px 12px;font-weight:800;font-size:14px}
 .moChips{display:flex;flex-wrap:wrap;gap:6px}.moChips button{border:2px solid var(--line);background:var(--bg);color:var(--ink);border-radius:999px;font:800 12px var(--body);padding:5px 10px;cursor:pointer}
 .admTabs{display:flex;gap:6px;background:var(--bg);border:2px solid var(--line);border-radius:12px;padding:4px}
-.admTabs button{flex:1;border:0;border-radius:9px;background:none;color:var(--muted);font:900 13px var(--body);padding:8px 4px;cursor:pointer}
+.admTabs button{flex:1;border:0;border-radius:9px;background:none;color:var(--muted);font:900 12px var(--body);padding:8px 2px;cursor:pointer}
 .admTabs button[aria-selected="true"]{background:var(--yellow);color:var(--navy)}
 #drawer[data-t="rec"] .admPed,#drawer[data-t="ven"] .admPed,#drawer[data-t="rec"] .df,#drawer[data-t="ven"] .df{display:none!important}
 #drawer:not([data-t="rec"]) #admRec,#drawer:not([data-t="ven"]) #admVen{display:none!important}
+#drawer[data-t="cat"] .admPed,#drawer[data-t="cat"] .df{display:none!important}
+#drawer:not([data-t="cat"]) #admCat{display:none!important}
+.ctP{padding:4px 2px 14px}.ctL{display:block;font:700 14px var(--body);margin:6px 0;color:var(--text,inherit)}.ctL input[type=number]{border:2px solid var(--line);border-radius:8px;background:var(--bg);color:inherit;padding:4px 6px;font:700 14px var(--body)}
+.ctF{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center}.ctF label{display:flex!important;flex-direction:row!important;align-items:center;gap:6px;margin:0;font:700 14px var(--body)}.ctF input{width:auto;margin:0}
+.ctBt{display:flex;gap:8px;margin:12px 0 8px}.ctBt .wa{flex:1}
+.ctTh{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px}.ctTh img{width:100%;border-radius:8px;border:2px solid var(--line);display:block}.ctTh a{display:block;text-align:center;font:800 12px var(--body);color:inherit;text-decoration:none}
 .cliInfo{font-size:12px;font-weight:800;border-radius:10px;padding:7px 10px;background:var(--bg);border:2px solid var(--line);color:var(--muted)}
 .cliInfo.ok{border-color:#25d366;color:var(--ink)}
 .rec{border:2px solid var(--line);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:6px;background:var(--bg)}
@@ -449,9 +455,10 @@ footer{color:var(--muted);font-size:12px;font-weight:700;padding-block:20px 140p
 <aside class="drawer" id="drawer" hidden aria-label="Carrinho">
   <div class="dh"><h2 id="dTitle">Seu pedido</h2><button class="x" id="close" aria-label="Fechar carrinho">×</button></div>
   <div class="db">
-    <div class="admOnly admTabs" role="tablist"><button type="button" data-at="ped" aria-selected="true">Pedido</button><button type="button" data-at="rec">A receber <span id="recN"></span></button><button type="button" data-at="ven">Vendas</button></div>
+    <div class="admOnly admTabs" role="tablist"><button type="button" data-at="ped" aria-selected="true">Pedido</button><button type="button" data-at="rec">A receber <span id="recN"></span></button><button type="button" data-at="ven">Vendas</button><button type="button" data-at="cat">Catálogo</button></div>
     <div class="admOnly" id="admRec"></div>
     <div class="admOnly" id="admVen"></div>
+    <div class="admOnly" id="admCat"></div>
     <div class="admOnly admPed" id="admS"><label class="f">Adicionar produto<input id="moQ" type="search" placeholder="Busque por nome, número ou coleção" autocomplete="off"></label><div class="moRes" id="moRes" hidden></div><p class="fm" style="margin:6px 0 0">Ou navegue pela loja e toque em “Adicionar” nos cards.</p></div>
     <div id="lines" class="admPed"></div>
     <div class="fgr" id="fgr" hidden></div>
@@ -778,7 +785,127 @@ function moInit(){
   $('#edX').onclick=()=>$('#edM').hidden=true;$('#edOk').onclick=edSalvar;$('#edM').onclick=e=>{if(e.target.id==='edM')$('#edM').hidden=true};
   admSet(true);loadPeds();
 }
-function admTab(t){$('#drawer').dataset.t=t;document.querySelectorAll('[data-at]').forEach(b=>b.setAttribute('aria-selected',b.dataset.at===t));if(t==='rec'||t==='ven')loadPeds()}
+/* ===== Exportar catálogo (equipe) ===== */
+let H2C=null;function h2cLib(){return H2C||(H2C=new Promise((res,rej)=>{if(window.html2canvas)return res(window.html2canvas);const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';s.onload=()=>res(window.html2canvas);s.onerror=()=>{H2C=null;rej(new Error('Não carregou o gerador de imagem. Verifique a internet.'))};document.head.appendChild(s)}))}
+const CT_CSS=`.ctw{width:1394px;background:#0c0a0f radial-gradient(#1f1427 1.6px,transparent 1.7px) 0 0/18px 18px;font-family:Poppins,ui-sans-serif,system-ui,sans-serif;color:#f4eef8;position:fixed;left:-20000px;top:0;z-index:-1}.ctw *{box-sizing:border-box}
+.ctw .ctg{display:grid;grid-template-columns:repeat(6,220px);gap:10px;padding:12px}
+.ctw .ctk{background:linear-gradient(160deg,#9b4fc4,#5d2a65);border-radius:13px;padding:6px}
+.ctw .cti{background:#17121c;border-radius:8px;padding:8px;display:flex;flex-direction:column;gap:5px;height:100%}
+.ctw .cti img{width:192px;height:269px;display:block;border-radius:5px;object-fit:cover}
+.ctw .ctm{display:flex;flex-wrap:wrap;gap:4px;align-items:center;font-size:13px;font-weight:700;color:#b4a6c0}
+.ctw .ctb{color:#fff;font-size:11.5px;padding:1px 6px;border-radius:5px;font-weight:800}
+.ctw .PT{background:#1f9d55}.ctw .EN{background:#2563eb}.ctw .JP{background:#d62828}.ctw .CN{background:#e8820c}.ctw .ctv{background:#7b3fb5}
+.ctw .ctc{font-size:11px;font-weight:800;padding:0 5px;border-radius:5px;border:1.5px solid currentColor}.ctw .ctc.NM{color:#4dc247}.ctw .ctc.SP{color:#f2a541}.ctw .ctc.MP{color:#f2a541}
+.ctw .ctn{font-size:17px;font-weight:800;line-height:1.15;white-space:nowrap;overflow:hidden}
+.ctw .ctr{display:flex;justify-content:space-between;align-items:center;margin-top:auto}
+.ctw .ctp{background:linear-gradient(90deg,#a63dff,#7b2fbf);color:#fff;font-weight:800;font-size:19px;padding:2px 10px;border-radius:7px;white-space:nowrap}
+.ctw .cto{position:absolute;top:6px;left:6px;background:#e01b24;color:#fff;font-weight:900;font-size:15px;padding:2px 8px;border-radius:7px}
+.ctw .ctpp{display:flex;flex-direction:column;align-items:flex-start;gap:2px}.ctw .ctold{font-size:13px;color:#b4a6c0;font-weight:700;text-decoration:line-through}
+.ctw .ctq{font-size:12px;font-weight:800;color:#e2b6ff}
+.ctw .ctt{padding:20px}.ctw .cth{font-size:30px;font-weight:900;font-style:italic;margin:0 0 14px;color:#fff}.ctw .cth span{color:#e2b6ff}
+.ctw table{width:100%;border-collapse:separate;border-spacing:0;font-size:22px;border:3px solid #9b4fc4;border-radius:14px;overflow:hidden}
+.ctw thead tr{background:linear-gradient(90deg,#6e3178,#4c2353)}.ctw th{text-align:left;padding:14px 20px;font-weight:800}.ctw td{padding:12px 20px;background:#17121c;border-top:1px solid #34263f;font-weight:500}
+.ctw tr:nth-child(even) td{background:#1d1624}.ctw tfoot td{background:#2a1833;color:#e2b6ff;font-weight:800}`;
+const ctEsc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const ctSrc=i=>{const u=i.img||(i.fotos&&i.fotos[0])||'';return /^https:\/\/assets\.tcgdex\.net\//.test(u)?'/api/imgp?u='+encodeURIComponent(u):u};
+const ctTile=i=>`<div class="ctk"><div class="cti"><div style="position:relative"><img src="${ctEsc(ctSrc(i))}">${i.o?`<span class="cto">-${Math.round((1-i.p/i.o)*100)}%</span>`:''}</div><div class="ctm">${i.g==='Energias'?'Básica':ctEsc(i.num)} ${String(i.l||'').split('/').filter(Boolean).map(x=>`<span class="ctb ${ctEsc(x)}">${ctEsc(x)}</span>`).join('')}${i.v?`<span class="ctb ctv">${ctEsc(i.v)}</span>`:''}<span class="ctc ${ctEsc(i.c)}">${ctEsc(i.c)}</span></div><div class="ctn">${ctEsc(i.n)}</div><div class="ctr"><span class="ctpp">${i.o?`<span class="ctold">${brl(i.o)}</span>`:''}<span class="ctp">${brl(i.p)}</span></span>${i.q>1?`<span class="ctq">${i.q} un.</span>`:''}</div></div></div>`;
+const ctChunk=(a,n)=>{const r=[];for(let k=0;k<a.length;k+=n)r.push(a.slice(k,n+k));return r};
+function ctPages(o){
+  const all=ITEMS.filter(i=>!isP(i)&&i.q>0),desc=(a,b)=>b.p-a.p,pages=[];
+  const gr=(g,n)=>ctChunk(g,n).map(x=>({tp:'g',items:x}));
+  if(o.comp){
+    const ord=[...new Set([...GROUPS,...all.map(i=>i.g)])].filter(g=>g!=='Energias'&&all.some(i=>i.g===g));
+    const comp=[];
+    ord.forEach(g=>{let a=all.filter(i=>i.g===g),n=24;
+      if(g==='Pikachus 30 anos'){a=a.sort((x,y)=>x.n.localeCompare(y.n)||String(x.l).localeCompare(String(y.l)));n=42}
+      else if(g==='Listagem'){const B=['Pokébola','Master Ball'];const A1=a.filter(i=>!B.includes(i.v)&&i.c!=='SP').sort(desc),B1=a.filter(i=>B.includes(i.v)).sort(desc),C1=a.filter(i=>i.c==='SP').sort(desc);a=[...A1,...B1,...C1];n=30}
+      else a=a.sort(desc);
+      comp.push(...gr(a,n))});
+    comp.forEach((p,k)=>{p.nome='catalogo_completo_'+String(k+1).padStart(2,'0')+'de'+String(comp.length).padStart(2,'0')});pages.push(...comp)}
+  if(o.ener){const LO={PT:0,EN:1,JP:2,CN:3};const eg=all.filter(i=>i.g==='Energias').sort((a,b)=>(LO[a.l]??9)-(LO[b.l]??9)||b.q-a.q);if(eg.length)pages.push({tp:'e',items:eg,nome:'catalogo_energias'})}
+  if(o.acima!=null){const ac=all.filter(i=>(i.o||i.p)>=o.acima).sort((a,b)=>(b.o||b.p)-(a.o||a.p));const pp=gr(ac,42);pp.forEach((p,k)=>{p.nome='catalogo_acima_'+o.acima+(pp.length>1?'_'+(k+1)+'de'+pp.length:'')});pages.push(...pp)}
+  if(o.promo){const pr=all.filter(i=>i.o).sort((a,b)=>b.p-a.p);const pp=gr(pr,42);pp.forEach((p,k)=>{p.nome='catalogo_promocao'+(pp.length>1?'_'+(k+1)+'de'+pp.length:'')});pages.push(...pp)}
+  return pages}
+function ctHTML(p){
+  if(p.tp==='e'){const eg=p.items,tot=eg.reduce((s,i)=>s+i.q,0),pr=[...new Set(eg.map(i=>i.p))];
+    return `<div class="ctt"><p class="cth">Energias básicas <span>· ${[...new Set(eg.map(i=>i.l))].join(' / ')}${pr.length===1?' · '+brl(pr[0])+' cada':''}</span></p><table><thead><tr><th>Energia</th><th>Qtd</th><th>Preço un.</th><th>Subtotal</th></tr></thead><tbody>${eg.map(i=>`<tr><td>${ctEsc(i.n)} (${ctEsc(i.l)})</td><td>${i.q} un.</td><td>${brl(i.p)}</td><td>${brl(i.q*i.p)}</td></tr>`).join('')}</tbody><tfoot><tr><td>TOTAL</td><td>${tot} un.</td><td></td><td>${brl(eg.reduce((s,i)=>s+i.q*i.p,0))}</td></tr></tfoot></table></div>`}
+  return `<div class="ctg">${p.items.map(ctTile).join('')}</div>`}
+function ctDl(href,name){const a=document.createElement('a');a.href=href;a.download=name;document.body.appendChild(a);a.click();a.remove()}
+let CTR=[];
+function drawCat(){
+  const all=ITEMS.filter(i=>!isP(i)&&i.q>0);
+  $('#admCat').innerHTML=`<div class="ctP"><h3 style="margin:4px 0 2px;font-size:17px">Exportar catálogo do estoque</h3><p class="fm" style="margin:0 0 10px">${all.length} cartas · ${all.reduce((s,i)=>s+i.q,0)} unidades · imagens com foto, preço e desconto, com os valores de hoje.</p>
+  <label class="ctL"><input type="checkbox" id="ctC" checked> Catálogo completo (todas as cartas, por coleção)</label>
+  <label class="ctL"><input type="checkbox" id="ctE"> Energias (tabela com quantidades)</label>
+  <label class="ctL"><input type="checkbox" id="ctA"> Só cartas a partir de R$ <input id="ctV" type="number" min="1" step="1" value="100" style="width:84px"></label>
+  <label class="ctL"><input type="checkbox" id="ctPr"> Só cartas em promoção</label>
+  <div class="ctL ctF" style="margin-top:8px"><b>Formato:</b> <label><input type="radio" name="ctF" value="jpg" checked> JPEG (uma imagem por página)</label> <label><input type="radio" name="ctF" value="pdf"> PDF (um arquivo)</label></div>
+  <button class="wa" id="ctGo" type="button" style="margin-top:10px">Gerar catálogo</button><p class="fm" id="ctSt" style="margin:8px 0 0"></p><div id="ctOut"></div></div>`;
+  $('#ctGo').onclick=ctGerar}
+async function ctGerar(){
+  const o={comp:$('#ctC').checked,ener:$('#ctE').checked,acima:$('#ctA').checked?Math.max(1,+$('#ctV').value||100):null,promo:$('#ctPr').checked};
+  const fmt=document.querySelector('input[name=ctF]:checked').value,st=$('#ctSt'),out=$('#ctOut'),btn=$('#ctGo');
+  const pages=ctPages(o);if(!pages.length){st.textContent='Marque pelo menos uma opção que tenha cartas.';return}
+  btn.disabled=true;out.innerHTML='';CTR=[];
+  try{
+    st.textContent='Preparando…';const h2c=await h2cLib();const PDF=fmt==='pdf'?await pdfLib():null;
+    if(document.fonts&&document.fonts.ready)await document.fonts.ready;
+    let pdf=null;const dia=new Date().toISOString().slice(0,10);
+    for(let k=0;k<pages.length;k++){
+      st.textContent='Gerando página '+(k+1)+' de '+pages.length+'…';await new Promise(r=>setTimeout(r,30));
+      const w=document.createElement('div');w.className='ctw';w.innerHTML='<style>'+CT_CSS+'</style>'+ctHTML(pages[k]);document.body.appendChild(w);
+      await Promise.all([...w.querySelectorAll('img')].map(im=>im.decode?im.decode().catch(()=>{}):0));
+      w.querySelectorAll('.ctn').forEach(n=>{let s=17;while(n.scrollWidth>n.clientWidth&&s>10){s-=.5;n.style.fontSize=s+'px'}});
+      const cv=await h2c(w,{scale:1,backgroundColor:'#0c0a0f',useCORS:true,logging:false,width:1394,windowWidth:1394});w.remove();
+      const url=cv.toDataURL('image/jpeg',.92);
+      if(fmt==='pdf'){if(!pdf)pdf=new PDF({unit:'px',format:[cv.width,cv.height],hotfixes:['px_scaling'],orientation:cv.width>cv.height?'l':'p'});else pdf.addPage([cv.width,cv.height],cv.width>cv.height?'l':'p');pdf.addImage(url,'JPEG',0,0,cv.width,cv.height)}
+      CTR.push({url,nome:pages[k].nome+'_'+dia+'.jpg'})}
+    st.textContent='Pronto: '+pages.length+(pages.length>1?' páginas':' página')+'.';
+    let h='';
+    if(fmt==='pdf'){const blob=pdf.output('blob'),pu=URL.createObjectURL(blob),nm='catalogo_cartas_'+dia+'.pdf';
+      h+=`<div class="ctBt"><button class="wa" id="ctDlP" type="button">Baixar PDF</button><button class="wa" id="ctShP" type="button" hidden>Compartilhar</button></div>`;
+      out.innerHTML=h+'<div class="ctTh">'+CTR.map(r=>`<img src="${r.url}" alt="">`).join('')+'</div>';
+      $('#ctDlP').onclick=()=>ctDl(pu,nm);
+      const f=new File([blob],nm,{type:'application/pdf'});if(navigator.canShare&&navigator.canShare({files:[f]})){$('#ctShP').hidden=false;$('#ctShP').onclick=()=>navigator.share({files:[f],title:nm}).catch(()=>{})}
+    }else{
+      out.innerHTML=`<div class="ctBt"><button class="wa" id="ctDlA" type="button">Baixar todas (${CTR.length})</button><button class="wa" id="ctShA" type="button" hidden>Compartilhar</button></div><div class="ctTh">${CTR.map((r,k)=>`<a href="${r.url}" download="${r.nome}"><img src="${r.url}" alt=""><span>Baixar ${k+1}</span></a>`).join('')}</div>`;
+      $('#ctDlA').onclick=async()=>{for(const r of CTR){ctDl(r.url,r.nome);await new Promise(x=>setTimeout(x,450))}};
+      const fl=await Promise.all(CTR.map(async r=>new File([await (await fetch(r.url)).blob()],r.nome,{type:'image/jpeg'})));
+      if(navigator.canShare&&navigator.canShare({files:fl})){$('#ctShA').hidden=false;$('#ctShA').onclick=()=>navigator.share({files:fl}).catch(()=>{})}}
+  }catch(e){st.textContent='Não deu certo: '+(e&&e.message||e)}
+  btn.disabled=false}
+/* ===== Adicionar itens a pedido já criado ===== */
+async function pedAdd(id){
+  const o=await api2('/api/admin/pedidos?id='+encodeURIComponent(id)).catch(e=>{alert(e.message);return null});if(!o)return;
+  const own={};if(o.status==='aguardando')o.itens.forEach(l=>own[l.id]=(own[l.id]||0)+l.q);
+  const livre=i=>i.q+(own[i.id]||0);let SEL=[];
+  const m=document.createElement('div');m.className='cfM';
+  m.innerHTML=`<div class="bx" role="dialog" aria-modal="true" style="width:min(540px,94vw);max-height:90vh;overflow:auto"><h3>Adicionar itens ao pedido</h3><p class="fm" style="margin:0 0 8px">${esc(o.cliente.nome)} · ${esc(o.id)} · total atual <b>${brl(o.total)}</b></p>
+  <input id="paQ" type="search" placeholder="Busque por nome, número ou coleção" autocomplete="off" style="width:100%"><div class="moRes" id="paR" hidden></div><div id="paL" style="margin-top:8px"></div><p class="fm" id="paT" style="margin:8px 0 0"></p><p class="err" id="paE" hidden></p>
+  <div class="bt"><button type="button" id="paX">Fechar</button><button type="button" class="pr" id="paOk">Adicionar ao pedido</button></div></div>`;
+  document.body.appendChild(m);const $m=s=>m.querySelector(s);
+  const num=v=>{const n=parseFloat(String(v).replace(/\./g,'').replace(',','.'));return isNaN(n)?NaN:n};
+  function lista(){
+    $m('#paL').innerHTML=SEL.map((l,k)=>{const i=byId[l.id];return `<div style="display:flex;gap:6px;align-items:center;margin:4px 0"><span style="flex:1;font:700 13px var(--body)">${esc(i.n)}<small style="display:block;color:var(--muted);font-weight:600">${esc(moDesc(i))} · até ${livre(i)}</small></span><input data-q="${k}" type="number" min="1" max="${livre(i)}" value="${l.q}" style="width:58px" aria-label="Quantidade"><input data-p="${k}" value="${l.p.toFixed(2).replace('.',',')}" inputmode="decimal" style="width:84px" aria-label="Preço un."><button type="button" data-x="${k}" aria-label="Tirar" style="background:none;border:0;color:var(--err);font-size:20px;cursor:pointer">×</button></div>`}).join('');
+    const add=SEL.reduce((t,l)=>t+l.q*l.p,0);$m('#paT').innerHTML=SEL.length?`Itens novos: <b>${brl(add)}</b> · novo total estimado: <b>${brl(o.total+add)}</b>`:'Busque e toque na carta para adicionar.';
+    $m('#paL').querySelectorAll('[data-q]').forEach(e=>e.oninput=()=>{const l=SEL[+e.dataset.q];l.q=Math.max(1,Math.min(livre(byId[l.id]),parseInt(e.value,10)||1));lista2()});
+    $m('#paL').querySelectorAll('[data-p]').forEach(e=>e.onchange=()=>{const l=SEL[+e.dataset.p],v=num(e.value);if(v>=0)l.p=v;lista()});
+    $m('#paL').querySelectorAll('[data-x]').forEach(e=>e.onclick=()=>{SEL.splice(+e.dataset.x,1);lista()})}
+  function lista2(){const add=SEL.reduce((t,l)=>t+l.q*l.p,0);$m('#paT').innerHTML=`Itens novos: <b>${brl(add)}</b> · novo total estimado: <b>${brl(o.total+add)}</b>`}
+  $m('#paQ').oninput=()=>{const q=$m('#paQ').value.trim().toLowerCase(),box=$m('#paR');if(q.length<2){box.hidden=true;return}
+    const ws=q.split(/\s+/),r=ITEMS0.filter(i=>!isP(i)&&ws.every(w=>[i.n,i.num,i.l,i.v,i.g,i.c,colOf(i)].join(' ').toLowerCase().includes(w))).slice(0,20);
+    box.innerHTML=r.map(i=>`<button type="button" data-id="${esc(String(i.id))}">${i.img?`<img src="${i.img}" alt="">`:'<span></span>'}<span>${esc(i.n)}<small>${esc(moDesc(i))} · ${livre(i)?livre(i)+' livre':'<b style="color:var(--err)">sem estoque</b>'}</small></span><b>${brl(i.p)}</b></button>`).join('')||'<p class="fm" style="padding:10px;margin:0">Nada encontrado.</p>';box.hidden=false;
+    box.querySelectorAll('button').forEach(b=>b.onclick=()=>{const i=byId[b.dataset.id]||ITEMS0.find(x=>String(x.id)===b.dataset.id);if(!i||!livre(i))return;const ex=SEL.find(l=>String(l.id)===String(i.id));if(ex)ex.q=Math.min(livre(i),ex.q+1);else SEL.push({id:i.id,q:1,p:i.p});$m('#paQ').value='';box.hidden=true;lista()})};
+  $m('#paX').onclick=()=>m.remove();
+  $m('#paOk').onclick=async()=>{if(!SEL.length){$m('#paE').textContent='Escolha pelo menos uma carta.';$m('#paE').hidden=false;return}
+    const b=$m('#paOk');b.disabled=true;$m('#paE').hidden=true;
+    try{const n=await api2('/api/admin/pedidos',{method:'PUT',body:JSON.stringify({id:o.id,add:SEL.map(l=>({id:l.id,q:l.q,p:l.p}))})});
+      moTirar({status:o.status,itens:n.adicionados||[]});
+      m.querySelector('.bx').innerHTML=`<h3>Pedido atualizado</h3><p>Foram adicionados ${(n.adicionados||[]).reduce((t,l)=>t+l.q,0)} item(ns). Novo total: <b>${brl(n.total)}</b>.${n.avisoLink?'<br><span class="fm">'+esc(n.avisoLink)+'</span>':''}</p><div class="bt">${n.cliente&&n.cliente.telefone?'<button type="button" id="paWa">Avisar cliente no WhatsApp</button>':''}<button type="button" class="pr" id="paFim">Fechar</button></div>`;
+      $m('#paFim').onclick=()=>m.remove();const w=$m('#paWa');if(w)w.onclick=()=>window.open('https://wa.me/'+moFone(n.cliente.telefone)+'?text='+encodeURIComponent(moResumo(n,n.status==='aguardando')),'_blank');
+      loadPeds()}catch(e){$m('#paE').textContent=e.message;$m('#paE').hidden=false;b.disabled=false}};
+  lista();$m('#paQ').focus()}
+function admTab(t){$('#drawer').dataset.t=t;document.querySelectorAll('[data-at]').forEach(b=>b.setAttribute('aria-selected',b.dataset.at===t));if(t==='rec'||t==='ven')loadPeds();if(t==='cat')drawCat()}
 function moLimpa(){['moNome','moTel','moCpfC','moServ','moFrete','moCep','moBairro','moRua','moCidade','moDesc','moObs','moQ'].forEach(k=>$('#'+k).value='');MO.cli=null;moCliShow();$('#moSt').value='aguardando';$('#moShip').hidden=true;$('#moEnt').selectedIndex=0;moView(false)}
 function moView(done){$('#admDone').hidden=!done;$('#drawer .db:not(#admDone)').hidden=done;$('#drawer .df').hidden=done;$('#dTitle').innerHTML=done?'Pedido criado':'Novo pedido<span class="admTag">equipe</span>'}
 // --- cadastro: procura pelo WhatsApp ou CPF ---
@@ -852,9 +979,10 @@ function drawRec(){
   $('#admRec').innerHTML=L.length?`<p class="fm" style="margin:0 0 4px">Pedidos aguardando pagamento. As cartas ficam reservadas por ${RESH()}h; depois disso voltam para a vitrine, mesmo com o pedido aberto.</p>`+L.map(p=>{const venc=Date.parse(p.em)<lim,h=Math.max(0,Math.round((Date.parse(p.em)+RESH()*3600e3-Date.now())/3600e3));return `<div class="rec"><div class="t"><span>${esc(p.nome)}</span><span>${brl(p.total)}</span></div>
     <div class="s">${esc(p.id)} · ${new Date(p.em).toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'})} · ${p.origem==='manual'?'WhatsApp/balcão':'site'}${p.telefone?' · '+fmtTel(p.telefone):''}</div>
     <div class="s ${venc?'v':''}">${venc?'Reserva vencida: as cartas já voltaram para a vitrine':'Reservado por mais ~'+h+'h'}</div>
-    <div class="bt">${p.telefone?`<button class="w" data-lb="${esc(p.id)}">Lembrar no WhatsApp</button>`:''}<button data-pg="${esc(p.id)}">Pagou</button><button data-cx="${esc(p.id)}">Cancelar</button></div></div>`}).join(''):'<p class="fm">Nenhum pedido aguardando pagamento.</p>';
+    <div class="bt">${p.telefone?`<button class="w" data-lb="${esc(p.id)}">Lembrar no WhatsApp</button>`:''}<button data-ad="${esc(p.id)}">+ Itens</button><button data-pg="${esc(p.id)}">Pagou</button><button data-cx="${esc(p.id)}">Cancelar</button></div></div>`}).join(''):'<p class="fm">Nenhum pedido aguardando pagamento.</p>';
   const get=async id=>window.__DEMO?(window.__DEMO.pedFull||{})[id]||PEDS.find(p=>p.id===id):await api2('/api/admin/pedidos?id='+encodeURIComponent(id));
   $('#admRec').querySelectorAll('[data-lb]').forEach(b=>b.onclick=async()=>{const o=await get(b.dataset.lb);window.open('https://wa.me/'+moFone(o.cliente.telefone)+'?text='+encodeURIComponent(moResumo(o,true)),'_blank')});
+  $('#admRec').querySelectorAll('[data-ad]').forEach(b=>b.onclick=()=>pedAdd(b.dataset.ad));
   $('#admRec').querySelectorAll('[data-pg]').forEach(b=>b.onclick=async()=>{const o=await get(b.dataset.pg);await moStatus(o,'pago')});
   $('#admRec').querySelectorAll('[data-cx]').forEach(b=>b.onclick=async()=>{const o=await get(b.dataset.cx);await moStatus(o,'cancelado')});
 }
@@ -988,8 +1116,9 @@ async function moPedPdf(){const o=MO.ped;if(!o)return;const b=$('#moPdfP');b.dis
     notas:o.status==='aguardando'?[`Cartas reservadas por ${o.reservaHoras||RESH()}h aguardando o pagamento.`]:[]})}
   catch(e){alert(e.message)}finally{b.disabled=false;b.textContent='Baixar PDF do pedido'}}
 function drawAnd(){const L=PEDS.filter(p=>['pago','preparacao','enviado'].includes(p.status)).slice(0,40);const nx={pago:['preparacao','enviado','entregue'],preparacao:['enviado','entregue'],enviado:['entregue']};const BT={preparacao:'Em preparação',enviado:'Enviado',entregue:'Recebido'};
-  const box=document.createElement('div');box.innerHTML=`<h4 style="margin:14px 0 6px;font-size:15px">Pedidos em andamento <span class="fm" style="font-weight:700">(${L.length})</span></h4>`+(L.length?L.map(p=>`<div class="rec" style="margin-bottom:8px"><div class="t"><span>${esc(p.nome)}</span><span>${brl(p.total)}</span></div><div class="s">${esc(p.id)} · ${new Date(p.em).toLocaleDateString('pt-BR')} · <b class="stb ${p.status}">${STX[p.status]}</b></div><div class="bt">${nx[p.status].map(s=>`<button data-ns="${s}" data-id="${esc(p.id)}">${BT[s]}</button>`).join('')}${p.telefone?`<button class="w" data-av="${esc(p.id)}">Avisar cliente</button>`:''}</div></div>`).join(''):'<p class="fm">Nenhum pedido pago aguardando preparo, envio ou recebimento.</p>');
+  const box=document.createElement('div');box.innerHTML=`<h4 style="margin:14px 0 6px;font-size:15px">Pedidos em andamento <span class="fm" style="font-weight:700">(${L.length})</span></h4>`+(L.length?L.map(p=>`<div class="rec" style="margin-bottom:8px"><div class="t"><span>${esc(p.nome)}</span><span>${brl(p.total)}</span></div><div class="s">${esc(p.id)} · ${new Date(p.em).toLocaleDateString('pt-BR')} · <b class="stb ${p.status}">${STX[p.status]}</b></div><div class="bt">${p.status!=='enviado'?`<button data-ad="${esc(p.id)}">+ Itens</button>`:''}${nx[p.status].map(s=>`<button data-ns="${s}" data-id="${esc(p.id)}">${BT[s]}</button>`).join('')}${p.telefone?`<button class="w" data-av="${esc(p.id)}">Avisar cliente</button>`:''}</div></div>`).join(''):'<p class="fm">Nenhum pedido pago aguardando preparo, envio ou recebimento.</p>');
   $('#admVen').appendChild(box);
+  box.querySelectorAll('[data-ad]').forEach(b=>b.onclick=()=>pedAdd(b.dataset.ad));
   box.querySelectorAll('[data-ns]').forEach(b=>b.onclick=async()=>{b.disabled=true;const o=await api2('/api/admin/pedidos?id='+encodeURIComponent(b.dataset.id)).catch(()=>null);if(o)await moStatus(o,b.dataset.ns);b.disabled=false});
   box.querySelectorAll('[data-av]').forEach(b=>b.onclick=()=>{const p=PEDS.find(x=>x.id===b.dataset.av);const nm=(p.nome||'').split(' ')[0];const m={pago:'recebemos o seu pagamento',preparacao:'o seu pedido está em preparação',enviado:'o seu pedido foi enviado',entregue:'o seu pedido consta como recebido'}[p.status];window.open('https://wa.me/'+moFone(p.telefone)+'?text='+encodeURIComponent(`Olá, ${nm}! Passando para avisar que ${m} (pedido ${p.id}). Obrigado pela compra!`),'_blank')})}
 async function boot(){
